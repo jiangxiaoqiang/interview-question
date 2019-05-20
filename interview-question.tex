@@ -548,9 +548,9 @@ addtohook={%
 \node at (current page.north west)
 {\begin{tikzpicture}[remember picture,overlay]
 \node[anchor=north west,inner sep=0pt] at (0,0) {\includegraphics[width=\paperwidth]{background}}; % Background image
-\draw[anchor=north] (midpoint) node [fill=ocre!30!white,fill opacity=0.6,text opacity=1,inner sep=1cm]{\Huge\centering\bfseries\sffamily\parbox[c][][t]{\paperwidth}{\centering 开发记录 \\[15pt] % Book title
-{\Large 卷二}\\[20pt] % Subtitle
-{\large Dolphin}}}; % Author name
+\draw[anchor=north] (midpoint) node [fill=ocre!30!white,fill opacity=0.6,text opacity=1,inner sep=1cm]{\Huge\centering\bfseries\sffamily\parbox[c][][t]{\paperwidth}{\centering 面试记录 \\[15pt] % Book title
+{\Large 卷一}\\[20pt] % Subtitle
+{\large 蒋小强}}}; % Author name
 \end{tikzpicture}};
 \end{tikzpicture}
 \vfill
@@ -664,15 +664,13 @@ addtohook={%
 如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。
 Java中ClassLoader的加载采用了双亲委托机制，采用双亲委托机制加载类的时候采用如下的几个步骤：
 
-1.  当前ClassLoader首先从自己已经加载的类中查询是否此类已经加载，如果已经加载则直接返回原来已经加载的类。
+1.当前ClassLoader首先从自己已经加载的类中查询是否此类已经加载，如果已经加载则直接返回原来已经加载的类。每个类加载器都有自己的加载缓存，当一个类被加载了以后就会放入缓存，等下次加载的时候就可以直接返回了。
 
-每个类加载器都有自己的加载缓存，当一个类被加载了以后就会放入缓存，等下次加载的时候就可以直接返回了。
+2.当前ClassLoader的缓存中没有找到被加载的类的时候，委托父类加载器去加载，父类加载器采用同样的策略，首先查看自己的缓存，然后委托父类的父类去加载，一直到BootStrap ClassLoader.
 
-2.  当前classLoader的缓存中没有找到被加载的类的时候，委托父类加载器去加载，父类加载器采用同样的策略，首先查看自己的缓存，然后委托父类的父类去加载，一直到bootstrp ClassLoader.
+3.当所有的父类加载器都没有加载的时候，再由当前的类加载器加载，并将其放入它自己的缓存中，以便下次有加载请求的时候直接返回。
 
-3.  当所有的父类加载器都没有加载的时候，再由当前的类加载器加载，并将其放入它自己的缓存中，以便下次有加载请求的时候直接返回。
-
-说到这里大家可能会想，Java为什么要采用这样的委托机制？理解这个问题，我们引入另外一个关于Classloader的概念“命名空间”， 它是指要确定某一个类，需要类的全限定名以及加载此类的ClassLoader来共同确定。也就是说即使两个类的全限定名是相同的，但是因为不同的ClassLoader加载了此类，那么在JVM中它是不同的类。明白了命名空间以后，我们再来看看委托模型。采用了委托模型以后加大了不同的 ClassLoader的交互能力，比如上面说的，我们JDK本生提供的类库，比如hashmap,linkedlist等等，这些类由bootstrp 类加载器加载了以后，无论你程序中有多少个类加载器，那么这些类其实都是可以共享的，这样就避免了不同的类加载器加载了同样名字的不同类以后造成混乱。
+说到这里大家可能会想，Java为什么要采用这样的委托机制？理解这个问题，我们引入另外一个关于Classloader的概念“命名空间”， 它是指要确定某一个类，需要类的全限定名以及加载此类的ClassLoader来共同确定。也就是说即使两个类的全限定名是相同的，但是因为不同的ClassLoader加载了此类，那么在JVM中它是不同的类。明白了命名空间以后，我们再来看看委托模型。采用了委托模型以后加大了不同的 ClassLoader的交互能力，比如上面说的，我们JDK本生提供的类库，比如HashMap,LinkedList等等，这些类由BootStrap 类加载器加载了以后，无论你程序中有多少个类加载器，那么这些类其实都是可以共享的，这样就避免了不同的类加载器加载了同样名字的不同类以后造成混乱。
 
 
 \paragraph{破坏父委托模型}
@@ -721,10 +719,6 @@ public class Outer {
 
 Java枚举存储时，可以存储值或者字符串。存储ordinal值时，一个缺点是如果调整了枚举的顺序，那么已经存储的枚举数据的映射关系会被破坏。存储ordinal值好处是更节省存储空间，在数据库性能方面可能会有优势。而存储枚举的名字带来的好处是可以调整枚举顺序，在数据库中更加容易理解，不用去翻字典搞明白1代表什么，2代表什么\footnote{\url{https://stackoverflow.com/questions/2801953/how-should-i-store-an-java-enum-in-javadb?noredirect=1&lq=1}}。具体存储什么数据可以根据具体需求综合考虑，推荐存储值，毕竟现在存储空间相对来说更廉价，可读性，容易理解更加重要。
 
-
-\subsection{Java对象的引用类型及判断对象是否存活的算法}
-
-引用计数算法/可达性分析算法.但是Java语言中没有选用引用计数算法来管理内存，其中最主要的一个原因是它很难解决对象之间相互循环引用的问题。这个算法的基本思路就是通过一系列名为"GC Roots"的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径称为引用链(Reference Chain)，当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。
 
 \subsection{Java问题}
 
@@ -1029,9 +1023,14 @@ AQS(Abstract Queued Synchronizer)是JDK1.5提供的一个基于FIFO等待队列�
 
 \paragraph{创建线程的几种方式}
 
-继承Thread类，并复写run方法，创建该类对象，调用start方法开启线程。
-实现Runnable接口，复写run方法，创建Thread类对象，将Runnable子类对象传递给Thread类对象。
-创建FutureTask对象，创建Callable子类对象，复写call(相当于run)方法，将其传递给FutureTask对象（相当于一个Runnable）。线程池.
+\begin{itemize}
+\item {继承Thread类，并复写run方法，创建该类对象，调用start方法开启线程。}
+\item{实现Runnable接口，复写run方法，创建Thread类对象，将Runnable子类对象传递给Thread类对象。}
+\item{创建FutureTask对象，创建Callable子类对象，复写call(相当于run)方法，将其传递给FutureTask对象（相当于一个Runnable）。}
+\end{itemize}
+
+
+
 
 \paragraph{wait和sleep区别}
 
@@ -1335,25 +1334,20 @@ Java类文件结构如下表\footnote{参考：\url{https://en.wikipedia.org/wik
 
 \section{Java Virtual Machine}
 
-\subsection{垃圾回收(Garbage Collection)}
+\subsection{垃圾回收历史(The History of Garbage Collection)}
+
+很难想象垃圾回收这个概念在20世纪60年代都已经出现了，所提出来都处理方式过去了半个多世纪了还在沿用。John McCarthy身为Lisp之父和人工智能之父，同时，他也是GC之父。1960年，他在其论文\footnote{\url{http://www-formal.stanford.edu/jmc/recursive/node4.html\#tex2html8}}中首次发布了GC算法(作为对比，世界上第一台通用计算机“ENIAC”于1946年2月14日诞生，Lisp语言首次出现是在1958年，Unix操作系统首次发布的时间是1971年11月3日，C语言首次出现是在1972年)。而Java的前身Oak是在1990发布的，利用JVM实现了跨平台。目前有GC机制的语言有Lisp、Java、Ruby、Python、Perl、Haskell。
 
 \begin{itemize}
 \item{1959: D. Edwards实现了GC} 
-\item{1960: John McCarthy发布了初代GC算法即标记-清除算法}
+\item{1960: John McCarthy发布了初代GC算法即标记-清除(Mark Sweep)算法}
 \item{1960: George E. Collins发布了引用计数算法}
 \item{1963: Marvin L. Minsky发布了复制算法}
 \item{1996: 首次出版了Garbage Collection一书}
 \end{itemize}
 
 
-
-
-
-
-
 \subsection{在JVM中如何判断一个对象的生死状态？}
-
-GC(Garbage Collection)有着很长的历史了，最初的GC算法发布于1960年，Lisp之父John McCarthy发布的，他是一名非常有名的黑客，也是人工智能之父，同时也是GC之父。
 
 \paragraph{引用计数器算法}
 通过一系列称之为 “GC Roots” 的根对象作为起点，从这些对象开始向下搜索遍历，所有搜索过的路径称之为引用链(Reference Chain)，当一个对象到 GC Roots 没有任何一个引用链相连(对象不可达)时，证明该对象已不再被引用(失效)，此时该对象将被 GC 回收
@@ -1389,26 +1383,24 @@ GC管理的主要区域是Java堆，一般情况下只针对堆进行垃圾回�
 
 4、死亡标记与拯救
 
-\subsection{通过什么方式回收垃圾}
+\subsection{JVM垃圾回收算法}
 
 标记-清除算法 (Mark-Sweep)
 标记-整理算法 (Mark-Compact)
 复制算法 (Copying)
 分代收集算法 (Generational Collection)
 
-\subsection{JVM的垃圾算法有哪几种}
+\subsection{JVM的垃圾收集器哪几种}
 
-一共有7种。新生代3种(Serial/ParNew/Parallel Scavenge)，老年代3种(CMS/Serial Old(MSC)/Parallel Old)。
+JVM的垃圾回收算法一共有7种。新生代3种(Serial/ParNew(Parallel New)/Parallel Scavenge)，老年代3种(CMS/Serial Old(MSC\footnote{Mark Sweep Collection的缩写，不过未找到可信的出处。})/Parallel Old)，外加年轻代和老年代都会用到的G1(Garbage First)收集器。
 
-\paragraph{年轻代收集器}
-在用户的桌面应用场景中，分配给虚拟机管理的内存一般不会很大，收集几十兆甚至一两百兆的新生代（仅仅是新生代使用的内存，桌面应用基本不会再大了），停顿时间完全可以控制在几十毫秒最多一百毫秒以内，只要不频繁发生，这点停顿时间可以接收。所以，Serial收集器对于运行在Client模式下的虚拟机来说是一个很好的选择。
+\paragraph{年轻代收集器(Yong Generation Collector)}
+在用户的桌面应用场景中，分配给虚拟机管理的内存一般不会很大，收集几十兆甚至一两百兆的新生代，停顿时间完全可以控制在几十毫秒最多一百毫秒以内，只要不频繁发生，这点停顿时间可以接受。所以，Serial收集器对于运行在Client模式下的虚拟机来说是一个很好的选择，可以通过-XX:+UseSerialGC来强制指定。
 
-Parallel Scavenge收集器除了会显而易见地提供可以精确控制吞吐量的参数，还提供了一个参数-XX:+UseAdaptiveSizePolicy，这是一个开关参数，打开参数后，就不需要手工指定新生代的大小（-Xmn）、Eden和Survivor区的比例（-XX:SurvivorRatio）、晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数了，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或者最大的吞吐量，这种方式称为GC自适应的调节策略（GC Ergonomics）。自适应调节策略也是Parallel Scavenge收集器与ParNew收集器的一个重要区别。
+Parallel Scavenge\footnote{Scavenge有清除的意思。}收集器除了会显而易见地提供可以精确控制吞吐量的参数，还提供了一个参数-XX:+UseAdaptiveSizePolicy，这是一个开关参数，打开参数后，就不需要手工指定新生代的大小（-Xmn）、Eden和Survivor区的比例（-XX:SurvivorRatio）、晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数了，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或者最大的吞吐量，这种方式称为GC自适应的调节策略（GC Ergonomics）。自适应调节策略也是Parallel Scavenge收集器与ParNew收集器的一个重要区别。
 
 \paragraph{老年代收集器}
-Serial Old 是 Serial收集器的老年代版本，它同样是一个单线程收集器，使用“标记-整理”（Mark-Compact）算法。
-
-此收集器的主要意义也是在于给Client模式下的虚拟机使用。如果在Server模式下，它还有两大用途：
+Serial Old 是 Serial收集器的老年代版本，它同样是一个单线程收集器，使用“标记-整理”（Mark-Compact）算法。此收集器的主要意义也是在于给Client模式下的虚拟机使用。如果在Server模式下，它还有两大用途：
 
 在JDK1.5 以及之前版本（Parallel Old诞生以前）中与Parallel Scavenge收集器搭配使用。
 作为CMS收集器的后备预案，在并发收集发生Concurrent Mode Failure时使用。
@@ -1629,7 +1621,7 @@ noeviction
 
 BGSAVE可以在不阻塞主进程的情况下完成数据的备份。可以通过redis.conf中设置多个自动保存条件，只要有一个条件被满足，服务器就会执行BGSAVE命令。
 
-AOF持久化（Append-Only-File），与RDB持久化不同，AOF持久化是通过保存Redis服务器锁执行的写状态来记录数据库的。
+AOF持久化（Append-Only-File），与RDB\footnote{RDB(Redis Database)是Redis用来进行持久化的一种方式，是把当前内存中的数据集快照写入磁盘，也就是 Snapshot 快照（数据库中所有键值对数据）。恢复时是将快照文件直接读到内存里。}持久化不同，AOF持久化是通过保存Redis服务器锁执行的写状态来记录数据库的。
 具体来说，RDB持久化相当于备份数据库状态，而AOF持久化是备份数据库接收到的命令，所有被写入AOF的命令都是以redis的协议格式来保存的。
 在AOF持久化的文件中，数据库会记录下所有变更数据库状态的命令，除了指定数据库的select命令，其他的命令都是来自client的，这些命令会以追加(append)的形式保存到文件中。
 
@@ -1802,7 +1794,7 @@ ObjectMonitor::ObjectMonitor() {
 
 \subsubsection{Synchronized优化}
 
-早期，Synchronized属于重量级锁，效率低下，因为监视器锁(monitor)是依赖于底层的操作系统的Mutex Lock来实现的，而操作系统实现线程之间的切换时需要从用户态转换到核心态\footnote{从用户态到内核态切换过程中，Linux主要做的事：
+早期，Synchronized属于重量级锁(Heavyweight Lock)，效率低下，因为监视器锁(monitor)是依赖于底层的操作系统的Mutex Lock来实现的，而操作系统实现线程之间的切换时需要从用户态转换到核心态\footnote{从用户态到内核态切换过程中，Linux主要做的事：
 
 1：读取tr寄存器，访问TSS段
 
@@ -1814,13 +1806,12 @@ ObjectMonitor::ObjectMonitor() {
 
 5：把内核代码选择符写入CS寄存器，内核栈指针写入ESP寄存器，把内核入口点的线性地址写入EIP寄存器}，这个状态之间的转换需要相对比较长的时间\footnote{\url{https://www.cnblogs.com/justcxtoworld/p/3155741.html}}，时间成本相对较高，这也是为什么早期的synchronized效率低的原因。庆幸的是在Java 6之后Java官方对从JVM层面对synchronized较大优化，所以现在的synchronized锁效率也优化得很不错了，Java 6之后，为了减少获得锁和释放锁所带来的性能消耗(阻塞或唤醒一个Java线程需要操作系统切换CPU状态来完成，这种状态转换需要耗费处理器时间。如果同步代码块中的内容过于简单，状态转换消耗的时间有可能比用户代码执行的时间还要长)，引入了偏向锁、轻量级锁和自旋锁等概念，接下来我们将简单了解一下Java官方在JVM层面对Synchronized锁的优化。
 
+\paragraph{偏向锁(Biased Locking)}偏向锁是指一段同步代码一直被一个线程所访问，那么该线程会自动获取锁，降低获取锁的代价。当一个线程访问同步代码块并获取锁时，会在Mark Word里存储锁偏向的线程ID。在线程进入和退出同步块时不再通过CAS操作来加锁和解锁，而是检测Mark Word里是否存储着指向当前线程的偏向锁。引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径，因为轻量级锁的获取及释放依赖多次CAS原子指令，而偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令即可。引入偏向锁的主要原因是，经过研究发现，在大多数情况下，锁不仅不存在多线程竞争，而且总是由同一线程多次获得，因此为了减少同一线程获取锁的代价而引入偏向锁。但是对于锁竞争比较激烈的场合，偏向锁就失效了，因为这样场合极有可能每次申请锁的线程都是不相同的，因此这种场合下不应该使用偏向锁，否则会得不偿失，需要注意的是，偏向锁失败后，并不会立即膨胀为重量级锁，而是先升级为轻量级锁\footnote{\url{http://bigdatadecode.club/JavaSynchronizedTheory.html}}。
 
-\paragraph{偏向锁}偏向锁是指一段同步代码一直被一个线程所访问，那么该线程会自动获取锁，降低获取锁的代价。当一个线程访问同步代码块并获取锁时，会在Mark Word里存储锁偏向的线程ID。在线程进入和退出同步块时不再通过CAS操作来加锁和解锁，而是检测Mark Word里是否存储着指向当前线程的偏向锁。引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径，因为轻量级锁的获取及释放依赖多次CAS原子指令，而偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令即可。引入偏向锁的主要原因是，经过研究发现，在大多数情况下，锁不仅不存在多线程竞争，而且总是由同一线程多次获得，因此为了减少同一线程获取锁的代价而引入偏向锁。但是对于锁竞争比较激烈的场合，偏向锁就失效了，因为这样场合极有可能每次申请锁的线程都是不相同的，因此这种场合下不应该使用偏向锁，否则会得不偿失，需要注意的是，偏向锁失败后，并不会立即膨胀为重量级锁，而是先升级为轻量级锁\footnote{\url{http://bigdatadecode.club/JavaSynchronizedTheory.html}}。
-
-\paragraph{轻量级锁}
+\paragraph{轻量级锁(Lightweight Locks)}
 引入轻量级锁的主要目的是，在没有多线程竞争的前提下，减少传统的重量级锁使用操作系统互斥量产生的性能消耗(多指时间消耗)。
 
-\paragraph{自旋锁}所谓自旋锁，就是让该线程等待一段时间，不会被立即挂起，看持有锁的线程是否会很快释放锁。怎么等待呢？执行一段无意义的循环即可（自旋）。
+\paragraph{自旋锁(Spin Lock)}所谓自旋锁，就是让该线程等待一段时间，不会被立即挂起，看持有锁的线程是否会很快释放锁。怎么等待呢？执行一段无意义的循环即可（自旋）。
 自旋等待不能替代阻塞，虽然它可以避免线程切换带来的开销，但是它占用了处理器的时间。如果持有锁的线程很快就释放了锁，那么自旋的效率就非常好，反之，自旋的线程就会白白消耗掉处理的资源，它不会做任何有意义的工作，这样反而会带来性能上的浪费。所以说，自旋等待的时间（自旋的次数）必须要有一个限度，如果自旋超过了定义的时间仍然没有获取到锁，则应该被挂起。
 
 \subsection{如何保证线程顺序执行}
@@ -1916,11 +1907,11 @@ Condition条件对象
 
 \subsection{ACID/CAP/BASE}
 
-ACID：是RDBMS中遵循的事务处理基本原则，但是也是影响其性能的原因，在NoSQL是分布式数据库一般不保证ACID原则。
+ACID(Atomicity, Consistency, Isolation, Durability)：是RDBMS中遵循的事务处理基本原则，但是也是影响其性能的原因，在NoSQL是分布式数据库一般不保证ACID原则。
 
-CAP：CAP理论是针对分布式系统而言的。CAP理论的核心是：一个分布式系统不可能同时很好的满足一致性，可用性和分区容错性这三个需求，最多只能同时较好的满足两个。
+CAP (Consistency, Availability, Partition Tolerance)：CAP理论是针对分布式系统而言的。CAP理论的核心是：一个分布式系统不可能同时很好的满足一致性，可用性和分区容错性这三个需求，最多只能同时较好的满足两个。
 
-BASE:与ACID是RDBMS强一致性的四个要求对应，BASE是NoSQL通常对可用性及一致性的弱要求原则，它们的意思分别是，BASE：Basically Available（基本可用）, Soft-state（软状态/柔性事务。 "Soft state" 可以理解为"无连接"的）, Eventual
+BASE(Basically Available, Soft State, Eventual consistency):与ACID是RDBMS强一致性的四个要求对应，BASE是NoSQL通常对可用性及一致性的弱要求原则，它们的意思分别是，BASE：Basically Available（基本可用）, Soft-state（软状态/柔性事务。 "Soft state" 可以理解为"无连接"的）, Eventual
 
 \subsection{分布式事务(Distribution Transaction)}
 
@@ -2464,9 +2455,9 @@ Spring中Observer模式常用的地方是listener的实现。如ApplicationListe
 
 \section{数据库(Database)}
 
-\subsection{存储引擎}
+\subsection{MySQL存储引擎}
 
-存储引擎主要有： \paragraph{MyISAM} 
+MySQL存储引擎主要有： \paragraph{MyISAM} 
 
 如果数据表主要用来插入和查询记录，则MyISAM（但是不支持事务）引擎能提供较高的处理效率
 
@@ -2481,9 +2472,6 @@ MERGE存储引擎把一组MyISAM数据表当做一个逻辑单元来对待，让
 \end{itemize}
 
 
-
-
-
 \paragraph{Memory}
 
 MEMORY存储引擎将表中的数据存储到内存中，为查询和引用其他表数据提供快速访问。使用存在内存中的内容来创建表。每个MEMORY表只实际对应一个磁盘文件。MEMORY类型的表访问非常得快，因为它的数据是放在内存中的，并且默认使用HASH索引。但是一旦服务关闭，表中的数据就会丢失掉。 HEAP允许只驻留在内存里的临时表格。驻留在内存里让HEAP要比ISAM和MYISAM都快，但是它所管理的数据是不稳定的，而且如果在关机之前没有进行保存，那么所有的数据都会丢失。在数据行被删除的时候，HEAP也不会浪费大量的空间。HEAP表格在你需要使用SELECT表达式来选择和操控数据的时候非常有用。
@@ -2492,14 +2480,14 @@ MEMORY存储引擎将表中的数据存储到内存中，为查询和引用其�
 \paragraph{Blackhole}
 
 MySQL在5.x系列提供了Blackhole引擎–“黑洞”。其表现就像一个黑洞，只进不出，进来就消失。换句话说，任何往其中写的数据都将丢失，有点像Linux的/dev/null。
-比如一个表test的引擎是BlackHole，任何对这个表的insert都将丢失，
+比如一个表test的引擎是Blackhole，任何对这个表的insert都将丢失，
 对它的select永远返回空集，对应的数据目录下只有一个test.frm文件，且没有其他文件与之关联。关键在于，虽然其不保存数据，但对数据库的操作仍旧记录在binlog日志中。
 这就带来一个好处，可以将其作为主从复制的中介，将原来从主库中同步的操作变为从作为中介的BlackHole引擎数据库中同步。众所周知，当从库比较多的时候，所有从库都从主库load数据将加重主库的负担。但如果是从BlackHole的伪主库中同步就可以减轻主库的负担。
 
 
 \paragraph{CSV}
 
-CSV存储引擎可以将csv文件作为mysql的表进行处理。存储格式就是普通的csv文件。    适合做为数据交换的中间表（能够在服务器运行的时候，拷贝和拷出文件，可以将电子表格存储为CSV文件再拷贝到MySQL数据目录下，就能够在数据库中打开和使用。同样，如果将数据写入到CSV文件数据表中，其它web程序也可以迅速读取到数据。
+CSV存储引擎可以将csv文件作为MySQL的表进行处理。存储格式就是普通的csv文件。    适合做为数据交换的中间表（能够在服务器运行的时候，拷贝和拷出文件，可以将电子表格存储为CSV文件再拷贝到MySQL数据目录下，就能够在数据库中打开和使用。同样，如果将数据写入到CSV文件数据表中，其它web程序也可以迅速读取到数据。
 
 
 \paragraph{Performance\_Schema}
@@ -2525,7 +2513,7 @@ Performance Schema 中的表是内存表，不使用磁盘存储，在 datadir �
 
 Federate存储引擎也是mysql比较常用的存储引擎，使用它可以访问远程的mysql数据库上的表，这种引擎的作用类似于oracle数据库的dblink，以mysql5.5为例默认是不启用federated引擎的，可以使用INSTALL PLUGIN plugin\_name SONAME 'shared\_library\_name'语句动态加载。
 
- 9 InnoDB
+\paragraph{InnoDB}
 
 \subsection{InnoDB和MyISAM区别}
 
@@ -2533,27 +2521,31 @@ Federate存储引擎也是mysql比较常用的存储引擎，使用它可以访�
 
 \subsection{binlog}
 
-Mysql binlog是二进制日志文件，用于记录mysql的数据更新或者潜在更新(比如DELETE语句执行删除而实际并没有符合条件的数据)，在mysql主从复制中就是依靠的binlog。可以通过语句“show binlog events in 'binlogfile'”来查看binlog的具体事件类型。binlog记录的所有操作实际上都有对应的事件类型的，MySQL binlog的三种工作模式：
+MySQL binlog是二进制日志文件，用于记录mysql的数据更新或者潜在更新(比如DELETE语句执行删除而实际并没有符合条件的数据)，在mysql主从复制中就是依靠的binlog。可以通过语句“show binlog events in 'binlogfile'”来查看binlog的具体事件类型。binlog记录的所有操作实际上都有对应的事件类型的，MySQL binlog的三种工作模式：
+
 （1）Row level（用到MySQL的特殊功能如存储过程、触发器、函数，又希望数据最大化一直则选择Row模式，我们公司选择的是row）
-　　简介：日志中会记录每一行数据被修改的情况，然后在slave端对相同的数据进行修改。
-　　优点：能清楚的记录每一行数据修改的细节
-　　缺点：数据量太大
+简介：日志中会记录每一行数据被修改的情况，然后在slave端对相同的数据进行修改。
+优点：能清楚的记录每一行数据修改的细节
+缺点：数据量太大
+
 （2）Statement level（默认）
-　　简介：每一条被修改数据的sql都会记录到master的bin-log中，slave在复制的时候sql进程会解析成和原来master端执行过的相同的sql再次执行。在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等
-　　优点：解决了 Row level下的缺点，不需要记录每一行的数据变化，减少bin-log日志量，节约磁盘IO，提高新能
-　　缺点：容易出现主从复制不一致
+简介：每一条被修改数据的sql都会记录到master的bin-log中，slave在复制的时候sql进程会解析成和原来master端执行过的相同的sql再次执行。在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等
+优点：解决了 Row level下的缺点，不需要记录每一行的数据变化，减少bin-log日志量，节约磁盘IO，提高新能
+缺点：容易出现主从复制不一致
+
 （3）Mixed（混合模式）
-　　简介：结合了Row level和Statement level的优点，同时binlog结构也更复杂。
+简介：结合了Row level和Statement level的优点，同时binlog结构也更复杂。
 
 \subsection{binlog文件格式}
 
-binlog格式分为statement，row以及mixed三种，mysql5.5默认的还是statement模式，当然我们在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等，一般推荐的是mixed格式。暂且不管这三种格式的区别，看看binlog的存储格式是什么样的。binlog是一个二进制文件集合，当然除了我们看到的mysql-bin.xxxxxx这些binlog文件外，还有个binlog索引文件mysql-bin.index。如官方文档中所写，binlog格式如下：
+binlog格式分为statement，row以及mixed三种，MySQL 5.5默认的还是statement模式，当然我们在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等，一般推荐的是mixed格式。暂且不管这三种格式的区别，看看binlog的存储格式是什么样的。binlog是一个二进制文件集合，当然除了我们看到的mysql-bin.xxxxxx这些binlog文件外，还有个binlog索引文件mysql-bin.index。如官方文档中所写，binlog格式如下：
 
-binlog文件以一个值为0Xfe62696e的魔数开头，这个魔数对应0xfe 'b''i''n'。
-binlog由一系列的binlog event构成。每个binlog event包含header和data两部分。
-
-header部分提供的是event的公共的类型信息，包括event的创建时间，服务器等等。
-data部分提供的是针对该event的具体信息，如具体数据的修改。
+\begin{itemize}
+\item{binlog文件以一个值为0Xfe62696e的魔数开头，这个魔数对应0xfe 'b''i''n'。}
+\item{binlog由一系列的binlog event构成。每个binlog event包含header和data两部分。}
+\item{header部分提供的是event的公共的类型信息，包括event的创建时间，服务器等等。}
+\item{data部分提供的是针对该event的具体信息，如具体数据的修改。}
+\end{itemize}
 
 
 \subsection{分库分表方案}
