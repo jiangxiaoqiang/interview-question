@@ -1,0 +1,18 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{函数组件和类组件的区别}
+
+在 React 中，类组件就是基于ES6语法，通过继承 React.component 得到的组件\footnote{参见：\url{https://github.com/jappp/Blog/issues/12}}。函数组件也称无状态组件，顾名思义就是以函数形态存在的 React 组件\footnote{参见：\url{https://overreacted.io/zh-hans/how-are-function-components-different-from-classes/}}。
+
+\begin{enumerate}
+    \item{类组件有生命周期，函数组件没有，不过有了Hooks之后，函数组件也有了生命周期}
+    \item{类组件需要继承 Class，函数组件不需要}
+    \item{类组件可以获取实例化的 this，并且基于 this 做各种操作，函数组件不行}
+    \item {类组件内部可以定义并维护 state， 函数组件都称为无状态了，那肯定不行。不过有了Hooks之后，函数组件也可以维护state} 
+\end{enumerate}
+
+看上去类组件的功能包含了方方面面，大而全，大而全一定好吗？肯定不尽其然，大家也能知道类组件的内部逻辑容易和组件黏在一起，难以拆分和复用；大而全代表学习成本高，容易写出垃圾代码。函数组件相比较类组件，优点是更轻量与灵活，便于逻辑的拆分复用。函数组件更符合 React 团队的设计理念，并且代码易于拆分和复用，用脚投票都知道 React 团队为什么要推出 Hooks 来扩展函数组件的功能，并且倡导大家使用函数组件了。
+
+\end{document}

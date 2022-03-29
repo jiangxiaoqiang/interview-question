@@ -1,0 +1,29 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{反射的实现原理}
+
+反射在Java中可以直接调用，不过最终调用的仍是native方法。Class.forName可以通过包名寻找Class对象，比如Class.forName("java.lang.String")。在JDK的源码实现中，可以发现最终调用的是native方法forName0()，它在JVM中调用的实际是findClassFromClassLoader()。
+
+\begin{lstlisting}[language=Java]
+private static native Class<?> forName0(String name, boolean initialize,
+                                            ClassLoader loader,
+                                            Class<?> caller)
+        throws ClassNotFoundException;
+\end{lstlisting}
+
+网上许多分析文章写到这里就到此为止了。尝试调试Hotspot的原始码，看看反射到底是怎么实现的。首先下载JDK11 Hotspot的源代码：
+
+\begin{lstlisting}[language=Bash]
+wget -c https://hg.openjdk.java.net/jdk-updates/jdk11u/archive/tip.tar.gz    
+\end{lstlisting}
+
+
+
+
+
+
+
+
+\end{document}

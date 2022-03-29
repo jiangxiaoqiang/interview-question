@@ -1,0 +1,47 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsubsection{Redis的数据淘汰机制}
+
+Redis的数据驱逐策略在使用达到内存上限时应用。Redis的数据淘汰机制可以从官方文档https://redis.io/docs/manual/eviction/查看。
+
+noeviction
+
+禁止驱逐数据，永远不过期，仅对写操作返回一个错误，默认为该项
+
+allkeys-random
+
+从数据集（server.db[i].dict）中任意选择数据淘汰
+
+allkeys-lfu(least frequently used (LFU) keys)
+
+从数据集（server.db[i].dict）中挑选最近最少频次使用的数据淘汰
+
+volatile-lru(Least Recently Used)
+
+从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰
+
+volatile-random
+
+从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰
+
+volatile-ttl
+
+从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰
+
+
+Redis有了LRU之后，为什么还需要LFU呢？因为Redis作者发现就算提高采样数量或者pool的大小，也无法再提高缓存命中率，而LFU算法能起到更好的效果。
+
+LFU近似于LRU，它使用一个概率计数器（morris counter），用来估计访问频率；counter的计数有两个特点，1.随着访问次数的增加，counter的计数会越来越缓慢（counter最大值为255），2.随着时间的流逝，counter会逐渐衰减。淘汰时也会有一个pool，也采取与LRU类似的方式，但是排序是按照计数从大到小排列（越靠后越容易被淘汰）
+为什么Redis不采用标准LRU算法：
+
+标准LRU算法为了达到查找和删除的时间复杂度一般采用hash表和双向链表结合的数据结构。这样会增加额外的内存占用。
+
+\end{document}
+
+
+
+
+
+

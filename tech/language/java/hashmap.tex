@@ -1,0 +1,12 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{HashMap原理}
+
+HashMap是由数组+链表组成；寻址容易，插入和删除容易。（存储单元数组Entry[]，数组里面包含链表）HashMap其实也是由一个线性的数组实现的。所以可以理解为其存储数据的容器就是一个线性容器；HashMap里面有一个内部静态类Entry，其重要的属性有key，value，next，从属性key，value 就可以很明显的看出来 Entry就是HashMap键值对实现的一个基础bean；也就是说HashMap的基础就是一个线性数组，这个数组就是Entry[]，Map里面的内容都保存在Entry[]中；
+
+什么情况下需要重写equals或者hashCode呢？前面说到了，HashMap的很多函数要基于equal()函数和hashCode()函数。hashCode()用来定位要存放的位置，equal()用来判断是否相等。
+那么，相等的概念是什么？
+Object版本的equal只是简单地判断是不是同一个实例。但是有的时候，我们想要的的是逻辑上的相等。比如有一个学生类student，有一个属性studentID，只要studentID相等，不是同一个实例我们也认为是同一学生。当我们认为判定equals的相等应该是逻辑上的相等而不是只是判断是不是内存中的同一个东西的时候，就需要重写equal()。而涉及到HashMap的时候，重写了equals()，就需要重写hashCode()。
+\end{document}
