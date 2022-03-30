@@ -1,0 +1,17 @@
+
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Spring AOP原理}
+
+AOP的拦截功能是由java中的动态代理来实现的。在目标类的基础上增加切面逻辑，生成增强的目标类（该切面逻辑或者在目标类函数执行之前，或者目标类函数执行之后，或者在目标类函数抛出异常时候执行。不同的切入时机对应不同的Interceptor的种类，如BeforeAdviseInterceptor，AfterAdviseInterceptor以及ThrowsAdviseInterceptor等）。JDK动态代理：java.lang.reflect.InvocationHandler。该动态代理是基于接口的动态代理，所以并没有一个原始方法的调用过程，整个方法都是被拦截的。通过cglib动态创建类进行动态代理。org.springframework.cglib.proxy包下的原生接口，同net.sf.cglib.proxy包下的接口，都是源自cglib库。Spring内部的cglib动态代理使用了这种方式。org.aopalliance的拦截体系
+该包是AOP组织下的公用包，用于AOP中方法增强和调用。相当于一个jsr标准，只有接口和异常。在AspectJ、Spring等AOP框架中使用。JDK的动态代理依靠接口实现，如果有些类并没有实现接口，则不能使用JDK代理。这个时候就需要使用Cglib在字节码上做代理。动态代理的底层是通过Java的反射实现，Java反射通过JVM的native方法实现。
+
+
+\end{document}
+
+
+
+
+

@@ -1,0 +1,27 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{线程间通信}
+
+\textbf{锁机制：包括互斥锁、条件变量、读写锁}互斥锁提供了以排他方式防止数据结构被并发修改的方法。 读写锁允许多个线程同时读共享数据，而对写操作是互斥的。 条件变量可以以原子的方式阻塞进程，直到某个特定条件为真为止。对条件的测试是在互斥锁的保护下进行的。条件变量始终与互斥锁一起使用。
+
+\textbf{wait/notify 等待}等待通知机制是基于wait和notify方法来实现的，在一个线程内调用该线程锁对象的wait方法，线程将进入等待队列进行等待直到被通知或者被唤醒。
+
+\textbf{Volatile 内存共享}volatile有两大特性，一是可见性，二是有序性，禁止指令重排序，其中可见性就是可以让线程之间进行通信。
+volatile语义保证线程可见性有两个原则保证
+所有volatile修饰的变量一旦被某个线程更改，必须立即刷新到主内存
+所有volatile修饰的变量在使用之前必须重新读取主内存的值
+
+
+CountDownLatch 并发工具
+
+CyclicBarrier 并发工具
+
+信号量机制(Semaphore)
+
+信号机制(Signal)
+
+\end{document}
+
+

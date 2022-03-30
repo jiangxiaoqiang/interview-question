@@ -347,19 +347,6 @@ TreeMap 是通过实现 SortMap 接口，能够把它保存的键值对根据 ke
 
 CopyOnWriteArrayList这是一个ArrayList的线程安全的变体，其原理大概可以通俗的理解为:初始化的时候只有一个容器，很常一段时间，这个容器数据、数量等没有发生变化的时候，大家(多个线程)，都是读取(假设这段时间里只发生读取的操作)同一个容器中的数据，所以这样大家读到的数据都是唯一、一致、安全的，但是后来有人往里面增加了一个数据，这个时候CopyOnWriteArrayList底层实现添加的原理是先copy出一个容器(可以简称副本)，再往新的容器里添加这个新的数据，最后把新的容器的引用地址赋值给了之前那个旧的的容器地址，但是在添加这个数据的期间，其他线程如果要去读取数据，仍然是读取到旧的容器里的数据。CopyOnWriteArrayList适合使用在读操作远远大于写操作的场景里，比如缓存。
 
-\paragraph{进程间的通信方式}
-
-\begin{enumerate}
-\item {管道( pipe)：管道是一种半双工的通信方式，数据只能单向流动，而且只能在具有亲缘关系的进程间使用。进程的亲缘关系通常是指父子进程关系。}
-\item{有名管道 (named pipe) ： 有名管道也是半双工的通信方式，但是它允许无亲缘关系进程间的通信。}
-\item{信号量( semophore ) ： 信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。}
-\item{消息队列( message queue ) ： 消息队列是由消息的链表，存放在内核中并由消息队列标识符标识。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点。}
-\item{信号 ( sinal ) ： 信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生。}
-\item{共享内存( shared memory ) ：共享内存就是映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式，它是针对其他进程间通信方式运行效率低而专门设计的。它往往与其他通信机制，如信号量，配合使用，来实现进程间的同步和通信。}
-\item{套接字( socket ) ： 套解口也是一种进程间通信机制，与其他通信机制不同的是，它可用于不同机器间的进程通信。}
-\end{enumerate}
-
-
 \paragraph{ReentrantLock以及AQS实现原理}
 
 ReentrantLock是可重入锁，什么是可重入锁呢？可重入锁就是当前持有该锁的线程能够多次获取该锁，无需等待。可重入锁是如何实现的呢？这要从ReentrantLock的一个内部类Sync的父类说起，Sync的父类是AbstractQueuedSynchronizer（后面简称AQS）。
@@ -384,25 +371,6 @@ AQS(Abstract Queued Synchronizer)是JDK1.5提供的一个基于FIFO等待队列�
 \paragraph{wait和sleep区别}
 
 sleep是线程类(Thread)的方法，sleep不会交出任何已获得的对象锁.wait是Object类的方法，wait会交出调用wait对象的对象锁。而且wait存在notify方法来唤醒调用wait的线程，这个是sleep没有的。
-
-\paragraph{Java内存模型(Java Memory Model)}
-
-根据JVM虚拟机规范，运行时数据区通常包括这几个部分：程序计数器(Program Counter Register)、Java栈(VM Stack)、本地方法栈(Native Method Stack)、方法区(Method Area)、堆(Heap)。Java栈中存放的是一个个的栈帧，每个栈帧对应一个被调用的方法，在栈帧中包括局部变量表(Local Variables)、操作数栈(Operand Stack)、指向当前方法所属的类的运行时常量池（运行时常量池的概念在方法区部分会谈到）的引用(Reference to runtime constant pool)、方法返回地址(Return Address)和一些额外的附加信息。当线程执行一个方法时，就会随之创建一个对应的栈帧，并将建立的栈帧压栈。当方法执行完毕之后，便会将栈帧出栈。\textbf{程序计数器(Program Counter Register)}是一个记录着当前线程所执行的字节码的行号指示器。JVM的多线程是通过CPU时间片轮转（即线程轮流切换并分配处理器执行时间）算法来实现的。也就是说，某个线程在执行过程中可能会因为时间片耗尽而被挂起，而另一个线程获取到时间片开始执行。当被挂起的线程重新获取到时间片的时候，它要想从被挂起的地方继续执行，就必须知道它上次执行到哪个位置，在JVM中，通过程序计数器来记录某个线程的字节码执行位置。因此，程序计数器是具备线程隔离的特性，也就是说，每个线程工作时都有属于自己的独立计数器。\textbf{方法区(Method Area)}在JVM中也是一个非常重要的区域，它与堆一样，是被线程共享的区域。在方法区中，存储了每个类的信息（包括类的名称、方法信息、字段信息）、静态变量、常量以及编译器编译后的代码等。\textbf{虚拟机栈(VM Stack)}：每个线程有一个私有的栈，随着线程的创建而创建。栈里面存着的是一种叫“栈帧”的东西，每个方法会创建一个栈帧，栈帧中存放了局部变量表（基本数据类型和对象引用）、操作数栈、方法出口等信息。栈的大小可以固定也可以动态扩展。当栈调用深度大于JVM所允许的范围，会抛出StackOverflowError的错误.
-
-\tikzstyle{heap} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
-\tikzstyle{heapshare} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
-\tikzstyle{heapindependent} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
-\tikzstyle{methodarea} = [rectangle, rounded corners, minimum width=4cm, minimum height=2cm,text centered, draw=black, fill=yellow!30]
-\tikzstyle{javaheap} = [rectangle, rounded corners, minimum width=4cm, minimum height=2cm,text centered, draw=black, fill=yellow!30]
-\begin{tikzpicture}
-\node at (4, 0) [heap, draw=red!50, fill=red!20, text=red!70] {虚拟机栈(VM Stack)};
-\node at (8, 0) [heap, draw=red!50, fill=red!20, text=red!70,text width=3cm] {本地方法栈 (Native Method Stack)};
-\node at (0, 0) [heap, draw=red!50, fill=red!20, text=red!70,text width=3.5cm] {程序计数器(Program Counter Register)};
-\node at (0, -2) [javaheap, draw=red!50, fill=yellow!30, text=red!70] {堆(Heap)};
-\node at (5, -2) [methodarea, draw=red!50, fill=yellow!30, text=red!70] {方法区(Method Area)};
-\end{tikzpicture}
-
-注意，虚拟机规范并不是一成不变的，Oracle在发布新的JAVA版本时，可能会对JVM做一定的优化和改进，例如在JDK8的版本中，方法区被移除，取而代之的是metaspace（元数据空间）。JVM中的堆(Heap)，一般分为三大部分：新生代、老年代、永久代：新生代又分为 Eden区、ServivorFrom、ServivorTo三个区。Eden区：Java新对象的出生地（如果新创建的对象占用内存很大，则直接分配到老年代）。当Eden区内存不够的时候就会触发MinorGC，对新生代区进行一次垃圾回收。ServivorTo：保留了一次MinorGC过程中的幸存者。ServivorFrom：上一次GC的幸存者，作为这一次GC的被扫描者。
 
 
 
@@ -799,10 +767,7 @@ Spring 中解决循环依赖只对单例有效，而对于 prototype 的 bean，
 \end{enumerate}
 
 
-\subsection{Spring AOP原理}
 
-AOP的拦截功能是由java中的动态代理来实现的。在目标类的基础上增加切面逻辑，生成增强的目标类（该切面逻辑或者在目标类函数执行之前，或者目标类函数执行之后，或者在目标类函数抛出异常时候执行。不同的切入时机对应不同的Interceptor的种类，如BeforeAdviseInterceptor，AfterAdviseInterceptor以及ThrowsAdviseInterceptor等）。JDK动态代理：java.lang.reflect.InvocationHandler。该动态代理是基于接口的动态代理，所以并没有一个原始方法的调用过程，整个方法都是被拦截的。通过cglib动态创建类进行动态代理。org.springframework.cglib.proxy包下的原生接口，同net.sf.cglib.proxy包下的接口，都是源自cglib库。Spring内部的cglib动态代理使用了这种方式。org.aopalliance的拦截体系
-该包是AOP组织下的公用包，用于AOP中方法增强和调用。相当于一个jsr标准，只有接口和异常。在AspectJ、Spring等AOP框架中使用。JDK的动态代理依靠接口实现，如果有些类并没有实现接口，则不能使用JDK代理。这个时候就需要使用Cglib在字节码上做代理。动态代理的底层是通过Java的反射实现，Java反射通过JVM的native方法实现。
 
 
 \subsection{MyBatis的一级缓存二级缓存}
