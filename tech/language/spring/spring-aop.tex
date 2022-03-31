@@ -5,9 +5,41 @@
 
 \subsection{Spring AOP原理}
 
-AOP的拦截功能是由java中的动态代理来实现的。在目标类的基础上增加切面逻辑，生成增强的目标类（该切面逻辑或者在目标类函数执行之前，或者目标类函数执行之后，或者在目标类函数抛出异常时候执行。不同的切入时机对应不同的Interceptor的种类，如BeforeAdviseInterceptor，AfterAdviseInterceptor以及ThrowsAdviseInterceptor等）。JDK动态代理：java.lang.reflect.InvocationHandler。该动态代理是基于接口的动态代理，所以并没有一个原始方法的调用过程，整个方法都是被拦截的。通过cglib动态创建类进行动态代理。org.springframework.cglib.proxy包下的原生接口，同net.sf.cglib.proxy包下的接口，都是源自cglib库。Spring内部的cglib动态代理使用了这种方式。org.aopalliance的拦截体系
-该包是AOP组织下的公用包，用于AOP中方法增强和调用。相当于一个jsr标准，只有接口和异常。在AspectJ、Spring等AOP框架中使用。JDK的动态代理依靠接口实现，如果有些类并没有实现接口，则不能使用JDK代理。这个时候就需要使用Cglib在字节码上做代理。动态代理的底层是通过Java的反射实现，Java反射通过JVM的native方法实现。
+AOP(Aspect Orient Programming)的拦截功能是由Java中的动态代理(Dynamic Proxy)来实现的。代理类在程序运行时创建的代理方式被成为动态代理，也就是说，这种情况下，代理类并不是在Java代码中定义的，而是在运行时根据我们在Java代码中的“指令”动态生成的。相比于静态代理， 动态代理的优势在于可以很方便的对代理类的函数进行统一的处理，而不用修改每个代理类的函数。
 
+​ 相比于静态代理来说，动态代理更加灵活。我们不需要针对每个目标类都单独创建一个代理类，并且也不需要我们必须实现接口，我们可以直接代理实现类( CGLIB 动态代理机制)。
+
+​ 动态代理其实是一种方便运行时候动态的处理代理方法的调用机制，通过代理可以让调用者和实现者之间解耦。
+
+​ 从 JVM 角度来说，动态代理是在运行时动态生成类字节码，并加载到 JVM 中的。JDK动态代理主要是基于反射，使用反射解析目标对象的属性、方法等
+
+根据解析的内容生成proxy.class，说白了就是把要生成的class按照字符串的形式拼接，最终通过ClassLoader加载。JDK 动态代理有一个最致命的问题是只能代理实现了接口的类。
+
+​ CGLIB是一个基于ASM的字节码生成库，它允许我们在运行时对字节码进行修改和动态生成。CGLIB 通过继承方式实现代理。很多知名的开源框架都使用到了CGLIB， 例如 Spring 中的 AOP 模块中：如果目标对象实现了接口，则默认采用 JDK 动态代理，否则采用 CGLIB 动态代理。
+
+​ CGLIB是针对类来实现代理的，他的原理是对代理的目标类生成一个子类，并覆盖其中方法实现增强，因为底层是基于创建被代理类的一个子类，所以它避免了JDK动态代理类的缺陷。AOP的源码中用到了两种动态代理来实现拦截切入功能：jdk动态代理和cglib动态代理。两种方法同时存在，各有优劣。 jdk动态代理是由java内部的反射机制来实现的，cglib动态代理底层则是借助asm来实现的。 总的来说，反射机制在生成类的过程中比较高效，执行时候通过反射调用委托类接口方法比较慢；而asm在生成类之后的相关代理类执行过程中比较高效（可以通过将asm生成的类进行缓存，这样解决asm生成类过程低效问题）。 还有一点必须注意：jdk动态代理的应用前提，必须是委托类基于统一的接口。如果没有上述前提，jdk动态代理不能应用。 由此可以看出，jdk动态代理有一定的局限性，cglib这种第三方类库实现的动态代理应用更加广泛，且在效率上更有优势。
+
+​ 实现AOP关键特点是定义好两个角色 切点 和 切面 。 代理模式中被代理类 委托类处于切点角色，需要添加的其他比如 校验逻辑，事务，审计逻辑 属于非功能实现逻辑通过 切面类定义的方法插入进去。
+
+在目标类的基础上增加切面逻辑，生成增强的目标类（该切面逻辑或者在目标类函数执行之前，或者目标类函数执行之后，或者在目标类函数抛出异常时候执行。不同的切入时机对应不同的Interceptor的种类，如BeforeAdviseInterceptor，AfterAdviseInterceptor以及ThrowsAdviseInterceptor等）。JDK动态代理：java.lang.reflect.InvocationHandler。该动态代理是基于接口的动态代理，所以并没有一个原始方法的调用过程，整个方法都是被拦截的。通过Cglib动态创建类进行动态代理。org.springframework.cglib.proxy包下的原生接口，同net.sf.cglib.proxy包下的接口，都是源自cglib库。Spring内部的cglib动态代理使用了这种方式。org.aopalliance的拦截体系
+该包是AOP组织下的公用包，用于AOP中方法增强和调用。相当于一个jsr标准，只有接口和异常。在AspectJ、Spring等AOP框架中使用。JDK的动态代理依靠接口实现，如果有些类并没有实现接口，则不能使用JDK代理。这个时候就需要使用Cglib在字节码上做代理。动态代理的底层是通过Java的反射实现，Java反射通过JVM的native方法实现。Spring提供了两种方式来生成代理对象: JDKProxy和Cglib，具体使用哪种方式生成由AopProxyFactory根据AdvisedSupport对象的配置来决定。默认的策略是如果目标类是接口，则使用JDK动态代理技术，否则使用Cglib来生成代理。
+
+
+AOP使用场景
+AOP用来封装横切关注点，具体可以在下面的场景中使用:
+
+Authentication 权限
+Caching 缓存
+Context passing 内容传递
+Error handling 错误处理
+Lazy loading　懒加载
+Debugging　　调试
+logging, tracing, profiling and monitoring　记录跟踪　优化　校准
+Performance optimization　性能优化
+Persistence　　持久化
+Resource pooling　资源池
+Synchronization　同步
+Transactions 事务
 
 \end{document}
 

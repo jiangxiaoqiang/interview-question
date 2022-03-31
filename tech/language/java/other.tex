@@ -33,54 +33,9 @@
 
 \section{Java}
 
-\subsection{双亲委托模型(Parent Delegation Model)}
-
-双亲委托模型翻译成“父委托模型”或“父委派模型”更加妥当。
-如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。
-Java中ClassLoader的加载采用了双亲委托机制，采用双亲委托机制加载类的时候采用如下的几个步骤：
-
-1.当前ClassLoader首先从自己已经加载的类中查询是否此类已经加载，如果已经加载则直接返回原来已经加载的类。每个类加载器都有自己的加载缓存，当一个类被加载了以后就会放入缓存，等下次加载的时候就可以直接返回了。
-
-2.当前ClassLoader的缓存中没有找到被加载的类的时候，委托父类加载器去加载，父类加载器采用同样的策略，首先查看自己的缓存，然后委托父类的父类去加载，一直到BootStrap ClassLoader.
-
-3.当所有的父类加载器都没有加载的时候，再由当前的类加载器加载，并将其放入它自己的缓存中，以便下次有加载请求的时候直接返回。
-
-说到这里大家可能会想，Java为什么要采用这样的委托机制？理解这个问题，我们引入另外一个关于Classloader的概念“命名空间”， 它是指要确定某一个类，需要类的全限定名以及加载此类的ClassLoader来共同确定。也就是说即使两个类的全限定名是相同的，但是因为不同的ClassLoader加载了此类，那么在JVM中它是不同的类。明白了命名空间以后，我们再来看看委托模型。采用了委托模型以后加大了不同的 ClassLoader的交互能力，比如上面说的，我们JDK本生提供的类库，比如HashMap,LinkedList等等，这些类由BootStrap 类加载器加载了以后，无论你程序中有多少个类加载器，那么这些类其实都是可以共享的，这样就避免了不同的类加载器加载了同样名字的不同类以后造成混乱。
-
-
-\paragraph{破坏父委托模型}
-
-继承ClassLoader覆盖loadClass方法。原顺序第一是findLoadedClass，第二步委托parent加载器加载（这里注意bootstrap加载器的parent为null)。自行加载打破委派机制要做的就是打乱2和3的顺序，通过类名筛选自己要加载的类，其他的委托给parent加载器。
-
-\subsection{Java类加载顺序}
-
-加载->链接（验证+准备+解析）->初始化（使用前的准备）->使用->卸载
-
-
-\subsection{内部类}
-
-一般来说，内部类继承自某个类或实现某个接口，内部类的代码操作创建其的外围类的对象。所以你可以认为内部类提供了某种进入其外围类的窗口。如果没有内部类提供的可以继承多个具体的或抽象的类的能力，一些设计与编程问题就很难解决。 从这个角度看，内部类使得多重继承的解决方案变得完整。接口解决了部分问题，而内部类有效地实现了"多重继承"。内部类可以分为：静态内部类（嵌套类）和非静态内部类。非静态内部类又可以分为：成员内部类、方法内部类、匿名内部类。成员内部类：
-
-\begin{lstlisting}[language=Java]
-/**
- * @author jiangtingqiang@gmail.com
- * @create 2019-05-11-19:16
- */
-public class Outer {
-    public class Inner{
-        // 实例化方法一
-        Outer.Inner innerInstance = new Outer().new Inner();
-        // 实例化方法二
-        Outer outer = new Outer();
-        Outer.Inner getInnerInstance1 = outer.new Inner();
-    }
-}
-\end{lstlisting}
-
-
 \subsection{Java枚举存储}
 
-Java枚举存储时，可以存储值或者字符串。存储ordinal值时，一个缺点是如果调整了枚举的顺序，那么已经存储的枚举数据的映射关系会被破坏。存储ordinal值好处是更节省存储空间，在数据库性能方面可能会有优势。而存储枚举的名字带来的好处是可以调整枚举顺序，在数据库中更加容易理解，不用去翻字典搞明白1代表什么，2代表什么\footnote{\url{https://stackoverflow.com/questions/2801953/how-should-i-store-an-java-enum-in-javadb?noredirect=1&lq=1}}。具体存储什么数据可以根据具体需求综合考虑，推荐存储值，毕竟现在存储空间相对来说更廉价，可读性，容易理解更加重要。
+ordinal 用于获取当前枚举在定义时的索引， 从 0 开始 依次累加，当做一些状态存储时，使用状态的索引顺序来代表莫一个状态，例如 一个枚举中定义了 oneDay, twoDay, threedDay 使用 ordinal 获取时分别值为 0，1，2 即存储的 0，1，2 分别代表了上面的三个枚举。Java枚举存储时，可以存储值或者字符串。存储ordinal值时，一个缺点是如果调整了枚举的顺序，那么已经存储的枚举数据的映射关系会被破坏。存储ordinal值好处是更节省存储空间，在数据库性能方面可能会有优势。而存储枚举的名字带来的好处是可以调整枚举顺序，在数据库中更加容易理解，不用去翻字典搞明白1代表什么，2代表什么\footnote{\url{https://stackoverflow.com/questions/2801953/how-should-i-store-an-java-enum-in-javadb?noredirect=1&lq=1}}。具体存储什么数据可以根据具体需求综合考虑，推荐存储值，毕竟现在存储空间相对来说更廉价，可读性，容易理解更加重要。
 
 
 \subsection{Java问题}
@@ -123,6 +78,12 @@ public static void main(String[] args)  {
 }
 \end{lstlisting}
 
+如何避免精度问题？在使用的时候，有两种方法：
+
+使用new BigDecimal(String);
+使用BigDecimal.valuOf（Double）；
+
+即先转成字符串再转成BigDecimal。BigDecimal.valueOf(double)其实就等同于new BigDecimal(String)。
 
 \paragraph{Java栈溢出(StackOverflowError)}
 
@@ -188,18 +149,23 @@ Code:
 	\end{tikzpicture}
 \end{figure}
 
-\paragraph{说说Treemap和HashMap的区别}
 
-HashMap是基于散列表实现的，时间复杂度平均能达到O(1)。 TreeMap基于红黑树（一种自平衡二叉查找树）实现的，时间复杂度平均能达到O(log n)。TreeMap：适用于按自然顺序或自定义顺序遍历键(key)。HashMap、TreeMap都继承AbstractMap抽象类；TreeMap实现SortedMap接口，所以TreeMap是有序的！HashMap是无序的.
-
-
-\paragraph{注解原理}
-
-注解本质上是继承了 Annotation 接口的接口，而当你通过反射，也就是我们这里的 getAnnotation 方法去获取一个注解类实例的时候，其实 JDK 是通过动态代理机制生成一个实现我们注解（接口）的代理类。
 
 \paragraph{Long比较}
 
-Long中有一个静态的内部类LongCache，专门用于缓存-128至127之间的值，一共256个元素。
+如果Long的值在[-127,128]之间，用“==”判断是否相等是没问题的，如果不在这个区间，是不能用“==”的，原因如下源码解释：
+
+\begin{lstlisting}[language=Java]
+public static Long valueOf(long l) {
+    final int offset = 128;
+    if (l >= -128 && l <= 127) { // will cache
+        return LongCache.cache[(int)l + offset];
+    }
+    return new Long(l);
+}
+\end{lstlisting}
+
+如果不在[-127,128]之间，则会new一个新对象，自然“==”两个不同的对象，其结果必然是false了。Long中有一个静态的内部类LongCache，专门用于缓存-128至127之间的值，一共256个元素。
 如果仅仅是缓存下来而不去使用那么就没有任何意义。valueOf(long l)就是使缓存派上用场的方法，它会判断传入的参数是否在-128-127之间，如果是则直接从缓存中返回对应的引用，否则新创建一个Long的实例。JVM具有跨平台性因此long在32位和64位机下基本数据类型占字节数是一致的，不过要注意long在32位机器上的赋值操作不是原子性的。
 
 \begin{lstlisting}[language=Java]
@@ -261,6 +227,10 @@ var1.put("hello", "你好");
 
 既然泛型擦除了类型，那么怎么获取到实际到类型呢\footnote{\url{https://blog.csdn.net/hj7jay/article/details/54889717}}？
 
+在Java中，泛型类型虽然被擦除了\footnote{参见：\url{https://segmentfault.com/a/1190000020382440}}，但是被擦除的类型信息还是会以某种形式存储下来，并支持在运行时获取。这种形式就是指元素附加的签名信息（Signatures）,谷歌是这么定义Signatures：
+
+Signatures encode declarations written in Java programming language that use types outside the type system of the Java Virtual Machine. They support reflection and debugging, as well as compilation when only class files are available.
+
 \paragraph{字符串比较}
 
 String s1 = "Hello World"; String s2 = "Hello World"; a==b的结果是什么？ 这包含了内存，String存储方式等诸多知识点。
@@ -273,9 +243,6 @@ System.out.println(s1 == s2); // True
 
 == 操作符比较的是两个对象的引用是否指向同一内存地址，如果内存地址相同，则返回 true；equals() 比较的只是两个字符串对象的引用指向的内存地址所存储的字面值，而忽略内存地址是否相同。
 
-\paragraph{B树和B+树是解决什么样的问题的，怎样演化过来，之间区别}
-
-二叉树(Binary Search Tree)说起,一棵高度为h的树上各操作的时间复杂度为O(h)，而树的高度与树的平衡性有关，最好情况下对于一颗含n个节点的完全二叉树，操作的复杂度为O(lgn)，但是在最坏情况下二叉树退化成线性链，操作复杂度为O(n)。由此可知，在实际使用时应尽量保证数据的随机性，以使树的高度不至于过大，否则会产生退化现象(这也就解释了为什么不适合在性别字段上建立MySQL数据库的索引，为什么索引要求数据尽量分散，不要趋同)。为什么会出现这样的问题？造成这种情况的主要原因就是BST不够平衡(左右子树高度差太大)。为了避免此问题，提出了平衡二叉树，AVL树是最早被发明的自平衡二叉查找树，AVL树得名于它的发明者G. M. Adelson-Velsky和Evgenii Landis，他们在1962年的论文《An algorithm for the organization of information》中公开了这一数据结构。再提出怎样让每一层放的节点多一些来减少遍历高度(所以二叉树、AVL树都只放一个节点，戏称1叉树)，引申出m叉树，m叉搜索树同样会有退化现象，引出m叉平衡树，也就是B树，这时候每个节点既放了key也放了value，怎样使每个节点放尽可能多的key值，以减少遍历高度呢（访问磁盘次数），可以将每个节点只放key值，将value值放在叶子结点，在叶子结点的value值增加指向相邻节点指针，这就是优化后的B+树。B+树是B树的一个升级版，相对于B树来说B+树更充分的利用了节点的空间，让查询速度更加稳定，其速度完全接近于二分法查找。
 
 \paragraph{红黑树(Red–black tree)}
 
@@ -288,28 +255,6 @@ System.out.println(s1 == s2); // True
 \item{每个红色节点必须有两个黑色的子节点。（从每个叶子到根的所有路径上不能有两个连续的红色节点。）}
 \item{从任一节点到其每个叶子的所有简单路径都包含相同数目的黑色节点。}
 \end{enumerate}
-
-
-
-
-
-
-\paragraph{Java类初始化顺序}
-
-记住定理：
-
-\begin{enumerate}
-\item{规律一、初始化构造时，先父后子；只有在父类所有都构造完后子类才被初始化}
-\item{规律二、类加载先是静态、后非静态、最后是构造函数}静态构造块、静态类属性按出现在类定义里面的先后顺序初始化，同理非静态的也是一样的，只是静态的只在加载字节码时执行一次，不管你new多少次，非静态会在new多少次就执行多少次
-\item{规律三、java中的类只有在被用到的时候才会被加载}
-\item{规律四、java类只有在类字节码被加载后才可以被构造成对象实例}
-\end{enumerate}
-
-
-"基类静态代码块" -> "基类静态成员字段" -> "派生类静态代码块"
-    -> "派生类静态成员字段" -> "基类普通代码块" -> "基类普通成员字段"
-    -> "基类构造函数" -> "派生类普通代码块"
-    -> "派生类普通成员字段" -> "派生类构造函数";
 
 \paragraph{dispatchServlet怎样分发任务的}
 
@@ -354,19 +299,6 @@ ReentrantLock是可重入锁，什么是可重入锁呢？可重入锁就是当�
 AQS(Abstract Queued Synchronizer)是JDK1.5提供的一个基于FIFO等待队列实现的一个用于实现同步器的基础框架，这个基础框架的重要性可以这么说，JCU(Java Conccurrent Utils)包里面几乎所有的有关锁、多线程并发以及线程同步器等重要组件的实现都是基于AQS这个框架。AQS的核心思想是基于volatile int state这样的一个属性同时配合Unsafe工具对其原子性的操作来实现对当前锁的状态进行修改。当state的值为0的时候，标识改Lock不被任何线程所占有。AQS(AbstractQueuedSynchronizer)是java.util.concurrent的基础。也是Doug Lea大神为广大java开发作出的卓越贡献。J.U.C中的工具类如Semaphore、CountDownLatch、ReentrantLock、ReentrantReadWriteLock等都极大程度依赖了AQS.ReentrantLock是AQS的独占锁，Semaphore是AQS共享锁。
 
 当有多个线程去竞争同一个锁的时候，假设锁被某个线程占用，那么如果有成千上万个线程在等待锁，有一种做法是同时唤醒这成千上万个线程去去竞争锁，这个时候就发生了羊群效应，海量的竞争必然造成资源的剧增和浪费，因此终究只能有一个线程竞争成功，其他线程还是要老老实实的回去等待。AQS的FIFO的等待队列给解决在锁竞争方面的羊群效应问题提供了一个思路：保持一个FIFO队列，队列每个节点只关心其前一个节点的状态，线程唤醒也只唤醒队头等待线程。
-
-
-
-\paragraph{创建线程的几种方式}
-
-\begin{enumerate}
-\item {继承Thread类，并复写run方法，创建该类对象，调用start方法开启线程。}
-\item{实现Runnable接口，复写run方法，创建Thread类对象，将Runnable子类对象传递给Thread类对象。}
-\item{创建FutureTask对象，创建Callable子类对象，复写call(相当于run)方法，将其传递给FutureTask对象（相当于一个Runnable）。}
-\end{enumerate}
-
-
-
 
 \paragraph{wait和sleep区别}
 
@@ -779,39 +711,6 @@ Spring 中解决循环依赖只对单例有效，而对于 prototype 的 bean，
 二级缓存是mapper级别的缓存,又叫自定义缓存，实现了Cache接口的类都可以作为二级缓存，所以可配置如encache等的第三方缓存。多个SqlSession去操作同一个Mapper的sql语句，多个SqlSession去操作数据库得到数据会存在二级缓存区域，多个SqlSession可以共用二级缓存，二级缓存是跨SqlSession的。又叫自定义缓存，实现了Cache接口的类都可以作为二级缓存，所以可配置如encache等的第三方缓存。
 
 二级缓存是多个SqlSession共享的，其作用域是mapper的同一个namespace，不同的sqlSession两次执行相同namespace下的sql语句且向sql中传递参数也相同即最终执行相同的sql语句，第一次执行完毕会将数据库中查询的数据写到缓存（内存），第二次会从缓存中获取数据将不再从数据库查询，从而提高查询效率。Mybatis默认没有开启二级缓存需要在setting全局参数中配置开启二级缓存。所有的缓存对象的操作与维护都是由Executor器执行来完成的，一级缓存由BaseExecutor（包含SimpleExecutor、ReuseExecutor、BatchExecutor三个子类）负责维护，二级缓存由CachingExecutor负责维护。因此需要注意的是：配置了二级缓存不代表mybatis就会使用二级缓存，还需要确保在创建SqlSession的过程中，mybatis创建是CachingExecutor类型的执行器\footnote{\url{https://my.oschina.net/lixin91/blog/620068}}。CachingExecutor，缓存执行器。可以把它理解为一个装饰器，主要负责二级缓存的操作和维护。
-
-\subsection{Spring事务传播行为与数据隔离级别}
-
-\paragraph{数据库的隔离级别}
-
-
-Spring 对 JDBC 的事务隔离级别进行了补充和扩展，并提出了 7 种事务传播行为。
-
-\begin{enumerate}
-\item {read uncommitted （读未提交）B事务可以读取到A事务未提交的修改。有脏读的问题}
-\item{read committed （读以提交）B事务不能读取其他事务未commit的修改。有不可重复读（前后多次读取，数据内容不一致），幻读的问题}
-\item{repeated read (可重复读) 事务第一次读和第二次读，结果不受其他事务影响，结果是一样的。有幻读的问题。事务A在执行读取操作，需要两次统计数据的总量，前一次查询数据总量后，此时事务B执行了新增数据的操作并提交后，这个时候事务A读取的数据总量和之前统计的不一样，就像产生了幻觉一样，平白无故的多了几条数据，成为幻读（前后多次读取，数据总量不一致）。}
-\item{Serializeble （串行化）幻读，比如事务A对表T所有行进行update，再次查询，发现有些行没有update，原因是这些行是新增行，是其他事务添加的，导致不会修改新增的行。串行化，就是顺序执行事务。这个隔离界别要慎用，因为及其影响数据库吞吐量，未能使用到CPU的高性能。}
-\end{enumerate}
-
-Spring的5大事务隔离级别比数据库多一个。
-
-\paragraph{事务传播行为}
-
-一个方法执行，在它之间，假如已经创建了事务，那它要创建新事务还是加入原有事务；假如之前没有事务，那它又该如何处理；假如外层事务异常要回滚，内层事务要不要回滚；假如内层事务异常要回滚，外层事务要不要回滚。这就要求必须定义好事务的传播特性，使得程序任一步都知道如何处理事务问题。Propagation是传播的意思。
-
-\begin{enumerate}
-\item {PROPAGATION\_REQUIRES	表示当前方法必须在一个事务中运行。如果一个现有事务正在进行中，该方法将在那个事务中运行，否则就要开始一个新事务。}
-\item{PROPAGATION\_REQUIRES\_NEW	表示当前方法必须在它自己的事务里运行。一个新的事务将被启动，而且如果有一个现有事务在运行的话，则将在这个方法运行期间被挂起。}
-\item{PROPAGATION\_MANDATORY	表示该方法必须运行在一个事务中。如果当前没有事务正在发生，将抛出一个异常}
-\item{PROPAGATION\_NESTED	表示如果当前正有一个事务在进行中，则该方法应当运行在一个嵌套式事务中。被嵌套的事务可以独立于封装事务进行提交或回滚。如果封装事务不存在，行为就像PROPAGATION\_REQUIRES一样。他会和父事务一起commit，当它回滚时，父事务有条件的选择是否跟随回滚，或者继续执行}
-\item{PROPAGATION\_NEVER	表示当前的方法不应该在一个事务中运行。如果一个事务正在进行，则会抛出一个异常。}
-\item{PROPAGATION\_NOT\_SUPPORTED	表示该方法不应该在一个事务中运行。如果一个现有事务正在进行中，它将在该方法的运行期间被挂起。}
-\item{PROPAGATION\_SUPPORTS	表示当前方法不需要事务性上下文，但是如果有一个事务已经在运行的话，它也可以在这个事务里运行。}
-\end{enumerate}
-
-
-使用PROPAGATION\_REQUIRES\_NEW，事务和事务之间是隔离开的，内层事务失败不会影响外层事务。
 
 
 \section{缓存(Cache)}

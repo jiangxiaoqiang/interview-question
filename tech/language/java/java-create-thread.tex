@@ -1,0 +1,14 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Java创建线程}
+
+\begin{enumerate}
+    \item {继承Thread类，并复写run方法，创建该类对象，调用start方法开启线程。}
+    \item{实现Runnable接口，复写run方法，创建Thread类对象，将Runnable子类对象传递给Thread类对象。}
+    \item{创建FutureTask对象，创建Callable子类对象，复写call(相当于run)方法，将其传递给FutureTask对象（相当于一个Runnable）。}
+\end{enumerate}
+
+
+\end{document}

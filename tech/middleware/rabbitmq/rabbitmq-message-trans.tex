@@ -1,0 +1,18 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{RabbitMQ消息传播模式}
+
+Simple Work Queue （简单工作队列）：也就是常说的点对点模式\footnote{参见：\url{https://segmentfault.com/a/1190000040968626}}，一条消息由一个消费者进行消费。（当有多个消费者时，默认使用轮训机制把消息分配给消费者）。
+Work Queues （工作队列）：也叫公平队列，能者多劳的消息队列模型。队列必须接收到来自消费者的   手动ack 才可以继续往消费者发送消息。
+Publish/Subscribe （发布订阅模式）：一条消息被多个消费者消费。
+Routing（路由模式）：有选择的接收消息。
+Topics （主题模式）：通过一定的规则来选择性的接收消息
+RPC 模式：发布者发布消息，并且通过 RPC 方式等待结果。目前这个应该场景少，而且代码也较为复杂，本章不做细讲。
+注意：官网最后有 Publisher Confirms 为消息确认机制。指的是生产者如何发送可靠的消息。
+
+
+
+
+\end{document}

@@ -1,0 +1,49 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Spring Bean的生命周期}
+
+Spring Bean的生命周期分为四个阶段和多个扩展点。扩展点又可以分为影响多个Bean和影响单个Bean。整理如下：
+四个阶段
+
+\begin{enumerate}
+    \item {实例化 Instantiation}
+    \item {属性赋值 Populate}
+    \item {初始化 Initialization}
+    \item {销毁 Destruction}
+\end{enumerate}
+
+Spring Bean扩展点分为2类，一类影响单个Bean的扩展点，一类影响多个Bean的扩展点。
+
+影响多个Bean的扩展点：
+
+\begin{enumerate}
+    \item{BeanPostProcessor}
+    \item {InstantiationAwareBeanPostProcessor}
+\end{enumerate}
+
+影响单个Bean
+
+\begin{enumerate}
+    \item {Aware}
+    \item {Aware Group1}
+    \item {BeanNameAware}
+    \item {BeanClassLoaderAware}
+    \item {BeanFactoryAware}
+    \item {Aware Group2}
+    \item {EnvironmentAware}
+    \item {EmbeddedValueResolverAware}
+    \item {ApplicationContextAware(ResourceLoaderAware/ApplicationEventPublisherAware/MessageSourceAware)}
+\end{enumerate}
+
+生命周期
+InitializingBean
+DisposableBean
+
+\end{document}
+
+
+
+
+

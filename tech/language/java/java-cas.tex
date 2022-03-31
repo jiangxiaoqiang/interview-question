@@ -4,6 +4,7 @@
 
 \subsection{Java CAS原理}
 
+CAS 即 Compare And Swap 的缩写，翻译成中文就是比较并交换，其作用是让CPU比较内存中某个值是否和预期的值相同，如果相同则将这个值更新为新值，不相同则不做更新。 CAS 操作是原子性的操作(读和写两者同时具有原子性)， 所以多线程并发使用CAS更新数据时，可以不使用锁。
 CAS（比较与交换，Compare and Swap）是一种无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。实现非阻塞同步的方案称为“无锁编程算法”（ Non-blocking algorithm）\footnote{\url{https://www.cnblogs.com/zhuawang/p/4196904.html}}，java.util.concurrent包全完建立在CAS之上,CAS又建立在unsafe之上，而compareAndSet利用JNI(Java Native Interface)来完成CPU指令的操作。JNI利用了CPU本身对原子操作的支持，现在几乎所有的CPU指令都支持CAS的原子操作，X86下对应的是 CMPXCHG 汇编指令。有了这个原子操作，我们就可以用其来实现各种无锁（lock free）的数据结构\footnote{\url{https://coolshell.cn/articles/8239.html}}。
 
 \begin{lstlisting}[language=Java]
