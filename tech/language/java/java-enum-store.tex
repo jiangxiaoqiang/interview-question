@@ -1,0 +1,10 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Java枚举存储}
+
+ordinal 用于获取当前枚举在定义时的索引， 从 0 开始 依次累加，当做一些状态存储时，使用状态的索引顺序来代表莫一个状态，例如 一个枚举中定义了 oneDay, twoDay, threedDay 使用 ordinal 获取时分别值为 0，1，2 即存储的 0，1，2 分别代表了上面的三个枚举。Java枚举存储时，可以存储值或者字符串。存储ordinal值时，一个缺点是如果调整了枚举的顺序，那么已经存储的枚举数据的映射关系会被破坏。存储ordinal值好处是更节省存储空间，在数据库性能方面可能会有优势。而存储枚举的名字带来的好处是可以调整枚举顺序，在数据库中更加容易理解，不用去翻字典搞明白1代表什么，2代表什么\footnote{\url{https://stackoverflow.com/questions/2801953/how-should-i-store-an-java-enum-in-javadb?noredirect=1&lq=1}}。具体存储什么数据可以根据具体需求综合考虑，推荐存储值，毕竟现在存储空间相对来说更廉价，可读性，容易理解更加重要。
+
+
+\end{document}

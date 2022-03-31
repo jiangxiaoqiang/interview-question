@@ -1,0 +1,15 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsubsection{Redis和Setnx命令使如何实现分布式锁的}
+
+SETNX 是SET if Not eXists的简写。在进程释放锁，即执行 DEL lock.foo 操作前，需要先判断锁是否已超时。如果锁已超时，那么锁可能已由其他进程获得，这时直接执行 DEL lock.foo 操作会导致把其他进程已获得的锁释放掉。分布式锁的详细分析\footnote{\url{http://zhangtielei.com/posts/blog-redlock-reasoning.html}}。
+
+\end{document}
+
+
+
+
+
+

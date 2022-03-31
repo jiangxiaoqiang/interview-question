@@ -1,0 +1,22 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{float和double精度损失问题}
+
+数据库中涉及到金额、价格问题的，建议字段设置成decimal(m,n)，否则会造成精度丢失，对应Java中实体类的属性BigDecimal修饰;使用string参数的构造方法，new  BigDecimal(string)，若使用double参数的构造方法，会产生你不想要的结果;用compareTo方法比较两值是否相等，而不是equals，equals会比较scale（保留位数），例如2和2.0用equals比较不相等;浮点类型存储时，会导致精度丢失：
+
+\begin{lstlisting}[language=Java]
+float fval = 0.45;　　// 单步调试发现其真实值为：0.449999988
+double dval = 0.45;　// 单步调试发现其真实值为：0.45000000000000001
+\end{lstlisting}
+
+通过把浮点型数据放大10的整数倍，把它赋给一个整型变量，把得到的结果再除以10的整数倍，就会使精度损失降到最低。单精度或双精度在存储中，都分为三个部分：
+
+符号位 (Sign)：0代表正数，1代表为负数；
+
+指数位 (Exponent)：用于存储科学计数法中的指数数据；
+
+尾数部分 (Mantissa)：采用移位存储尾数部分；
+
+\end{document}

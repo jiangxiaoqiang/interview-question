@@ -2,41 +2,7 @@
 
 \begin{document}
 
-\section{技术选型}
-
-从前端到数据常用解决方案：
-
-
-\begin{table}[htbp]
-	\caption{常用解决方案}
-	\label{table:solution}
-	\begin{center}
-		\begin{tabular}{|c|c|c|}
-			\hline
-			\multirow{1}{*}{方案}
-			& \multicolumn{1}{c|}{所属技术层}
-			& \multicolumn{1}{c|}{用途}\\			
-			\cline{1-3}
-			Vue/React & 前端 &  前端网页开发    \\
-			\hline
-			Nginx & 高并发代理 &  中转服务，处理共用的简单的业务逻辑    \\
-			\hline
-			OpenResty & Nginx代理开发框架 &  增强Nginx能力    \\
-			\hline
-			MyCat & 中间件 &  数据库中间件、数据库集群    \\
-			\hline							
-		\end{tabular}	
-	\end{center}
-\end{table}
-
-
-
 \section{Java}
-
-\subsection{Java枚举存储}
-
-ordinal 用于获取当前枚举在定义时的索引， 从 0 开始 依次累加，当做一些状态存储时，使用状态的索引顺序来代表莫一个状态，例如 一个枚举中定义了 oneDay, twoDay, threedDay 使用 ordinal 获取时分别值为 0，1，2 即存储的 0，1，2 分别代表了上面的三个枚举。Java枚举存储时，可以存储值或者字符串。存储ordinal值时，一个缺点是如果调整了枚举的顺序，那么已经存储的枚举数据的映射关系会被破坏。存储ordinal值好处是更节省存储空间，在数据库性能方面可能会有优势。而存储枚举的名字带来的好处是可以调整枚举顺序，在数据库中更加容易理解，不用去翻字典搞明白1代表什么，2代表什么\footnote{\url{https://stackoverflow.com/questions/2801953/how-should-i-store-an-java-enum-in-javadb?noredirect=1&lq=1}}。具体存储什么数据可以根据具体需求综合考虑，推荐存储值，毕竟现在存储空间相对来说更廉价，可读性，容易理解更加重要。
-
 
 \subsection{Java问题}
 
@@ -47,23 +13,6 @@ Class<?> class = ClassName.class;
 Class<?> class = Class.forName("类名全路径");
 Class<?> class = object.getClass();
 \end{lstlisting}
-
-\paragraph{float和double精度损失问题}
-
-数据库中涉及到金额、价格问题的，建议字段设置成decimal(m,n)，否则会造成精度丢失，对应Java中实体类的属性BigDecimal修饰;使用string参数的构造方法，new  BigDecimal(string)，若使用double参数的构造方法，会产生你不想要的结果;用compareTo方法比较两值是否相等，而不是equals，equals会比较scale（保留位数），例如2和2.0用equals比较不相等;浮点类型存储时，会导致精度丢失：
-
-\begin{lstlisting}[language=Java]
-float fval = 0.45;　　// 单步调试发现其真实值为：0.449999988
-double dval = 0.45;　// 单步调试发现其真实值为：0.45000000000000001
-\end{lstlisting}
-
-通过把浮点型数据放大10的整数倍，把它赋给一个整型变量，把得到的结果再除以10的整数倍，就会使精度损失降到最低。单精度或双精度在存储中，都分为三个部分：
-
-符号位 (Sign)：0代表正数，1代表为负数；
-
-指数位 (Exponent)：用于存储科学计数法中的指数数据；
-
-尾数部分 (Mantissa)：采用移位存储尾数部分；
 
 \paragraph{Java的BigDecimal如何解决浮点数精度问题}
 
@@ -187,13 +136,6 @@ System.out.println(l1.longValue()<l2.longValue());
 对于复杂操作，Stream串行API性能可以和手动实现的效果匹敌，在并行执行时Stream API效果远超手动实现。
 所以，如果出于性能考虑，对于简单操作推荐使用外部迭代手动实现，对于复杂操作，推荐使用Stream API，在多核情况下，推荐使用并行Stream API来发挥多核优势，单核情况下不建议使用并行Stream API。如果出于代码简洁性考虑，使用Stream API能够写出更短的代码。即使是从性能方面说，尽可能的使用Stream API也另外一个优势，那就是只要Java Stream类库做了升级优化，代码不用做任何修改就能享受到升级带来的好处。
 
-\paragraph{MySQL组合索引(Multiple Column Index)为什么最左匹配}
-
-b+树的数据项是复合的数据结构，比如(name,age,sex)的时候，b+树是按照从左到右的顺序来建立搜索树的，比如当(张三,20,F)这样的数据来检索的时候，b+树会优先比较name来确定下一步的所搜方向，如果name相同再依次比较age和sex，最后得到检索的数据；但当(20,F)这样的没有name的数据来的时候，b+树就不知道第一步该查哪个节点，因为建立搜索树的时候name就是第一个比较因子，必须要先根据name来搜索才能知道下一步去哪里查询。
-比如当(张三,F)这样的数据来检索时，b+树可以用name来指定搜索方向，但下一个字段age的缺失，所以只能把名字等于张三的数据都找到，然后再匹配性别是F的数据了， 这个是非常重要的性质，即索引的最左匹配特性。
-联合索引(col1, col2,col3)也是一棵B+Tree，其非叶子节点存储的是第一个关键字的索引，而叶节点存储的则是三个关键字col1、col2、col3三个关键字的数据，且按照col1、col2、col3的顺序进行排序。联合索引(年龄, 姓氏,名字)，叶节点上data域存储的是三个关键字的数据。且是按照年龄、姓氏、名字的顺序排列。因为联合索引中是先根据年龄进行排序的。如果年龄没有先确定，直接对姓氏和名字进行查询的话，就相当于乱序查询一样，因此索引无法生效。因此查询是全表查询。而之所以会有最左原则，是因为联合索引的B+Tree是按照第一个关键字进行索引排列的。
-
-
 \paragraph{泛型(Generic)-参数化类型}
 
 Java语言引入泛型的好处是安全简单，可以在在编译的时候检查类型安全，避免由于类型转换失败程序在运行时抛出异常。同时，泛型还可以消除代码中许多的强制类型转换(强制类型转换很消耗性能)，带来了性能上的收益，并且所有的强制转换都是自动和隐式的，泛型也提高代码的重用率。
@@ -273,8 +215,6 @@ System.out.println(s1 == s2); // True
 
 7）.返回控制权给DispatcherServlet，由DispatcherServlet返回响应给用户。
 
-
-
 \paragraph{private修饰的方法可以通过反射访问，那么private的意义是什么}
 
 private是声明方法的允许访问范围，偏向于OOP的设计原则,并不是为了绝对安全而设计。只提供内部类调用的方法有private修饰后，外部类调用时可以更清晰简洁(不会出现许多根本用不到或者完全没必要暴露给外部类的方法)。反射偏重逆向操作，舍弃了部分性能和安全，获取了部分的便捷性和灵活性，需要掌控好平衡。可以理解为private定义了一个规则，但是某些情况下，可以特事特办。可以不遵守规则，但是需要承担一些风险\footnote{\url{https://stackoverflow.com/questions/1239581/why-is-it-allowed-to-access-java-private-fields-via-reflection/1239690\#1239690}}。
@@ -292,24 +232,9 @@ TreeMap 是通过实现 SortMap 接口，能够把它保存的键值对根据 ke
 
 CopyOnWriteArrayList这是一个ArrayList的线程安全的变体，其原理大概可以通俗的理解为:初始化的时候只有一个容器，很常一段时间，这个容器数据、数量等没有发生变化的时候，大家(多个线程)，都是读取(假设这段时间里只发生读取的操作)同一个容器中的数据，所以这样大家读到的数据都是唯一、一致、安全的，但是后来有人往里面增加了一个数据，这个时候CopyOnWriteArrayList底层实现添加的原理是先copy出一个容器(可以简称副本)，再往新的容器里添加这个新的数据，最后把新的容器的引用地址赋值给了之前那个旧的的容器地址，但是在添加这个数据的期间，其他线程如果要去读取数据，仍然是读取到旧的容器里的数据。CopyOnWriteArrayList适合使用在读操作远远大于写操作的场景里，比如缓存。
 
-\paragraph{ReentrantLock以及AQS实现原理}
-
-ReentrantLock是可重入锁，什么是可重入锁呢？可重入锁就是当前持有该锁的线程能够多次获取该锁，无需等待。可重入锁是如何实现的呢？这要从ReentrantLock的一个内部类Sync的父类说起，Sync的父类是AbstractQueuedSynchronizer（后面简称AQS）。
-
-AQS(Abstract Queued Synchronizer)是JDK1.5提供的一个基于FIFO等待队列实现的一个用于实现同步器的基础框架，这个基础框架的重要性可以这么说，JCU(Java Conccurrent Utils)包里面几乎所有的有关锁、多线程并发以及线程同步器等重要组件的实现都是基于AQS这个框架。AQS的核心思想是基于volatile int state这样的一个属性同时配合Unsafe工具对其原子性的操作来实现对当前锁的状态进行修改。当state的值为0的时候，标识改Lock不被任何线程所占有。AQS(AbstractQueuedSynchronizer)是java.util.concurrent的基础。也是Doug Lea大神为广大java开发作出的卓越贡献。J.U.C中的工具类如Semaphore、CountDownLatch、ReentrantLock、ReentrantReadWriteLock等都极大程度依赖了AQS.ReentrantLock是AQS的独占锁，Semaphore是AQS共享锁。
-
-当有多个线程去竞争同一个锁的时候，假设锁被某个线程占用，那么如果有成千上万个线程在等待锁，有一种做法是同时唤醒这成千上万个线程去去竞争锁，这个时候就发生了羊群效应，海量的竞争必然造成资源的剧增和浪费，因此终究只能有一个线程竞争成功，其他线程还是要老老实实的回去等待。AQS的FIFO的等待队列给解决在锁竞争方面的羊群效应问题提供了一个思路：保持一个FIFO队列，队列每个节点只关心其前一个节点的状态，线程唤醒也只唤醒队头等待线程。
-
 \paragraph{wait和sleep区别}
 
 sleep是线程类(Thread)的方法，sleep不会交出任何已获得的对象锁.wait是Object类的方法，wait会交出调用wait对象的对象锁。而且wait存在notify方法来唤醒调用wait的线程，这个是sleep没有的。
-
-
-
-
-
-
-
 
 \paragraph{常见序列化协议及其优缺点}
 
@@ -477,15 +402,6 @@ remove（）删除元素，直接指针指向操作，复杂度O(1)
 
 原始数据类型(byte,short,char,int,long,float,double,boolean)，他们之间的比较使用（==），比较的是他们的值。引用数据类型用（==）进行比较，比较的是他们在内存中的存放地址。equals如果没有自己的实现，原始类型默认比较其值，引用类型默认比较内存地址。
 
-\paragraph{Java的静态代理(Static Proxy)和动态代理(Dynamic Proxy)有什么差别？}
-
-Java三种代理模式：静态代理、动态代理和cglib代理。代理模式是一种设计模式，提供了对目标对象额外的访问方式，即通过代理对象访问目标对象，这样可以在不修改原目标对象的前提下，提供额外的功能操作，扩展目标对象的功能。简言之，代理模式就是设置一个中间代理来控制访问原目标对象，以达到增强原对象的功能和简化访问方式。静态代理在存在较多相似逻辑时，会出现重复编码的情况，实现类总是需要实现一堆接口(冗余)。当接口变化时，相应的所有的实现类需要改变(不易维护)。动态代理在程序运行时运用反射机制动态创建而成。相对来说，动态代理增加了程序的灵活性。CGLib(Code Generation Library)采用了非常底层的字节码技术，其原理是通过字节码技术为一个类创建子类，并在子类中采用方法拦截的技术拦截所有父类方法的调用，顺势织入横切逻辑。JDK动态代理与CGLib动态代理均是实现Spring AOP的基础。
-
-\paragraph{volatile关键字有什么作用？}
-
-Java 语言中的 volatile 变量可以被看作是一种 “程度较轻的 synchronized”；与 synchronized 块相比，volatile 变量所需的编码较少，并且运行时开销也较少，但是它所能实现的功能也仅是 synchronized 的一部分。Volatile 变量具有 synchronized 的可见性特性，但是不具备原子特性。这就是说线程能够自动发现 volatile 变量的最新值。Volatile 变量可用于提供线程安全，但是只能应用于非常有限的一组用例：多个变量之间或者某个变量的当前值与修改后值之间没有约束。
-
-
 \paragraph{CompletableFuture，这个是JDK1.8里的新特性，通过它怎么实现多线程并发控制？}
 
 
@@ -580,59 +496,6 @@ Java类文件结构如下表\footnote{参考：\url{https://en.wikipedia.org/wik
 \item{javac使用修改后的抽象语法树(AST)生成字节码文件}
 \end{enumerate}
 
-\section{Java Virtual Machine}
-
-\subsection{垃圾回收历史(The History of Garbage Collection)}
-
-很难想象垃圾回收这个概念在20世纪60年代都已经出现了，所提出来都处理方式过去了半个多世纪了还在沿用。John McCarthy身为Lisp之父和人工智能之父，同时，他也是GC之父。1960年，他在其论文\footnote{\url{http://www-formal.stanford.edu/jmc/recursive/node4.html\#tex2html8}}中首次发布了GC算法(作为对比，世界上第一台通用计算机“ENIAC”于1946年2月14日诞生，Lisp语言首次出现是在1958年，Unix操作系统首次发布的时间是1971年11月3日，C语言首次出现是在1972年)。而Java的前身Oak是在1990发布的，利用JVM实现了跨平台。目前有GC机制的语言有Lisp、Java、Ruby、Python、Perl、Haskell。
-
-\begin{enumerate}
-\item{1959: D. Edwards实现了GC} 
-\item{1960: John McCarthy发布了初代GC算法即标记-清除(Mark Sweep)算法}
-\item{1960: George E. Collins发布了引用计数算法}
-\item{1963: Marvin L. Minsky发布了复制算法}
-\item{1996: 首次出版了Garbage Collection一书}
-\end{enumerate}
-
-
-\subsection{在JVM中如何判断一个对象的生死状态？}
-
-\paragraph{引用计数器算法}
-通过一系列称之为 “GC Roots” 的根对象作为起点，从这些对象开始向下搜索遍历，所有搜索过的路径称之为引用链(Reference Chain)，当一个对象到 GC Roots 没有任何一个引用链相连(对象不可达)时，证明该对象已不再被引用(失效)，此时该对象将被 GC 回收
-
-优点：实现简单、性能高。
-
-缺点：增减处理频繁消耗CPU计算、计数器占用很多位浪费空间、最重要的缺点是无法解决循环引用的问题。
-
-\paragraph{可达性分析算法}
-
-3、对象生死与引用的关系
-
-JDK1.2之后对引用进行了扩充，将引用分为：
-
-强引用（Strong Reference）
-
-软引用（Soft Reference）
-
-弱引用（Weak Reference）
-
-虚引用（Phantom Reference）
-
-1.虚拟机栈（栈帧中的本地变量表）中引用的对象\footnote{\url{https://blog.csdn.net/u010798968/article/details/72835255}}；
-
-2.方法区中的类静态属性引用的对象；
-
-3.方法区中常量引用的对象；
-
-4.本地方法栈中JNI（即一般说的Native方法）中引用的对象
-
-GC管理的主要区域是Java堆，一般情况下只针对堆进行垃圾回收。方法区、栈和本地方法区不被GC所管理,因而选择这些区域内的对象作为GC roots,被GC roots引用的对象不被GC回收。
-
-
-4、死亡标记与拯救
-
-
-
 \section{框架(Framework)}
 
 \subsection{Spring MVC还是WebFlux}
@@ -698,79 +561,6 @@ Spring 中解决循环依赖只对单例有效，而对于 prototype 的 bean，
 
 \end{enumerate}
 
-
-
-
-
-\subsection{MyBatis的一级缓存二级缓存}
-
-一级缓存是SqlSession级别的缓存。在操作数据库时需要构造 sqlSession对象，在对象中有一个(内存区域)数据结构（HashMap）用于存储缓存数据。不同的sqlSession之间的缓存数据区域（HashMap）是互相不影响的。一级缓存，又叫本地缓存，是PerpetualCache类型的永久缓存，保存在执行器中（BaseExecutor），而执行器又在SqlSession（DefaultSqlSession）中，所以一级缓存的生命周期与SqlSession是相同的。
-
-一级缓存的作用域是同一个SqlSession，在同一个sqlSession中两次执行相同的sql语句，第一次执行完毕会将数据库中查询的数据写到缓存（内存），第二次会从缓存中获取数据将不再从数据库查询，从而提高查询效率。当一个sqlSession结束后该sqlSession中的一级缓存也就不存在了。Mybatis默认开启一级缓存。
-
-二级缓存是mapper级别的缓存,又叫自定义缓存，实现了Cache接口的类都可以作为二级缓存，所以可配置如encache等的第三方缓存。多个SqlSession去操作同一个Mapper的sql语句，多个SqlSession去操作数据库得到数据会存在二级缓存区域，多个SqlSession可以共用二级缓存，二级缓存是跨SqlSession的。又叫自定义缓存，实现了Cache接口的类都可以作为二级缓存，所以可配置如encache等的第三方缓存。
-
-二级缓存是多个SqlSession共享的，其作用域是mapper的同一个namespace，不同的sqlSession两次执行相同namespace下的sql语句且向sql中传递参数也相同即最终执行相同的sql语句，第一次执行完毕会将数据库中查询的数据写到缓存（内存），第二次会从缓存中获取数据将不再从数据库查询，从而提高查询效率。Mybatis默认没有开启二级缓存需要在setting全局参数中配置开启二级缓存。所有的缓存对象的操作与维护都是由Executor器执行来完成的，一级缓存由BaseExecutor（包含SimpleExecutor、ReuseExecutor、BatchExecutor三个子类）负责维护，二级缓存由CachingExecutor负责维护。因此需要注意的是：配置了二级缓存不代表mybatis就会使用二级缓存，还需要确保在创建SqlSession的过程中，mybatis创建是CachingExecutor类型的执行器\footnote{\url{https://my.oschina.net/lixin91/blog/620068}}。CachingExecutor，缓存执行器。可以把它理解为一个装饰器，主要负责二级缓存的操作和维护。
-
-
-\section{缓存(Cache)}
-
-\subsection{Redis}
-
-\subsubsection{Redis和Setnx命令使如何实现分布式锁的}
-
-SETNX 是SET if Not eXists的简写。在进程释放锁，即执行 DEL lock.foo 操作前，需要先判断锁是否已超时。如果锁已超时，那么锁可能已由其他进程获得，这时直接执行 DEL lock.foo 操作会导致把其他进程已获得的锁释放掉。分布式锁的详细分析\footnote{\url{http://zhangtielei.com/posts/blog-redlock-reasoning.html}}。
-
-
-\subsubsection{Redis和memcached：什么时候选择Redis，什么时候选择Memcached，内存模型和存储策略是什么样的}
-
-选择Redis\footnote{\url{http://redisdoc.com/topic/index.html}}还是Memcached，需要根据具体的应用场景和他们之间的区别：
-
-\begin{enumerate}
-\item {\textbf{数据类型支持不同}}与Memcached仅支持简单的key-value结构的数据记录不同，Redis支持的数据类型要丰富得多。最为常用的数据类型主要由五种：String、Hash、List、Set和Sorted Set。Redis内部使用一个redisObject对象来表示所有的key和value。
-\item {\textbf{数据持久化支持}}Redis虽然是基于内存的存储系统，但是它本身是支持内存数据的持久化的，而且提供两种主要的持久化策略：RDB快照和AOF日志。而memcached是不支持数据持久化操作的。
-\item {\textbf{集群管理不同}}Memcached本身并不支持分布式，因此只能在客户端通过像一致性哈希这样的分布式算法来实现Memcached的分布式存储。
-\end{enumerate}                                  
-
-内存模型参考\footnote{\url{http://www.dongcoder.com/detail-1031666.html}},如图所示。
-
-
-
-字符串是 Redis最基本的数据类型，Redis 中字符串对象的编码可以是 int，raw 或者 embstr 中的某一种.
-
-\subsection{Redis数据持久化}
-
-BGSAVE可以在不阻塞主进程的情况下完成数据的备份。可以通过redis.conf中设置多个自动保存条件，只要有一个条件被满足，服务器就会执行BGSAVE命令。
-
-AOF持久化（Append-Only-File），与RDB\footnote{RDB(Redis Database)是Redis用来进行持久化的一种方式，是把当前内存中的数据集快照写入磁盘，也就是 Snapshot 快照（数据库中所有键值对数据）。恢复时是将快照文件直接读到内存里。}持久化不同，AOF持久化是通过保存Redis服务器锁执行的写状态来记录数据库的。
-具体来说，RDB持久化相当于备份数据库状态，而AOF持久化是备份数据库接收到的命令，所有被写入AOF的命令都是以redis的协议格式来保存的。
-在AOF持久化的文件中，数据库会记录下所有变更数据库状态的命令，除了指定数据库的select命令，其他的命令都是来自client的，这些命令会以追加(append)的形式保存到文件中。
-
-\section{网络(Network)}
-
-
-\subsection{HTTPS}
-
-SSL/TLS协议的基本思路是采用公钥加密法，也就是说，客户端先向服务器端索要公钥，然后用公钥加密信息，服务器收到密文后，用自己的私钥解密\footnote{\url{http://www.ruanyifeng.com/blog/2014/02/ssl_tls.html}}。
-
-\subsection{API设计(API Design)}
-
-\paragraph{提供清晰的思维模型}provides a good mental model\footnote{\url{https://cloud.google.com/apis/design/resources}}
-
-\section{消息队列(Message Queue)}
-
-\subsection{解决消息重复}
-
-增加消息应用状态表（message\_apply），通俗来说就是个账本，用于记录消息的消费情况，每次来一个消息，在真正执行之前，先去消息应用状态表中查询一遍，如果找到说明是重复消息，丢弃即可，如果没找到才执行，同时插入到消息应用状态表（同一事务）。
-
-\subsection{保证消息顺序}
-
-根据具体的业务场景具体分析，没有场景的顺序都是耍流氓。RabbitMQ中，消息最终会保存在队列中，在同一个队列中，消息是顺序的，先进先出原则，这个由RabbitMQ保证。由于Kafka的一个Topic可以分为了多个Partition，Producer发送消息的时候，是分散在不同 Partition的。当Producer按顺序发消息给Broker，但进入Kafka之后，这些消息就不一定进到哪个Partition，会导致顺序是乱的。因此要满足全局有序，需要1个Topic只能对应1个Partition。
-
-\paragraph{RabbitMQ}拆分多个queue，每个queue一个consumer，就是多一些queue而已，确实是麻烦点；或者就一个queue但是对应一个consumer，然后这个consumer内部用内存队列做排队，然后分发给底层不同的worker来处理
-
-\paragraph{Apache Kafka}kafka 写入partion时指定一个key，列如订单id，那么消费者从partion中取出数据的时候肯定是有序的，当开启多个线程的时候可能导致数据不一致，这时候就需要内存队列，将相同的hash过的数据放在一个内存队列里，这样就能保证一条线程对应一个内存队列的数据写入数据库的时候顺序性的，从而可以开启多条线程对应多个内存队列.
-
 \section{多线程(Multi-Thread)}
 
 \subsection{线程同步以及线程调度相关的方法}
@@ -782,95 +572,7 @@ SSL/TLS协议的基本思路是采用公钥加密法，也就是说，客户端�
 \item{notityAll()：唤醒所有处于等待状态的线程，该方法并不是将对象的锁给所有线程，而是让它们竞争，只有获得锁的线程才能进入就绪状态；}
 \end{enumerate}
 
-
-
-
-
-\subsection{Volatile的实现原理}
-
-在 x86 处理器下通过工具获取 JIT 编译器生成的汇编指令来看看对 Volatile 进行写操作 CPU 会做什么事情。
-
-\begin{lstlisting}
-0x01a3de1d: movb $0x0,0x1104800(%esi);
-0x01a3de24: lock addl $0x0,(%esp);
-\end{lstlisting}
-
-有 volatile 变量修饰的共享变量进行写操作的时候会多第二行汇编代码，通过查 IA-32 架构软件开发者手册可知，lock 前缀的指令在多核处理器下会引发了两件事情。将当前处理器缓存行的数据会写回到系统内存。这个写回内存的操作会引起在其他 CPU 里缓存了该内存地址的数据无效。处理器为了提高处理速度，不直接和内存进行通讯，而是先将系统内存的数据读到内部缓存（L1,L2 或其他）后再进行操作，但操作完之后不知道何时会写到内存，如果对声明了 Volatile 变量进行写操作，JVM 就会向处理器发送一条 Lock 前缀的指令，将这个变量所在缓存行的数据写回到系统内存。但是就算写回到内存，如果其他处理器缓存的值还是旧的，再执行计算操作就会有问题，所以在多处理器下，为了保证各个处理器的缓存是一致的，就会实现缓存一致性协议，每个处理器通过嗅探在总线上传播的数据来检查自己缓存的值是不是过期了，当处理器发现自己缓存行对应的内存地址被修改，就会将当前处理器的缓存行设置成无效状态，当处理器要对这个数据进行修改操作的时候，会强制重新从系统内存里把数据读到处理器缓存里\footnote{\url{https://www.infoq.cn/article/ftf-java-volatile}}。
-
-\subsection{synchronized的实现原理是什么}
-
-其中同步代码块是通过使用 monitorenter 和 monitorexit 实现的，而同步方法却是使用ACC\_SYNCHRONIZED标记符隐示的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC\_SYNCHRONIZED 标记符。一段使用了synchronized同步代码块的片段：
-
-\begin{lstlisting}[language=Java]
-/**
- * @author jiangtingqiang@gmail.com
- * @create 2019-05-08-19:21
- */
-public class SynchronizedTest {
-
-    public void test1(){
-        synchronized (this){
-
-        }
-    }
-}
-\end{lstlisting}
-
-用javap查看JVM中间代码：
-
-\begin{lstlisting}
-public void test1();
-    Code:
-       0: aload_0
-       1: dup
-       2: astore_1
-       3: monitorenter
-       4: aload_1
-       5: monitorexit
-       6: goto          14
-       9: astore_2
-      10: aload_1
-      11: monitorexit //再加一个monitorexit，确保释放了锁
-      12: aload_2
-      13: athrow
-      14: return
-\end{lstlisting}
-
-Java虚拟机中的同步(Synchronization)基于进入和退出管程(Monitor)对象实现，无论是显式同步(有明确的monitorenter和 monitorexit指令,即同步代码块)还是隐式同步都是如此\footnote{依据来自Java虚拟机规范：\url{https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-3.html\#jvms-3.14}}。同步方法并不是由monitorenter和monitorexit指令来实现同步的，而是由方法调用指令读取运行时常量池中方法的ACC\_SYNCHRONIZED(Access Flags)标志来隐式实现\footnote{依据来自Java虚拟机规范：\url{https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-3.html\#jvms-3.14}}.一段同步方法的代码块：
-
-\begin{lstlisting}[language=Java]
-/**
- * @author jiangtingqiang@gmail.com
- * @create 2019-05-08-19:21
- */
-public class SynchronizedTest {
-
-    public synchronized void test1(){
-
-    }
-}
-\end{lstlisting}
-
-javap查看中间代码：
-
-\begin{lstlisting}
-public synchronized void test1();
-    descriptor: ()V
-    flags: ACC_PUBLIC, ACC_SYNCHRONIZED
-    Code:
-      stack=0, locals=1, args_size=1
-         0: return
-      LineNumberTable:
-        line 11: 0
-      LocalVariableTable:
-        Start  Length  Slot  Name   Signature
-            0       1     0  this   Ldolphinweb/SynchronizedTest;
-\end{lstlisting}
-
-同步方法通过ACC\_SYNCHRONIZED关键字隐式的对方法进行加锁。当线程要执行的方法被标注上ACC\_SYNCHRONIZED时，需要先获得锁才能执行该方法。同步代码块通过monitorenter和monitorexit执行来进行加锁。当线程执行到monitorenter的时候要先获得所锁，才能执行后面的方法。当线程执行到monitorexit的时候则要释放锁。每个对象自身维护这一个被加锁次数的计数器，当计数器数字为0时表示可以被任意线程获得锁。当计数器不为0时，只有获得锁的线程才能再次获得锁。即可重入锁\footnote{\url{https://www.hollischuang.com/archives/1883}}。
-
 \subsubsection{Moniter的实现原理}
-
 
 无论是同步方法还是同步代码块，无论是ACC\_SYNCHRONIZED还是monitorenter、monitorexit都是基于Monitor实现的，什么是Monitor?
 
@@ -993,12 +695,6 @@ wait/notifyAll 方式
 
 Condition条件对象
 
-\subsection{创建线程}
-
-继承Thread类实现多线程
-覆写Runnable()接口实现多线程，而后同样覆写run()
-实现Callable接口，结合 FutureTask使用
-通过线程池启动多线程
 
 \subsection{线程阻塞}
 
@@ -1133,115 +829,6 @@ Session 是客户端与服务器通讯会话跟踪技术，服务器与客户端
 \subsection{分布式系统任务执行顺序}
 
 各个微服务模块请求协调中心，生成批次号码，服务端生成当前执行的批次号和顺序，客户端发送任务到服务端。
-
-
-\subsection{微服务(Microservice)}
-
-微服务应用是分布式系统，由此会带来固有的复杂性。开发者需要在RPC或者消息传递之间选择并完成进程间通讯机制。更甚于，他们必须写代码来处理消息传递中速度过慢或者不可用等局部失效问题。
-
-个关于微服务的挑战来自于分区的数据库架构。商业交易中同时给多个业务分主体更新消息很普遍。这种交易对于单体式应用来说很容易，因为只有一个数据库。在微服务架构应用中，需要更新不同服务所使用的不同的数据库。使用分布式交易并不一定是好的选择，不仅仅是因为CAP理论，还因为今天高扩展性的NoSQL数据库和消息传递中间件并不支持这一需求。
-
-测试一个基于微服务架构的应用也是很复杂的任务。比如，采用流行的Spring Boot架构，对一个单体式web应用，测试它的REST API，是很容易的事情。反过来，同样的服务测试需要启动和它有关的所有服务（至少需要这些服务的stubs）。
-
-
-微服务架构模式应用的改变将会波及多个服务。比如，假设你在完成一个案例，需要修改服务A、B、C，而A依赖B，B依赖C。在单体式应用中，你只需要改变相关模块，整合变化，部署就好了。对比之下，微服务架构模式就需要考虑相关改变对不同服务的影响。比如，你需要更新服务C，然后是B，最后才是A，幸运的是，许多改变一般只影响一个服务，而需要协调多服务的改变很少。
-
-部署一个微服务应用也很复杂，一个分布式应用只需要简单在复杂均衡器后面部署各自的服务器就好了。每个应用实例是需要配置诸如数据库和消息中间件等基础服务。相对比，一个微服务应用一般由大批服务构成。例如，根据Adrian Cockcroft，Hailo有160个不同服务构成，NetFlix有大约600个服务。每个服务都有多个实例。这就造成许多需要配置、部署、扩展和监控的部分，除此之外，你还需要完成一个服务发现机制，以用来发现与它通讯服务的地址（包括服务器地址和端口）。
-
-
-\paragraph{Spring Cloud}
-
-
-\begin{enumerate}
-\item {Spring Cloud Eureka}Eureka是微服务架构中的注册中心，专门负责服务的注册与发现。
-\item{Feign}Feign的一个关键机制就是使用了动态代理。
-\item{Ribbon}负载均衡，会帮你在每次请求时选择一台机器，均匀的把请求分发到各个机器上.Ribbon的负载均衡默认使用的最经典的Round Robin轮询算法。
-\item{Hystrix}Hystrix是隔离、熔断以及降级的一个框架。
-\item{Zuul}微服务网关。这个组件是负责网络路由的。
-\end{enumerate}
-
-\paragraph{什么是「 微服务 」}
-
-「 微服务 」由 Martin Fowler 提出，它是指一种软件架构风格。一个大型的系统可以由多个微服务组成，每个微服务是被独立部署，独立完成自己的任务单元，微服务之间是通过API方式进行通信调用，是松耦合的。
-
-\paragraph{微服务的优缺点}
-
-部署简单：每个微服务都可以独立去部署，方便快捷。
-
-逻辑清晰：将一个独立功能逻辑封装在单一微服务里面，实现整体项目的逻辑清晰。
-
-可扩展：因为可以随时增加和减少微服务，可以很方便的扩展功能。
-
-可靠性高：某一个功能的异常可以隔离在单一微服务里面，可以提高整体可靠性。
-
-
-复杂度提高、需要持续集成、自动化部署、自动化测试、健全的监控体系来保障。
-
-\subsubsection{微服务搭建}
-
-自动生成微服务Demo地址：https://start.spring.io/，启动注册中心后，访问地址：
-
-\begin{lstlisting}[language=HTML]
-http://localhost:1100/
-\end{lstlisting}
-
-\subsubsection{Spring Admin监控}
-
-codecentric’s Spring Boot Admin is a community project to manage and monitor your Spring Boot ® applications. 
-
-
-\subsection{Eureka工作原理}
-
-\paragraph{Register}
-
-首先来看Register（服务注册），这个接口会在Service Provider启动时被调用来实现服务注册。同时，当Service Provider的服务状态发生变化时（如自身检测认为Down的时候），也会调用来更新服务状态。
-
-\paragraph{Renew}
-
-Renew（服务续约）操作由Service Provider定期调用，类似于heartbeat。主要是用来告诉Eureka Server Service Provider还活着，避免服务被剔除掉。
-
-\paragraph{Cancel}
-
-Cancel（服务下线）一般在Service Provider shut down的时候调用，用来把自身的服务从Eureka Server中删除，以防客户端调用不存在的服务。
-
-\paragraph{Fetch Registries}
-
-Fetch Registries由Service Consumer调用，用来获取Eureka Server上注册的服务。为了提高性能，服务列表在Eureka Server会缓存一份，同时每30秒更新一次\footnote{\url{https://zhuanlan.zhihu.com/p/24829766}}。
-
-\subsection{需要的基础组件}
-
-服务注册
-
-部署了一个微服务节点，得让调用者知道啊，当微服务节点有增加或减少的时候，也得让调用者及时知晓啊。这些问题都是通过“服务注册”组件来实现的，服务提供者将自己的服务地址等信息登记到“服务注册”组件中，调用者需要的时候，每次都先去查询“服务注册”即可。免去人工维护微服务节点的信息同步问题。
-
-服务网关
-
-是指提供给外部系统调用的是统一网关。主要做安全和权限控制等。
-
-配置中心
-
-微服务的配置中心是用来统一管理所有微服务节点的配置信息的。因为同一个程序可能要适用于多个环境，所以在微服务实践中要尽量做到程序与配置分离，将配置进行集中管理。包括微服务节点信息、程序运行时配置、变量配置、数据源配置、日志配置、版本配置等。
-
-服务框架
-
-是指用来规范各个微服务节点之间通信标准的。服务间通信采用什么协议、数据是如何传输的、数据格式是什么样的。有了这个统一的“服务框架”就能保证各个微服务节点之间高效率的协同。
-
-服务监控
-
-微服务运行起来之后，为了能够监控节点的健康情况，保障节点的高可行，需要对各个服务节点进行收集数据指标、然后对数据进行实时处理和分析，形成监控报表和预警。
-
-服务追踪
-
-一旦使用了微服务架构，那么当有请求过来时，就会经过多个微服务节点的处理，形成了一个调用链。为了进行问题追踪和故障的定位，需要对请求的完整调用链进行记录。
-
-这里的服务追踪与上面的服务监控是不同维度的，一个是全局的，一个是微观的，发挥的作用也不一样。
-
-服务治理
-
-就是指需要通过准备一些策略和方案，来保障整个微服务架构在生产环境遇到极端情况下也能正常提供服务的措施。比如 熔断、限流、隔离等等。
-
-\paragraph{如何保证微服务执行顺序}
-
 
 
 \section{数据结构(Data Structure)}

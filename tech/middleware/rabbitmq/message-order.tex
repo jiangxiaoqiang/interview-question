@@ -1,0 +1,13 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{保证消息顺序}
+
+根据具体的业务场景具体分析，没有场景的顺序都是耍流氓。RabbitMQ中，消息最终会保存在队列中，在同一个队列中，消息是顺序的，先进先出原则，这个由RabbitMQ保证。由于Kafka的一个Topic可以分为了多个Partition，Producer发送消息的时候，是分散在不同 Partition的。当Producer按顺序发消息给Broker，但进入Kafka之后，这些消息就不一定进到哪个Partition，会导致顺序是乱的。因此要满足全局有序，需要1个Topic只能对应1个Partition。
+
+\paragraph{RabbitMQ}拆分多个queue，每个queue一个consumer，就是多一些queue而已，确实是麻烦点；或者就一个queue但是对应一个consumer，然后这个consumer内部用内存队列做排队，然后分发给底层不同的worker来处理
+
+\paragraph{Apache Kafka}kafka 写入partion时指定一个key，列如订单id，那么消费者从partion中取出数据的时候肯定是有序的，当开启多个线程的时候可能导致数据不一致，这时候就需要内存队列，将相同的hash过的数据放在一个内存队列里，这样就能保证一条线程对应一个内存队列的数据写入数据库的时候顺序性的，从而可以开启多条线程对应多个内存队列.
+
+\end{document}

@@ -1,0 +1,78 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{synchronized的实现原理是什么}
+
+其中同步代码块是通过使用 monitorenter 和 monitorexit 实现的，而同步方法却是使用ACC\_SYNCHRONIZED标记符隐示的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC\_SYNCHRONIZED 标记符。一段使用了synchronized同步代码块的片段：
+
+\begin{lstlisting}[language=Java]
+/**
+ * @author jiangtingqiang@gmail.com
+ * @create 2019-05-08-19:21
+ */
+public class SynchronizedTest {
+
+    public void test1(){
+        synchronized (this){
+
+        }
+    }
+}
+\end{lstlisting}
+
+用javap查看JVM中间代码：
+
+\begin{lstlisting}
+public void test1();
+    Code:
+       0: aload_0
+       1: dup
+       2: astore_1
+       3: monitorenter
+       4: aload_1
+       5: monitorexit
+       6: goto          14
+       9: astore_2
+      10: aload_1
+      11: monitorexit //再加一个monitorexit，确保释放了锁
+      12: aload_2
+      13: athrow
+      14: return
+\end{lstlisting}
+
+Java虚拟机中的同步(Synchronization)基于进入和退出管程(Monitor)对象实现，无论是显式同步(有明确的monitorenter和 monitorexit指令,即同步代码块)还是隐式同步都是如此\footnote{依据来自Java虚拟机规范：\url{https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-3.html\#jvms-3.14}}。同步方法并不是由monitorenter和monitorexit指令来实现同步的，而是由方法调用指令读取运行时常量池中方法的ACC\_SYNCHRONIZED(Access Flags)标志来隐式实现\footnote{依据来自Java虚拟机规范：\url{https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-3.html\#jvms-3.14}}.一段同步方法的代码块：
+
+\begin{lstlisting}[language=Java]
+/**
+ * @author jiangtingqiang@gmail.com
+ * @create 2019-05-08-19:21
+ */
+public class SynchronizedTest {
+
+    public synchronized void test1(){
+
+    }
+}
+\end{lstlisting}
+
+javap查看中间代码：
+
+\begin{lstlisting}
+public synchronized void test1();
+    descriptor: ()V
+    flags: ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code:
+      stack=0, locals=1, args_size=1
+         0: return
+      LineNumberTable:
+        line 11: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       1     0  this   Ldolphinweb/SynchronizedTest;
+\end{lstlisting}
+
+同步方法通过ACC\_SYNCHRONIZED关键字隐式的对方法进行加锁。当线程要执行的方法被标注上ACC\_SYNCHRONIZED时，需要先获得锁才能执行该方法。同步代码块通过monitorenter和monitorexit执行来进行加锁。当线程执行到monitorenter的时候要先获得所锁，才能执行后面的方法。当线程执行到monitorexit的时候则要释放锁。每个对象自身维护这一个被加锁次数的计数器，当计数器数字为0时表示可以被任意线程获得锁。当计数器不为0时，只有获得锁的线程才能再次获得锁。即可重入锁\footnote{\url{https://www.hollischuang.com/archives/1883}}。
+
+
+\end{document}

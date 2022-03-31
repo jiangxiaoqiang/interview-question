@@ -1,0 +1,42 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{在JVM中如何判断一个对象的生死状态？}
+
+\paragraph{引用计数器算法}
+通过一系列称之为 “GC Roots” 的根对象作为起点，从这些对象开始向下搜索遍历，所有搜索过的路径称之为引用链(Reference Chain)，当一个对象到 GC Roots 没有任何一个引用链相连(对象不可达)时，证明该对象已不再被引用(失效)，此时该对象将被 GC 回收
+
+优点：实现简单、性能高。
+
+缺点：增减处理频繁消耗CPU计算、计数器占用很多位浪费空间、最重要的缺点是无法解决循环引用的问题。
+
+\paragraph{可达性分析算法}
+
+3、对象生死与引用的关系
+
+JDK1.2之后对引用进行了扩充，将引用分为：
+
+强引用（Strong Reference）
+
+软引用（Soft Reference）
+
+弱引用（Weak Reference）
+
+虚引用（Phantom Reference）
+
+1.虚拟机栈（栈帧中的本地变量表）中引用的对象\footnote{\url{https://blog.csdn.net/u010798968/article/details/72835255}}；
+
+2.方法区中的类静态属性引用的对象；
+
+3.方法区中常量引用的对象；
+
+4.本地方法栈中JNI（即一般说的Native方法）中引用的对象
+
+GC管理的主要区域是Java堆，一般情况下只针对堆进行垃圾回收。方法区、栈和本地方法区不被GC所管理,因而选择这些区域内的对象作为GC roots,被GC roots引用的对象不被GC回收。
+
+
+4、死亡标记与拯救
+
+\end{document}
+
