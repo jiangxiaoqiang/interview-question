@@ -1,0 +1,118 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{创建型模式(Creational Patterns)}
+
+根据模式是用来完成什么工作来划分，这种方式可分为创建型模式、结构型模式和行为型模式 3 种。
+创建型模式：用于描述“怎样创建对象”，它的主要特点是“将对象的创建与使用分离”。GoF 中提供了单例(懒汉式、饿汉式、双重校验锁、静态加载，内部类加载、枚举类加载)、原型、工厂方法、抽象工厂、建造者等 5 种创建型模式。
+结构型模式：用于描述如何将类或对象按某种布局组成更大的结构，GoF 中提供了代理、适配器、桥接、装饰、外观、享元、组合等 7 种结构型模式。
+行为型模式：用于描述类或对象之间怎样相互协作共同完成单个对象都无法单独完成的任务，以及怎样分配职责。GoF 中提供了模板方法、策略、命令、职责链、状态、观察者、中介者、迭代器、访问者、备忘录、解释器等 11 种行为型模式。
+
+
+\paragraph{建造者模式}
+
+Builder模式的定义是“将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。”，它属于创建类模式，一般来说，如果一个对象的构建比较复杂，超出了构造函数所能包含的范围，就可以使用工厂模式和Builder模式，相对于工厂模式会产出一个完整的产品，Builder应用于更加复杂的对象的构建，甚至只会构建产品的一个部分。在Mybatis环境的初始化过程中，SqlSessionFactoryBuilder会调用XMLConfigBuilder读取所有的MybatisMapConfig.xml和所有的*Mapper.xml文件，构建Mybatis运行的核心对象Configuration对象，然后将该Configuration对象作为参数构建一个SqlSessionFactory对象。
+
+\paragraph{单例模式}
+
+在实际应用中，线程池、缓存、日志对象、对话框对象常被设计成单例，总之，选择单例模式就是为了避免不一致状态.在Mybatis中有两个地方用到单例模式，ErrorContext和LogFactory，其中ErrorContext是用在每个线程范围内的单例，用于记录该线程的执行环境错误信息，而LogFactory则是提供给整个Mybatis使用的日志工厂，用于获得针对项目配置好的日志对象。
+
+\subparagraph{兼顾线程安全和效率的写法(Singleton With Lazy Initialization)}
+
+这种写法被称为“双重检查锁(Double Check Locking)”，顾名思义，就是在getSingleton()方法中，进行两次null检查。看似多此一举，但实际上却极大提升了并发度，进而提升了性能。
+
+\begin{lstlisting}[language=Java]
+public class Singleton {
+    private static volatile Singleton singleton = null;
+ 
+    private Singleton(){}
+ 
+    public static Singleton getSingleton(){
+        if(singleton == null){
+            synchronized (Singleton.class){
+                if(singleton == null){
+                    singleton = new Singleton();
+                }
+            }
+        }
+        return singleton;
+    }    
+}
+\end{lstlisting}
+
+禁止指令重排优化这条语义直到JDK 1.5以后才能正确工作。此前的JDK中即使将变量声明为volatile也无法完全避免重排序所导致的问题。所以，在JDK 1.5版本前，双重检查锁形式的单例模式是无法保证线程安全的\footnote{\url{https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html}}。
+
+\subparagraph{静态内部类写法}
+
+静态内部类单例模式如下：
+
+\begin{lstlisting}[language=Java]
+public class SingletonInner {
+    private static class Holder {
+        private static SingletonInner singleton = new SingletonInner();
+    }
+
+    private SingletonInner(){}
+
+    public static SingletonInner getSingleton(){
+        return Holder.singleton;
+    }
+}
+\end{lstlisting}
+
+序列化可能会破坏单例模式，比较每次反序列化一个序列化的对象实例时都会创建一个新的实例：
+
+\begin{lstlisting}[language=Java]
+public static Singleton INSTANCE = new Singleton();     
+private static volatile  boolean  flag = true;
+private Singleton(){
+    if(flag){
+    flag = false;   
+    }else{
+        throw new RuntimeException("The instance already exists ！");
+    }
+}
+\end{lstlisting}
+
+\subparagraph{枚举写法单例模式}
+
+使用枚举单例的写法，我们完全不用考虑序列化和反射的问题。枚举序列化是由jvm保证的，每一个枚举类型和定义的枚举变量在JVM中都是唯一的，在枚举类型的序列化和反序列化上，Java做了特殊的规定：在序列化时Java仅仅是将枚举对象的name属性输出到结果中，反序列化的时候则是通过java.lang.Enum的valueOf方法来根据名字查找枚举对象。同时，编译器是不允许任何对这种序列化机制的定制的并禁用了writeObject、readObject、readObjectNoData、writeReplace和readResolve等方法，从而保证了枚举实例的唯一性\footnote{\url{https://blog.csdn.net/javazejian/article/details/71333103\#enumset实现原理剖析}}。枚举方式的单例写法如下：
+
+\begin{lstlisting}[language=Java]
+public enum Singleton {
+    INSTANCE;
+}
+\end{lstlisting}
+
+使用枚举除了线程安全和防止反射强行调用构造器之外，还提供了自动序列化机制，防止反序列化的时候创建新的对象。枚举写法在Android平台上却是不被推荐的，会占用更多内存。
+
+
+\subsection{结构型模式(Structural Patterns)}
+
+\paragraph{装饰者模式}
+
+装饰模式(Decorator Pattern) ：动态地给一个对象增加一些额外的职责(Responsibility)，就增加对象功能来说，装饰模式比生成子类实现更为灵活。其别名也可以称为包装器(Wrapper)，与适配器模式的别名相同，但它们适用于不同的场合。根据翻译的不同，装饰模式也有人称之为“油漆工模式”，它是一种对象结构型模式。在MyBatis中，缓存的功能由根接口Cache（org.apache.ibatis.cache.Cache）定义。整个体系采用装饰器设计模式，数据存储和缓存的基本功能由PerpetualCache（org.apache.ibatis.cache.impl.PerpetualCache）永久缓存实现，然后通过一系列的装饰器来对PerpetualCache永久缓存进行缓存策略等方便的控制。
+
+\paragraph{代理模式}
+
+代理模式可以认为是Mybatis的核心使用的模式，正是由于这个模式，我们只需要编写Mapper.java接口，不需要实现，由Mybatis后台帮我们完成具体SQL的执行。
+
+代理模式(Proxy Pattern) ：给某一个对象提供一个代 理，并由代理对象控制对原对象的引用。代理模式的英 文叫做Proxy或Surrogate，它是一种对象结构型模式。
+
+\subsection{行为型模式(Behavioral Patterns)}
+
+\paragraph{摸板方法模式}
+
+模板类定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。在Mybatis中，sqlSession的SQL执行，都是委托给Executor实现的。其中的BaseExecutor就采用了模板方法模式，它实现了大部分的SQL执行逻辑，然后把以下几个方法交给子类(SimpleExecutor/ReuseExecutor/BatchExecutor)定制化完成。
+
+\paragraph{迭代器模式}
+
+迭代器（Iterator）模式，又叫做游标（Cursor）模式。GOF给出的定义为：提供一种方法访问一个容器（container）对象中各个元素，而又不需暴露该对象的内部细节。比如Mybatis的PropertyTokenizer是property包中的重量级类，该类会被reflection包中其他的类频繁的引用到。这个类实现了Iterator接口，在使用时经常被用到的是Iterator接口中的hasNext这个函数。
+
+\paragraph{观察者（Observer）}
+
+Spring中Observer模式常用的地方是listener的实现。如ApplicationListener。
+
+
+\end{document}

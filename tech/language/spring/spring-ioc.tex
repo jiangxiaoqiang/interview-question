@@ -5,27 +5,19 @@
 
 \subsection{Spring IoC}
 
-首先我们要知道IOC（Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交由Spring框架来管理。这并非Spring特有，在其他语言里面也有体现。IOC容器是Spring用来实现IOC的载体， IOC容器实际上就是个Map（key，value）,Map 中存放的是各种对象。spring 中有多少种 IOC 容器？BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。
+首先我们要知道IoC（Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交由Spring框架来管理。这并非Spring特有，在其他语言里面也有体现。IOC容器是Spring用来实现IOC的载体， IoC容器实际上就是个Map（key，value）,Map 中存放的是各种对象。spring 中有多少种 IOC 容器？BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。
 ApplicationContext - ApplicationContext 接口扩展了 BeanFactory 接口。它在 BeanFactory 基础上提供了一些额外的功能。
 
-或许是IOC不够开门见山，Martin Fowler提出了DI(dependency injection)来替代IOC，即让调用类对某一接口实现类的依赖关系由第三方(容器或协作类)注入，以移除调用类对某一接口实现类的依赖。
+或许是IoC不够开门见山，Martin Fowler提出了DI(Dependency Injection)来替代IoC(Inverse of Control)，即让调用类对某一接口实现类的依赖关系由第三方(容器或协作类)注入，以移除调用类对某一接口实现类的依赖。
 
-所以我们要区别IOC与DI，简单来说IOC的主要实现方式有两种：
-
-依赖查找
-
-依赖注入
+所以我们要区别IoC与DI(Dependency Injection)，简单来说IOC的主要实现方式有两种：依赖查找和依赖注入。
 
 我们DI就是依赖注入，也就是IOC的一种可取的实现方式！对两个概念总结以下：
 
 IOC （Inversion of control ） 控制反转/反转控制。是站在对象的角度，对象实例化以及管理的权限（反转）交给了容器。
 
 DI （Dependancy Injection）依赖注入。是站在容器的角度，容器会把对象依赖的其他对象注入（送进去）。例如：对象A 实例化过程中因为声明了一个B类型的属性，那么就需要容器把B对象注入到A中。可以通过多少种方式完成依赖注入？
-通常，依赖注入可以通过三种方式完成，即：
-
-构造函数注入
-setter 注入
-接口注入
+通常，依赖注入可以通过三种方式完成，即：构造函数注入、setter 注入、接口注入。
 
 在 Spring Framework 中，仅使用构造函数和 setter 注入。
 

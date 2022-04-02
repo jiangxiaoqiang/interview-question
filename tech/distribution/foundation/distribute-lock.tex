@@ -1,0 +1,65 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{分布式锁实现方式}
+
+实现分布式锁一般是通过MySQL等数据库、ZooKeeper、Redis和自研分布式锁:如谷歌的Chubby。
+
+\paragraph{Redis实现-基于单Redis节点的分布式锁}
+
+获取分布式锁时，注意set操作和设置过期时间操作要保证原子性，不能分2步完成，在设置过期时间失败后，锁不会过期，将会成为死锁\footnote{\url{https://wudashan.cn/2017/10/23/Redis-Distributed-Lock-Implement/}}。
+
+\begin{lstlisting}[language=Java]
+public class RedisTool {
+    private static final String LOCK_SUCCESS = "OK";
+    private static final String SET_IF_NOT_EXIST = "NX";
+    private static final String SET_WITH_EXPIRE_TIME = "PX";
+    /**
+     * 尝试获取分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @param expireTime 超期时间
+     * @return 是否获取成功
+     */
+    public static boolean tryGetDistributedLock(Jedis jedis, String lockKey, String requestId, int expireTime) {
+        String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
+        if (LOCK_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
+    }
+}
+\end{lstlisting}
+
+同理，解锁时也要保证操作的原子性：
+
+\begin{lstlisting}[language=Java]
+public class RedisTool {
+    private static final Long RELEASE_SUCCESS = 1L;
+    /**
+     * 释放分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @return 是否释放成功
+     */
+    public static boolean releaseDistributedLock(Jedis jedis, String lockKey, String requestId) {
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
+        if (RELEASE_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
+    }
+}
+\end{lstlisting}
+
+存在问题：如果在并发极高的场景下，比如抢红包场景，可能存在UnixTimestamp重复问题，另外由于不能保证分布式环境下的物理时钟一致性，也可能存在UnixTimestamp重复问题，只不过极少情况下会遇到。以上实现仅在单实例的场景下是安全的，针对如何实现分布式Redis的锁，antirez提出了分布式锁算法Redlock\footnote{\url{http://zhangtielei.com/posts/blog-redlock-reasoning.html}}。
+
+\paragraph{Redis实现-基于多Redis节点的Redlock算法实现分布式锁}
+
+基于Redis的Redisson红锁RedissonRedLock对象实现了Redlock介绍的加锁算法。当然更好的方案是避免使用分布式锁，采用消息队列替代。
+
+\end{document}

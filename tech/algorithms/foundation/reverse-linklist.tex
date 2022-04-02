@@ -1,0 +1,87 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsubsection{倒转链表(Reverse Link List)}
+
+
+虽然平时用不到，但是翻转链表之于程序员就像小丑的翻筋斗，是一项基础技能，面试的时候表演专用。不管会不会干活，先翻两个筋斗瞧瞧。Homebrew作者Max Howell就是不会翻转二叉树而失去了机会\footnote{\url{https://twitter.com/mxcl/status/608682016205344768}}。定义单向链表：
+
+
+\begin{lstlisting}[language=Java]
+/**单向链表定义**/
+static class Node<T> {
+    private T value;    //节点值
+    private Node<T> next;   //后继节点
+
+    public Node() {
+    }
+    public Node(T value, Node<T> next) {
+        this.value = value;
+        this.next = next;
+    }
+}
+\end{lstlisting}
+
+初始化单向链表：
+
+\begin{lstlisting}[language=Java]
+/**初始化链表**/
+private Node initLinkedList(int num) {
+    Node head = new Node(0, null);
+    Node cur = head;
+    for(int i=1; i<num;i++){
+        cur.next = new Node(i, null);
+        cur = cur.next;
+    }
+    return head;
+}
+\end{lstlisting}
+
+翻转链表：
+
+\begin{lstlisting}[language=Java]
+/**反转链表**/
+private Node reverseLinkedList(Node head) {
+    if (head == null || head.next==null) {
+        return head;
+    }
+
+    Node prev = null;
+    Node next = null;
+    while(head.next!=null){
+        /**
+         * 将下一个节点保存到next中
+         * 左后指针要恢复指向下一个节点继续遍历
+         */
+        next = head.next;
+        /**
+         * 当前节点后跟上一次循环的倒转链表集合
+         * 组成一个新的倒转集合
+         * 新的倒转链表新增指针当前指向的节点
+         */
+        head.next = prev;
+        /**
+         * 保存当前节点
+         * 注意prev保存时是保存的倒转之后的链表集合，不是单个节点
+         * 此处的head包含指针当前的节点加上上一次循环倒转的链表节点
+         */
+        prev = head;    //保存当前节点
+        /**
+         * 链表头指针移到下一个节点
+         * 进入下一个元素的循环
+         */
+        head = next;
+    }
+    head.next = prev;
+    return head;
+}
+\end{lstlisting}
+
+\end{document}
+
+
+
+
+
+

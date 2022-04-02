@@ -1,0 +1,48 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsubsection{反转二叉树}
+
+反转二叉树属于"世界级难题"，据说难倒了Max Howell大神，就是Homebrew的首席开发。定义节点属性\footnote{\url{http://www.voidcn.com/article/p-sjjaskjk-u.html}}：
+
+\begin{lstlisting}[language=Java]
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+
+    TreeNode(int x) {
+        val = x;
+    }
+}
+\end{lstlisting}
+
+采用递归反转：
+
+\begin{lstlisting}[language=Java]
+public TreeNode invertTree(TreeNode root) {
+   if (root == null) {
+        return null;
+    }
+
+    //递归反转左右子树
+    TreeNode temp = root.left;
+    root.left = invertTree(root.right);
+    root.right = invertTree(temp);
+
+    return root; 
+}
+\end{lstlisting}
+
+leetcode刷题地址\footnote{\url{https://leetcode.com/problems/invert-binary-tree/}}。
+
+
+
+\end{document}
+
+
+
+
+
+

@@ -1,0 +1,59 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{如何保证线程顺序执行}
+
+\paragraph{使用join关键字实现}join关键字用于让当前线程等待join线程执行完毕后再执行，否则会处于等待阻塞状态。
+
+\begin{lstlisting}[language=Java]
+class Task implements Runnable{
+    private int taskId;
+    
+    public Task(int taskId){
+        this.taskId = taskId; 
+    }    
+    
+    @Override
+    public void run(){
+        System.out.println("线程"+taskId+"运行！")；
+    }
+}
+public void method1() throws InterruptedException{
+    Thread t1 = new Thread(new Task(1));
+    Thread t2 = new Thread(new Task(2));
+    
+    t1.start();
+    t1.join();//阻塞主线程，直到线程1执行完
+    t2.start();
+}
+\end{lstlisting}
+
+\paragraph{使用队列}把线程依次加入到队列里，按顺序执行即可。newSingleThreadExecutor是一个只有一个消费线程的线程池，这个消费线程会按队列FIFO的顺序去任务队列里取任务，只要保证三个线程按顺序放入就可以了。
+
+\begin{lstlisting}[language=Java]
+class Task implements Runnable{
+    
+    private int taskId;
+    
+    public Task(int taskId){
+        this.taskId = taskId;
+    }
+    
+    public void run(){
+        System.out.println("线程"+taskId+"执行！")；
+    }
+}
+public void method3(){
+    ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    threadPool.execute(new Task(1));
+    threadPool.execute(new Task(2));
+    threadPool.execute(new Task(3));
+}
+\end{lstlisting}
+
+\paragraph{使用CountDownLatch关键字实现}执行它的latch.await()方法，如果计数器不为0，那么当前线程就会被阻塞；每完成一个任务，就执行latch.countDown()，计数器减一，当计数器为0时，阻塞的线程恢复执行状态\footnote{\url{http://xiaonanbobo.com/2017/12/05/如何保证线程的顺序执行？/}}。
+
+
+
+\end{document}

@@ -5,13 +5,13 @@
 
 \subsection{Spring AOP原理}
 
-AOP(Aspect Orient Programming)的拦截功能是由Java中的动态代理(Dynamic Proxy)来实现的。代理类在程序运行时创建的代理方式被成为动态代理，也就是说，这种情况下，代理类并不是在Java代码中定义的，而是在运行时根据我们在Java代码中的“指令”动态生成的。相比于静态代理， 动态代理的优势在于可以很方便的对代理类的函数进行统一的处理，而不用修改每个代理类的函数。
+AOP(Aspect Orient Programming)的拦截功能是由Java中的动态代理(Dynamic Proxy)来实现的\footnote{参见：\url{https://docs.spring.io/spring-framework/docs/current/reference/html/core.html\#aop}}，准确的说应该默认是用Java的动态代理来实现，当代理的是类而非接口的时候是通过CGLIB来实现的(Spring AOP can also use CGLIB proxies. This is necessary to proxy classes rather than interfaces.)。代理类在程序运行时创建的代理方式被成为动态代理，也就是说，这种情况下，代理类并不是在Java代码中定义的，而是在运行时根据我们在Java代码中的“指令”动态生成的。相比于静态代理， 动态代理的优势在于可以很方便的对代理类的函数进行统一的处理，而不用修改每个代理类的函数。
 
-​ 相比于静态代理来说，动态代理更加灵活。我们不需要针对每个目标类都单独创建一个代理类，并且也不需要我们必须实现接口，我们可以直接代理实现类( CGLIB 动态代理机制)。
+​ 相比于静态代理来说，动态代理更加灵活。我们不需要针对每个目标类都单独创建一个代理类，并且也不需要我们必须实现接口(更严谨的说法是CGLIB动态代理不需要实现接口，Java的动态代理还是要实现InvocationHandler接口的)，我们可以直接代理实现类( CGLIB 动态代理机制)。
 
 ​ 动态代理其实是一种方便运行时候动态的处理代理方法的调用机制，通过代理可以让调用者和实现者之间解耦。
 
-​ 从 JVM 角度来说，动态代理是在运行时动态生成类字节码，并加载到 JVM 中的。JDK动态代理主要是基于反射，使用反射解析目标对象的属性、方法等
+​ 从 JVM 角度来说，动态代理是在运行时动态生成类字节码，并加载到 JVM 中的。JDK动态代理主要是基于反射，使用反射解析目标对象的属性、方法等。
 
 根据解析的内容生成proxy.class，说白了就是把要生成的class按照字符串的形式拼接，最终通过ClassLoader加载。JDK 动态代理有一个最致命的问题是只能代理实现了接口的类。
 

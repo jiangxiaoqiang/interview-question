@@ -1,0 +1,20 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Java J.U.C}
+
+J.U.C并发包，即java.util.concurrent包，是JDK的核心工具包，是JDK1.5之后，由 Doug Lea实现并引入。整个java.util.concurrent包，按照功能可以大致划分如下：
+
+\begin{enumerate}
+\item {juc-locks 锁框架。}显式锁(互斥锁和速写锁)相关；
+\item {juc-atomic 原子类框架。}原子变量类相关，是构建非阻塞算法的基础；早期的JDK版本中，如果要并发的对Integer、Long、Double之类的Java原始类型或引用类型进行操作，一般都需要通过锁来控制并发，以防数据不一致。从JDK1.5开始，引入了java.util.concurrent.atomic工具包，该包提供了许多Java原始/引用类型的映射类，如AtomicInteger、AtomicLong、AtomicBoolean，这些类可以通过一种“无锁算法”，线程安全的操作Integer、Long、Boolean等原始类型。
+\item {juc-sync/tools 同步器框架。}同步工具相关，如信号量、闭锁、栅栏等功能；
+\item {juc-collections 集合框架。}并发容器相关；这里的juc-collections集合框架，是指java.util.concurrent包下的一些同步集合类，按类型划分可以分为：Set、List、Map、Queue四大类
+\item{juc-executors 执行器框架。}线程池相关；executors框架是整个J.U.C包中类/接口关系最复杂的框架，executors其实可以划分为3大块，每一块的核心都是基于Executor这个接口：线程池、Future模式、Fork/Join框架。
+\end{enumerate}
+
+
+
+
+\end{document}

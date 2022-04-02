@@ -4,7 +4,11 @@
 
 \subsection{synchronized的实现原理是什么}
 
-其中同步代码块是通过使用 monitorenter 和 monitorexit 实现的，而同步方法却是使用ACC\_SYNCHRONIZED标记符隐示的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC\_SYNCHRONIZED 标记符。一段使用了synchronized同步代码块的片段：
+Synchronized可以把任何一个非null对象作为"锁"，在HotSpot JVM实现中，锁有个专门的名字：对象监视器（Object Monitor）。Synchronized的语义底层是通过一个monitor的对象来完成，其实wait/notify等方法也依赖于monitor对象，这就是为什么只有在同步的块或者方法中才能调用wait/notify等方法，否则会抛出java.lang.IllegalMonitorStateException的异常的原因。当方法调用时，调用指令将会检查方法的 ACC\_SYNCHRONIZED 访问标志是否被设置，如果设置了，执行线程将先获取monitor，获取成功之后才能执行方法体，方法执行完后再释放monitor。两种同步方式本质上没有区别，只是方法的同步是一种隐式的方式来实现，无需通过字节码来完成。两个指令的执行是JVM通过调用操作系统的互斥原语mutex来实现，被阻塞的线程会被挂起、等待重新调度，会导致“用户态和内核态”两个态之间来回切换，对性能有较大影响。从JDK6开始，就对synchronized的实现机制进行了较大调整，包括使用JDK5引进的CAS自旋之外，还增加了自适应的CAS自旋、锁消除、锁粗化、偏向锁、轻量级锁这些优化策略。由于此关键字的优化使得性能极大提高，同时语义清晰、操作简单、无需手动关闭，所以推荐在允许的情况下尽量使用此关键字，同时在性能上此关键字还有优化的空间。
+
+锁主要存在四种状态，依次是：无锁状态、偏向锁状态、轻量级锁状态、重量级锁状态，锁可以从偏向锁升级到轻量级锁，再升级的重量级锁。但是锁的升级是单向的，也就是说只能从低到高升级，不会出现锁的降级。
+
+在 JDK 1.6 中默认是开启偏向锁和轻量级锁的，可以通过-XX:-UseBiasedLocking来禁用偏向锁。在方法执行期间，其他任何线程都无法再获得同一个monitor对象。其中同步代码块是通过使用 monitorenter 和 monitorexit 实现的，而同步方法却是使用ACC\_SYNCHRONIZED标记符隐示的实现，原理是通过方法调用指令检查该方法在常量池中是否包含 ACC\_SYNCHRONIZED 标记符。一段使用了synchronized同步代码块的片段：
 
 \begin{lstlisting}[language=Java]
 /**

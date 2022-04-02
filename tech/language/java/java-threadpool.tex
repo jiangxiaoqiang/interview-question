@@ -1,0 +1,31 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Java线程池}
+
+\paragraph{线程池主要组件}
+
+一个线程池包括以下四个基本组成部分：
+
+线程池管理器（ThreadPool）：用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
+工作线程（WorkThread）：线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
+任务接口（Task）：每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等；
+任务队列（taskQueue）：用于存放没有处理的任务。提供一种缓冲机制。
+
+\paragraph{创建一个线程池需要输入几个参数}
+
+\textbf{corePoolSize（线程池的基本大小）}：当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用了线程池的prestartAllCoreThreads方法，线程池会提前创建并启动所有基本线程。
+
+\textbf{maximumPoolSize（线程池最大大小）}：线程池允许创建的最大线程数。如果队列满了，并且已创建的线程数小于最大线程数，则线程池会再创建新的线程执行任务。值得注意的是如果使用了无界的任务队列这个参数就没什么效果。
+
+\textbf{runnableTaskQueue（任务队列）}：用于保存等待执行的任务的阻塞队列。
+ThreadFactory：用于设置创建线程的工厂，可以通过线程工厂给每个创建出来的线程设置更有意义的名字，Debug和定位问题时非常又帮助。
+
+\textbf{RejectedExecutionHandler（拒绝策略）}：当队列和线程池都满了，说明线程池处于饱和状态，那么必须采取一种策略处理提交的新任务。这个策略默认情况下是AbortPolicy，表示无法处理新任务时抛出异常。以下是JDK1.5提供的四种策略。n  AbortPolicy：直接抛出异常。
+
+\textbf{keepAliveTime（线程活动保持时间，线程池的​​工作线程空闲后​​​，​​保持存活的时间​​​）}：线程池的工作线程空闲后，保持存活的时间。所以如果任务很多，并且每个任务执行的时间比较短，可以调大这个时间，提高线程的利用率。
+
+\textbf{TimeUnit（线程活动保持时间的单位）}：可选的单位有天（DAYS），小时（HOURS），分钟（MINUTES），毫秒(MILLISECONDS)，微秒(MICROSECONDS, 千分之一毫秒)和毫微秒(NANOSECONDS, 千分之一微秒)。
+
+\end{document}
