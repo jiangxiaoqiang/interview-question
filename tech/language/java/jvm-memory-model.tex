@@ -2,7 +2,7 @@
 
 \begin{document}
 
-\subsection{Java内存模型(Java Memory Model)}
+\subsection{\color{red}{Java内存模型(Java Memory Model)}}
 
 根据JVM虚拟机规范，运行时数据区通常包括这几个部分：程序计数器(Program Counter Register)、Java栈(VM Stack)、本地方法栈(Native Method Stack)、方法区(Method Area)、堆(Heap)。为了便于记忆，可以逻辑上分为2部分，一是所有线程共享的部分，包括方法区(Method Area)和堆(Heap)，二是单个线程私有的部分，包括程序计数器(Program Counter Register)、Java栈(VM Stack)、本地方法栈(Native Method Stack)。Java栈中存放的是一个个的栈帧，每个栈帧对应一个被调用的方法，在栈帧中包括局部变量表(Local Variables)、操作数栈(Operand Stack)、指向当前方法所属的类的运行时常量池（运行时常量池的概念在方法区部分会谈到）的引用(Reference to runtime constant pool)、方法返回地址(Return Address)和一些额外的附加信息。当线程执行一个方法时，就会随之创建一个对应的栈帧，并将建立的栈帧压栈。当方法执行完毕之后，便会将栈帧出栈。
 
