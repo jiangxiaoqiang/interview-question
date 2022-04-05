@@ -58,8 +58,27 @@ InstanceKlass* klass = InstanceKlass::cast(java_lang_Class::as_Klass(mirror));
 Method* m = klass->method_with_idnum(slot);
 \end{lstlisting}
 
-跟踪反射方法的代码，发现直接是从类的属性中获取的，类的属性什么时候put进去的呢，跟踪可知在Define类的时候。具体是什么时候定义类的呢？需进一步分析。为什么开始几次使用Natvie方式来实现反射呢？应该是Native方式在少量次数的反射时，性能要优于字节码方式实现。如果次数超过阈值，使用字节码方式来实现反射更具备优势。有时间可以写一个Benchmark来验证。
+跟踪反射方法的代码，发现直接是从类的属性中获取的，类的属性什么时候put进去的呢，跟踪可知在Define类的时候。具体是什么时候定义类的呢？需进一步分析。为什么开始几次使用Natvie方式来实现反射呢？动态字节码实现(Bytecode-based Implementations)和本地实现(Native Implementations)相比，其运行效率要快上 20 倍。这是因为动态实现无需经过 Java 到 C++ 再到 Java 的切换，但由于生成字节码十分耗时，仅调用一次的话，反而是本地实现要快上 3 到 4 倍\footnote{性能数据来源于JDK源码的注释:\url{http://hg.openjdk.java.net/jdk10/jdk10/jdk/file/777356696811/src/java.base/share/classes/jdk/internal/reflect/ReflectionFactory.java\#l80}}。Native方式在少量次数的反射时，性能要优于字节码方式实现。如果次数超过阈值，使用字节码方式来实现反射更具备优势。可以写一个Benchmark来验证，不过应该没有这个必要。
 
 \paragraph{反射的Java字节码方式实现}
+
+Java 的反射调用机制还设立了动态生成字节码的实现(Bytecode-based Implementations)，直接使用 invoke 指令来调用目标方法。关键代码在NativeConstructorAccessorImpl类中：
+
+\begin{lstlisting}[language=Java]
+if (++numInvocations > ReflectionFactory.inflationThreshold()
+        && !c.getDeclaringClass().isHidden()
+        && !ReflectUtil.isVMAnonymousClass(c.getDeclaringClass())) {
+    ConstructorAccessorImpl acc = (ConstructorAccessorImpl)
+        new MethodAccessorGenerator().
+            generateConstructor(c.getDeclaringClass(),
+                                c.getParameterTypes(),
+                                c.getExceptionTypes(),
+                                c.getModifiers());
+    parent.setDelegate(acc);
+}
+\end{lstlisting}
+
+% -Dsun.reflect.inflationThreshold=自动换行的解决方案：https://tex.stackexchange.com/questions/596714/how-to-auto-start-a-new-line-when-text-too-long
+超过边界的时候采用字节码方式生成，inflationThreshold的边界默认是15。考虑到许多反射调用仅会执行一次，Java 虚拟机设置了一个阈值 15（可以通过 \url{-Dsun.reflect.inflationThreshold=} 来调整），当某个反射调用的调用次数在 15 之下时，采用本地实现；当达到 15 时，便开始动态生成字节码，并将委派实现的委派对象切换至动态实现，这个过程我们称之为 Inflation。
 
 \end{document}
