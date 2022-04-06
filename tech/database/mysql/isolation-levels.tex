@@ -2,14 +2,14 @@
 
 \begin{document}
 
-\subsection{数据库事务的隔离级别(Database Transaction Isolation Levels)}
+\subsection{\color{red}{数据库事务的隔离级别(Database Transaction Isolation Levels)}}
 
 Spring 对 JDBC 的事务隔离级别进行了补充和扩展，并提出了 7 种事务传播行为。InnoDB offers all four transaction isolation levels described by the SQL:1992 standard: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, and SERIALIZABLE. The default isolation level for InnoDB is REPEATABLE READ\footnote{参见：\url{https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html}}.
 
 \begin{enumerate}
 \item {read uncommitted（读未提交）B事务可以读取到A事务未提交的修改。有脏读（Dirty Read）的问题}脏读又称无效数据的读出，是指在数据库访问中，事务T1将某一值修改，然后事务T2读取该值，此后T1因为某种原因撤销对该值的修改，这就导致了T2所读取到的数据是无效的，值得注意的是，脏读一般是针对于update操作的。
-\item{read committed （读已提交）B事务不能读取其他事务未commit的修改。有不可重复读（前后多次读取，数据内容不一致），幻读的问题。}会话A开启一个事务，查询id=1的结果，此时查询的结果name为武汉市。接着会话B把id=1的name修改为温州市（隐式事务，因为此时的autocommit为1，每条SQL语句执行完自动提交），此时会话A的事务再一次查询id=1的结果，读取的结果name为温州市。会话B再此修改id=1的name为杭州市，会话A的事务再次查询id=1，结果name的值为杭州市，这种现象就是不可重复读(Unrepeated Read)。
-\item{repeated read (可重复读) 事务第一次读和第二次读，结果不受其他事务影响，结果是一样的。有幻读（Phantom Read）的问题。事务A在执行读取操作，需要两次统计数据的总量，前一次查询数据总量后，此时事务B执行了新增数据的操作并提交后，这个时候事务A读取的数据总量和之前统计的不一样，就像产生了幻觉一样，平白无故的多了几条数据，成为幻读（前后多次读取，数据总量不一致）。}
+\item{read committed （读已提交）B事务不能读取其他事务未commit的修改。有不可重复读（前后多次读取，数据内容不一致），幻读的问题。}会话A开启一个事务，查询id=1的结果，此时查询的结果name为武汉市。接着会话B把id=1的name修改为温州市（隐式事务Implicit Transaction\footnote{那些语句会导致隐式事务:\url{https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html}}，因为此时的autocommit为1，每条SQL语句执行完自动提交），此时会话A的事务再一次查询id=1的结果，读取的结果name为温州市。会话B再此修改id=1的name为杭州市，会话A的事务再次查询id=1，结果name的值为杭州市，这种现象就是不可重复读(Unrepeated Read)。在当前事务中输入某些语句之后, 会造成当前事务悄悄的提交，那么这种导致事务悄悄提交的情况, 我们称为隐式提交(Implicit Commit)。
+\item{repeated read (可重复读)有效地防止了脏读和不可重复读，事务第一次读和第二次读，结果不受其他事务影响，结果是一样的。有幻读（Phantom Read）的问题。事务A在执行读取操作，需要两次统计数据的总量，前一次查询数据总量后，此时事务B执行了新增数据的操作并提交后，这个时候事务A读取的数据总量和之前统计的不一样，就像产生了幻觉一样，平白无故的多了几条数据，成为幻读（前后多次读取，数据总量不一致）。不可重复读与幻读都是读到其他事务已提交的数据,但是它们针对点不同.不可重复读是针对update.幻读是针对delete,insert.}
 \item{Serializeble （串行化）串行化，就是顺序执行事务。这个隔离界别要慎用，因为及其影响数据库吞吐量，未能使用到CPU的高性能。}幻读（Phantom）
 一个事务先根据某些条件查询出一些记录，之后另一个事务又向表中插入了符合这些条件的记录，原先的事务再次按照该条件查询时，能把另一个事务插入的记录也读出来。（幻读在读未提交、读已提交、可重复读隔离级别都可能会出现）会话A开启一个事务，查询id>0的记录，此时会查到name=武汉市的记录。接着会话B插入一条name=温州市的数据（隐式事务，因为此时的autocommit为1，每条SQL语句执行完自动提交），这时会话A的事务再以刚才的查询条件（id>0）再一次查询，此时会出现两条记录（name为武汉市和温州市的记录），这种现象就是幻读（Phantom Read）。
 \end{enumerate}

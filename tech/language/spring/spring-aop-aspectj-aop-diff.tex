@@ -9,6 +9,15 @@ Spring AOP 属于运行时增强，而 AspectJ 是编译时增强。 Spring AOP 
 Spring AOP 已经集成了 AspectJ  ，AspectJ  应该算的上是 Java 生态系统中最完整的 AOP 框架了。AspectJ  相比于 Spring AOP 功能更加强大，但是 Spring AOP 相对来说更简单，
 如果我们的切面比较少，那么两者性能差异不大。但是，当切面太多的话，最好选择 AspectJ ，它比Spring AOP 快很多。
 
+
+ASM ：一个轻量级的字节码操作框架，直接涉及到jvm底层操作和指令，使用难度较大。
+
+CGLIB：属于动态织入（字节码加载之后）技术，基于ASM实现，性能高。同时，CGLIB突破了Java动态代理基于接口的限制，采用子类继承的方式。
+
+JAVAssist：属于动态织入技术，操作简单，接口强大，性能较ASM差。
+
+ASPECTJ：静态织入（字节码加载之前）框架，常用于AOP编程框架。
+
 \end{document}
 
 

@@ -1,0 +1,19 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Java 中对象在 JVM 中如何表示}
+
+理解Java对象在JVM的表示方式，有助于阅读JVM源代码，至少看到oop变量和klass不会感到很陌生。Hotspot 虚拟机在内部使用两组类来表示 Java 的类和对象。
+
+\begin{enumerate}
+    \item {oop (ordinary object pointer) 用来描述对象实例信息}
+    \item {kclass 用来描述 Java 类，是虚拟机内部 Java 类型结构的对等体}
+\end{enumerate}
+
+JVM 内部基于 OOP-Klass 模型描述一个 Java 类，将一个 Java 类一拆为二，第一个是 oop, 第二个是 klass.oop 是 ordinary object pointer (普通对象指针), 它用来表示对象的实例信息 (Java 类实例对象中各个属性在运行期的值)。看起来像是一个指针，而实际上对象实例数据都藏在指针所指向的内存首地址后面的一篇内存区域中。
+
+
+
+\end{document}
+

@@ -2,9 +2,23 @@
 
 \begin{document}
 
-\subsection{MySQL锁}
+\subsection{\color{red}{MySQL锁}}
 
-按数据操作的类型来分\footnote{参见：\url{https://www.cnblogs.com/myitnews/p/13698029.html}}：
+MySQL的锁属于基础类型的知识，必须要掌握。在MySQL当中，关于InnoDB的锁类型总共可以分为四种，分别是:
+
+\begin{enumerate}
+    \item{基本锁 - [ 共享锁（Shared Locks：S锁）和排它锁（Exclusive Locks：X锁）]}
+    \item{意向锁 - [ intention lock,分为意向共享锁（IS锁）和意向排他锁（IX锁）]}为什么要用意象锁？如果真要到用表锁的时候，那表锁和行锁之间不是会冲突的吗？如果表里面已经加了行锁怎么办？得一条记录一条记录遍历过去找行锁吗？这确实是一种实现方式，但是性能太差了，假设数据库里有上千万的数据，这加个表锁将会非常慢。所以有了个叫意向锁（Intention Locks）的东西。这两个锁是表级别的锁，当需要对表中的某条记录上 S 锁的时候，先在表上加个 IS 锁，表明此时表内有 S 锁。当需要对表中的某条记录上 X 锁的时候，先在表上加个 IX 锁，表明此时表内有 X 锁。这样操作之后，如果要加表锁，就不需要遍历所有记录去找了，直接看看表上面有没有 IS 和 IX 锁\footnote{内容来源：\url{https://zhuanlan.zhihu.com/p/388691518}}。
+    \item{行锁 - [ record Locks、gap locks、next-key locks、Insert Intention Locks ]}记录锁需要加到记录上，但是如果要给此时还未存在的记录加锁怎么办？也就是要预防幻读的出现！这时候间隙锁就派上用场了，它是给间隙加上锁。间隙锁的唯一目的就是防止其他事务插入数据到间隙中 ，所以即使两个间隙锁要锁住相同的间隙也没有关系，因为它们的目的是一致的，所以不冲突。插入意向锁，即 Insert Intention Locks，它也是一类间隙锁，但是它不是锁定间隙，而是等待某个间隙。比如上面举例的 id = 4 的那个事务 C ，由于被间隙锁给阻塞了，所以事务 C 会生成一个插入意向锁，表明等待这个间隙锁的释放。间隙锁和行锁合称next-key lock，每个next-key lock是前开后闭区间。
+    \item{自增锁 - [ auto-inc locks ] }Auto-Inc Lock 是一个特殊的表级锁，用于自增列插入数据时使用。 在插入一条数据的时候，需要在表上加个 Auto-Inc Lock，然后为自增列分配递增的值，在语句插入结束之后，再释放 Auto-Inc Lock。在 MySQL 5.1.22 版本之后，又弄了个互斥量来进行自增减的累加。互斥量的性能高于 Auto-Inc Lock，因为 Auto-Inc Lock是语句插入完毕之后才释放锁，而互斥量是在语句插入的时候，获得递增值之后，就可以释放锁，所以性能更好。但是我们还需要考虑主从的情况，由于并发插入的情况，基于 statement -based binlog 复制时，自增的值顺序无法把控，可能会导致主从数据不一致。所以 MySQL 有个 innodb\_autoinc\_lock\_mode 配置，一共有三个值：
+    
+    0，只用 Auto-Inc Lock。
+    1，默认值，对于插入前已知插入行数的插入，用互斥量，对于插入前不知道具体插入数的插入，用 Auto-Inc Lock，这样即使基于 statement -based binlog 复制也是安全的。
+    2，只用互斥量。
+    \item {空间索引的谓词锁 - [Predicate Locks for Spatial Indexes]}InnoDB 是支持空间数据的，所以有空间索引，为了处理涉及空间索引的操作的锁定，next-key locking 不好使，因为多维数据中没有绝对排序的概念，因此不清楚“下一个” key 在哪。所以为了支持具有空间索引的表的隔离级别，InnoDB使用谓词锁。空间索引包含最小边界矩形（MBR）值，因此 InnodB 通过在用于查询的 MBR 值上设置谓词锁定，使得 InnoDB 在索引上执行一致性读， 其他事务无法插入或修改与查询条件匹配的行。
+\end{enumerate}
+
+基本锁如下：
 
 \begin{enumerate}
     \item{读锁（共享锁）}「共享锁（S)」：又称读锁 (read lock)，是读取操作创建的锁。其他用户可以并发读取数据， 但任何事务都不能对数据进行修改（获取数据上的排他锁），直到已释放所有共享锁。当如果事务对读锁进行修改操作，很可能会造成死锁。注意平时使用的select语句默认是没有加读锁的，实际是快照读(snapshot read)，利用的是MVCC(Multiversion concurrency control)机制\footnote{参见：\url{https://www.wikiwand.com/en/Multiversion_concurrency_control}}，所以此时其他事务是可以修改对应的数据的。但我们读到的数据可能是历史数据，是不及时的数据，不是数据库当前的数据\footnote{参见:\url{https://tech.meituan.com/2014/08/20/innodb-lock.html}}。

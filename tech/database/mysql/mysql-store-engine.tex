@@ -4,7 +4,7 @@
 
 \subsection{MySQL存储引擎}
 
-MySQL存储引擎主要有： \paragraph{MyISAM} 
+两种类型最主要的差别是InnoDB支持事务处理与外键和行级锁。MyISAM 管理非事务表。它提供高速存储和检索，以及全文搜索能力。如果应用中需要执行大量的 SELECT 查询，那么 MyISAM 是更好的选择。InnoDB 用于事务处理应用程序，具有众多特性，包括 ACID 事务支持。如果应用中需要执行大量的 INSERT 或 UPDATE 操作，则应该使用 InnoDB，这样可以提高多用户并发操作的性能。MySQL存储引擎主要有： \paragraph{MyISAM} 
 
 如果数据表主要用来插入和查询记录，则MyISAM（但是不支持事务）引擎能提供较高的处理效率
 
@@ -17,7 +17,6 @@ MERGE存储引擎把一组MyISAM数据表当做一个逻辑单元来对待，让
 \item{表的结构必须一致，包括索引、字段类型、引擎和字符集}
 \item{对于增删改查，直接操作总表即可。}
 \end{enumerate}
-
 
 \paragraph{Memory}
 
@@ -51,12 +50,11 @@ Performance Schema 中的表是内存表，不使用磁盘存储，在 datadir �
 
 服务器监控持续不中断地进行，花费很少。 开启Performance Schema不会使服务器不可用。
 
- 
 \paragraph{Archive}
 
 如果只有INSERT和SELECT操作，可以选择Archive，Archive支持高并发的插入操作，但是本身不是事务安全的。Archive非常适合存储归档数据，如记录日志信息可以使用Archive
 
-\paragraph{Federated}
+\paragraph{Federated(联邦)}
 
 Federate存储引擎也是MySQL比较常用的存储引擎，使用它可以访问远程的MySQL数据库上的表，这种引擎的作用类似于Oracle数据库的dblink，以MySQL 5.5为例默认是不启用federated引擎的，可以使用INSTALL PLUGIN plugin\_name SONAME 'shared\_library\_name'语句动态加载。
 
