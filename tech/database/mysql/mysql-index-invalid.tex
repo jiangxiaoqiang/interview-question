@@ -1,0 +1,21 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL索引失效场景}
+
+\begin{enumerate}
+\item {or语句前后没有同时使用索引。当or左右查询字段只有一个是索引，该索引失效，只有当or左右查询字段均为索引时，才会生效;}
+\item {复合索引未用左列字段，即不是使用第一列索引，索引失效;}
+\item {like以\%开头，当like前缀没有\%，后缀有\%时，索引有效;}
+\item {需要类型转换;}
+\item {where中索引列有运算，或者索引列使用了函数;}
+\item {where中在索引字段上使用not，<>，!=。}
+
+  （不等于操作符是永远不会用到索引的，因此对它的处理只会产生全表扫描。key<>0 改为 key>0 or key<0。）不等于操作符是永远不会用到索引的，因此对它的处理只会产生全表扫描。优化方法：key<>0 改为 key>0 or key<0。）
+\item {如果mysql觉得全表扫描更快时（数据少）;}
+\item {在索引列上使用 IS NULL 或 IS NOT NULL操作。}
+（索引是不索引空值的，所以这样的操作不能使用索引，可以用其他的办法处理，例如：数字类型，判断大于0，字符串类型设置一个默认值，判断是否等于默认值即可。）
+\end{enumerate}
+
+\end{document}

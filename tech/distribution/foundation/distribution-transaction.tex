@@ -2,17 +2,24 @@
 
 \begin{document}
 
-\subsection{分布式事务(Distribution Transaction)}
+\subsection{分布式算法}
 
-\paragraph{2阶段提交}
+\paragraph{2阶段提交(2 Phase Commit)}
 
-阻塞，无法满足高并发。
+阻塞，无法满足高并发。二阶段提交算法的成立是基于以下假设的：
 
-\paragraph{3阶段提交}
+在该分布式系统中，存在一个节点作为协调者（Coordinator），其他节点作为参与者（Participants），且节点之间可以进行网络通信；
+所有节点都采用预写式日志，日志被写入后被保存在可靠的存储设备上，即使节点损坏也不会导致日志数据的丢失；
+所有节点不会永久性损坏，即使损坏后仍然可以恢复。
+两阶段提交中的两个阶段，指的是 Commit-request 阶段和 Commit 阶段
 
-阻塞，无法满足高并发。
+\paragraph{3阶段提交(3 Phase Commit)}
 
-\paragraph{柔性事务TCC}
+阻塞，无法满足高并发。为了解决二阶段协议中的同步阻塞等问题，三阶段提交协议在协调者和参与者中都引入了超时机制，并且把两阶段提交协议的第一个阶段拆分成了两步：询问，然后再锁资源，最后真正提交。
+
+三阶段中的 Three Phase 分别为 CanCommit、PreCommit、DoCommit 阶段。
+
+\paragraph{柔性事务TCC(Try、Confirm、Cancel)}
 
 「柔」主要是相对于「传统」ACID的刚而言，柔性事务只需要遵循BASE原则。而TCC是柔性事务的一种实现。TCC是三个首字母，Try-Confirm-Cancel，具体描述是将整个操作分为上面这三步。两个微服务间同时进行Try，在Try的阶段会进行数据的校验，检查，资源的预创建，如果都成功就会分别进行Confirm，如果两者都成功则整个TCC事务完成。如果Confirm时有一个服务有问题，则会转向Cancel，相当于进行Confirm的逆向操作。Atomikos公司在商业版本事务管理器Extreme Transactions中提供了TCC方案的实现，但是由于其是收费的，因此相应的很多的开源实现方案也就涌现出来，如：tcc-transaction、ByteTCC、spring-cloud-rest-tcc。
 
@@ -26,6 +33,18 @@
 
 分布式事务测试集合：http://springcloud.cn/view/374
 
+\paragraph{Paxos}
 
+\paragraph{ZAB}
+
+\paragraph{Raft}
+
+\paragraph{Gossip}
+
+\paragraph{QuorumNWR}
+
+\paragraph{PBFT}
+
+\paragraph{POW}
 
 \end{document}
