@@ -1,0 +1,60 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{++i和i++区别}
+
+关于这个前加加和后加加，搞不懂为什么要设计前加和后加，也没有找到那种场合必须得用i++才能Hold住局面。一句话，前加加是加了之后在参与运算，后加加是参与运算再加。为啥要这样设计？前加加的C++示例代码：
+
+\begin{lstlisting}[language=C++]
+int add(int num) {
+    int y = ++num;
+    return y;
+}
+\end{lstlisting}
+
+汇编代码长这样：
+
+\begin{lstlisting}[language={[x86masm]Assembler}]
+add(int):
+    push    rbp
+    mov     rbp, rsp
+    ; 
+    mov     DWORD PTR [rbp-20], edi
+    add     DWORD PTR [rbp-20], 1
+    mov     eax, DWORD PTR [rbp-20]
+    mov     DWORD PTR [rbp-4], eax
+    mov     eax, DWORD PTR [rbp-4]
+    pop     rbp
+    ret
+\end{lstlisting}
+
+比如mov eax, dword ptr [12345678]  把内存地址12345678中的双字型（32位）数据赋给eax。rbp栈基地址寄存器，保存当前帧的栈底地址，32位位ebp。rsp 栈指针寄存器，保存当前栈顶。寄存器ESI、EDI、SI和DI称为变址寄存器(Index Register)，它们主要用于存放存储单元在段内的偏移量，用它们可实现多种存储器操作数的寻址方式，为以不同的地址形式访问存储单元提供方便。
+变址寄存器不可分割成8位寄存器。作为通用寄存器，也可存储算术逻辑运算的操作数和运算结果。x86的通用寄存器有eax、ebx、ecx、edx、edi、esi。这些寄存器在大多数指令中是可以任意选用的，比如movl指令可以把一个立即数传送到eax中，也可传送到ebx中。但也有一些指令规定只能用其中某个寄存器做某种用途，例如除法指令idivl要求被除数在eax寄存器中，edx寄存器必须是0，而除数可以在任意寄存器中，计算结果的商数保存在eax寄存器中（覆盖原来的被除数），余数保存在edx寄存器中。也就是说，通用寄存器对于某些特殊指令来说也不是通用的。后加加的C++示例代码：
+
+\begin{lstlisting}[language=C++]
+int add(int num) {
+    int y = num++;
+    return y;
+}
+\end{lstlisting}
+
+汇编代码长这样：
+
+\begin{lstlisting}[language={[x86masm]Assembler}]
+add(int):
+    push    rbp
+    mov     rbp, rsp
+    mov     DWORD PTR [rbp-20], edi
+    mov     eax, DWORD PTR [rbp-20]
+    lea     edx, [rax+1]
+    mov     DWORD PTR [rbp-20], edx
+    mov     DWORD PTR [rbp-4], eax
+    mov     eax, DWORD PTR [rbp-4]
+    pop     rbp
+    ret
+\end{lstlisting}
+
+LEA指令功能：取源操作数地址的偏移量，并把它传送到目的操作数所在的单元。LEA 指令要求原操作数必须是存储单元，而且目的操作数必须是一个除段寄存器之外的16位或32位寄存器。当目的操作数是16位通用寄存器时，那么只装入有效地址的低16位。使用时要注意它与MOV指令的区别，MOV指令传送的一般是源操作数中的内容而不是地址。
+
+\end{document}

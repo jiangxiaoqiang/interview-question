@@ -1,0 +1,25 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL分表策略}
+
+\paragraph{range}
+
+RANGE方法优点： 扩容简单，提前建好库、表就好
+
+RANGE方法缺点： 大部分读和写都访会问新的数据，有IO瓶颈，这样子造成新库压力过大，不建议采用。
+
+\paragraph{hash}
+
+HASH取模方法优点： 能保证数据较均匀的分散落在不同的库、表中，减轻了数据库压力
+
+HASH取模方法缺点： 扩容麻烦、迁移数据时每次都需要重新计算hash值分配到不同的库和表
+
+\paragraph{一致性Hash算法}
+
+按照常用的hash算法来将对应的key哈希到一个具有2\^32次方个节点的空间中，即0~ (2\^32)-1的数字空间中。现在我们可以将这些数字头尾相连，想象成一个闭合的环形，这个圆环首尾相连，那么假设现在有三个数据库服务器节点node1、node2、node3三个节点，每个节点负责自己这部分的用户数据存储，假设有用户user1、user2、user3，我们可以对服务器节点进行HASH运算，假设HASH计算后，user1落在node1上，user2落在node2上，user3落在user3上。
+
+\end{document}
+
+

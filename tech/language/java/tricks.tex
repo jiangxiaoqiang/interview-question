@@ -45,11 +45,11 @@ public static void main(String[] args)  {
 javac Bar.java
 \end{lstlisting}
 
-
 如下命令打印汇编指令：
 
 \begin{lstlisting}[language=Bash]
-java -Xcomp -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly -Xcomp -XX:CompileCommand=dontinline,*Bar.sum -XX:CompileCommand=compileonly,*Bar.sum Bar
+java -Xcomp -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly -Xcomp -XX:CompileCommand=dontinline,Demo.sum -XX:CompileCommand=compileonly,Demo.sum Demo
+java -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly Demo
 \end{lstlisting}
 
 汇编示例如下：
