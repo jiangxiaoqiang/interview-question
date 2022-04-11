@@ -1,0 +1,28 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Spring Bean实例化流程}
+
+实例化 Bean 的大致流程：
+
+遍历所有扫描出来的 BeanDefinition，进行验证：是否 Lazy、是否 prototype、是否 abstract 等等
+
+对 dependsOn 进行一些特殊处理，递归的实例化依赖的 bean
+
+实例化 Bean
+
+执行属性注入
+
+执行 Bean 初始化
+
+初始化完成，加入单例池
+
+注册 DisposableBean（销毁 Bean 时回调方法）
+
+\end{document}
+
+
+
+
+

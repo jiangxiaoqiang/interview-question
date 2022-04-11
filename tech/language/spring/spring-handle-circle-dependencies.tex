@@ -1,0 +1,46 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Spring Bean如何解决循环依赖问题}
+
+在 Spring 单例 Bean 的创建 中介绍介绍了使用三级缓存。
+
+singletonObjects： 一级缓存，存储单例对象，Bean 已经实例化，初始化完成。
+
+earlySingletonObjects： 二级缓存，存储 singletonObject，这个 Bean 实例化了，还没有初始化。
+
+singletonFactories： 三级缓存，存储 singletonFactory。
+
+
+一级缓存singletonObjects是完整的bean，它可以被外界任意使用，并且不会有歧义。
+
+二级缓存earlySingletonObjects是不完整的bean，没有完成初始化，它与singletonObjects的分离主要是职责的分离以及边界划分，可以试想一个Map缓存里既有完整可使用的bean，也有不完整的，只能持有引用的bean，在复杂度很高的架构中，很容易出现歧义，并带来一些不可预知的错误。
+
+三级缓存singletonFactories，其职责就是包装一个bean，有回调逻辑，所以它的作用非常清晰，并且只能处于第三层。
+
+在实际使用中，要获取一个bean，先从一级缓存一直查找到三级缓存，缓存bean的时候是从三级到一级的顺序保存，并且缓存bean的过程中，三个缓存都是互斥的，只会保持bean在一个缓存中，而且，最终都会在一级缓存中。Spring 是如何通过上面介绍的三级缓存来解决循环依赖的呢？这里只用 A，B 形成的循环依赖来举例：
+
+\begin{enumerate}
+    \item {实例化 A，此时 A 还未完成属性填充和初始化方法（@PostConstruct）的执行，A 只是一个半成品。}
+    \item {为 A 创建一个 Bean 工厂，并放入到三级缓存singletonFactories 中。}
+    \item {发现 A 需要注入 B 对象，但是一级、二级、三级缓存均为发现对象 B。}
+    \item {实例化 B，此时 B 还未完成属性填充和初始化方法（@PostConstruct）的执行，B 只是一个半成品。}
+    \item {为 B 创建一个 Bean 工厂，并放入到三级缓存singletonFactories 中。}
+    \item {发现 B 需要注入 A 对象，此时在一级、二级未发现对象 A，但是在三级缓存中发现了对象 A，从三级缓存中得到对象 A，并将对象 A 放入二级缓存中，同时删除三级缓存中的对象 A。（注意，此时的 A 还是一个半成品，并没有完成属性填充和执行初始化方法）}
+    \item {将对象 A 注入到对象 B 中。}
+    \item {对象 B 完成属性填充，执行初始化方法，并放入到一级缓存中，同时删除二级缓存中的对象 B。（此时对象 B 已经是一个成品）}
+    \item {对象 A 得到对象 B，将对象 B 注入到对象 A 中。（对象 A 得到的是一个完整的对象 B）}
+    \item {对象 A 完成属性填充，执行初始化方法，并放入到一级缓存中，同时删除二级缓存中的对象 A。}
+\end{enumerate}
+
+\paragraph{为什么需要三级缓存}
+
+从软件设计角度考虑，三个缓存代表三种不同的职责，根据单一职责原理，从设计角度就需分离三种职责的缓存，所以形成三级缓存的状态。
+
+\end{document}
+
+
+
+
+

@@ -33,7 +33,7 @@ JNIEXPORT jobject JNICALL Java_jdk_internal_reflect_NativeMethodAccessorImpl_inv
 
 \begin{enumerate}
         \item {Java库无法提供基于平台系统相关特性的功能，如平台特有的功能或接口等。}
-        \item{已经用其他语言写好的库，需要用Java调用，而不想重现编码，而想直接复用它们。}
+        \item{已经用其他语言写好的库，需要用Java调用，而不想重新编码，而想直接复用它们。}
         \item {希望实现一部分时间和性能要求都很高的逻辑，需要用底层语言来编写，如视频图片处理，游戏逻辑等。}
 \end{enumerate}
 
@@ -47,7 +47,7 @@ JNIEXPORT jobject JNICALL Java_jdk_internal_reflect_NativeMethodAccessorImpl_inv
         \item {执行运行时类型检查（runtime type checking）}
 \end{enumerate}
 
-当你使用JNI的 Invocation API 可以允许任何本地应用内嵌Java虚拟机，这允许程序员非常简单的可以使已经写好的程序变成 Java-enabled , 而不需要链接到虚拟机源码。当然你还可以使用JNI来使得Java方法可以直接调用本地方法。本地方法也可以调用Java方法。关键的语句是：
+当你使用JNI的 Invocation API 可以允许任何本地应用内嵌Java虚拟机，这允许程序员非常简单的可以使已经写好的程序变成 Java-enabled , 而不需要链接到虚拟机源码。当然你还可以使用JNI来使得Java方法可以直接调用本地方法。本地方法也可以调用Java方法。Natvie代码中实现反射关键的语句是：
 
 \begin{lstlisting}[language=C++]
 // 获取Class的元信息
