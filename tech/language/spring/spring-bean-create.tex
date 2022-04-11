@@ -4,7 +4,7 @@
 
 \subsection{Sring Bean创建过程}
 
-获取参数 name 对应的真正的 beanName
+AbstractAutowireCapableBeanFactory继承自AbstractBeanFactory，实现抽象类AbstractBeanFactory创建Bean有3类，Autowire注解的AbstractAutowireCapableBeanFactory、DefaultListableBeanFactory和基于XML方式的XmlBeanFactory。获取参数 name 对应的真正的 beanName
 检查缓存或者实例工厂中是否有对应的单例，若存在则进行实例化并返回对象，否则继续往下执行
 执行 prototype 类型依赖检查，防止循环依赖
 如果当前 beanFactory 中不存在需要的 bean，则尝试从 parentBeanFactory 中获取

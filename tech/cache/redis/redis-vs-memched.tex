@@ -10,10 +10,20 @@
 \item {\textbf{数据类型支持不同}}与Memcached仅支持简单的key-value结构的数据记录不同，Redis支持的数据类型要丰富得多。最为常用的数据类型主要由五种：String、Hash、List、Set和Sorted Set。Redis内部使用一个redisObject对象来表示所有的key和value。
 \item {\textbf{数据持久化支持}}Redis虽然是基于内存的存储系统，但是它本身是支持内存数据的持久化的，而且提供两种主要的持久化策略：RDB快照和AOF日志。而Memcached是不支持数据持久化操作的。
 \item {\textbf{集群管理不同}}Memcached本身并不支持分布式，因此只能在客户端通过像一致性哈希这样的分布式算法来实现Memcached的分布式存储。
+\item {\textbf{Redis采用单线程处理模式}}与 MC 不同的是，Redis 采用单线程模式处理请求。这样做的原因有 2 个：一个是因为采用了非阻塞的异步事件处理机制；另一个是缓存数据都是内存操作 IO 时间不会太长，单线程可以避免线程上下文切换产生的代价。
 \end{enumerate}                                  
 
 内存模型参考\footnote{\url{http://www.dongcoder.com/detail-1031666.html}},如图所示。
 
 字符串是 Redis最基本的数据类型，Redis 中字符串对象的编码可以是 int，raw 或者 embstr 中的某一种.
+
+\paragraph{Memcached的限制}
+
+\begin{enumerate}
+    \item {key 不能超过 250 个字节；}
+    \item {value 不能超过 1M 字节；}
+    \item {key 的最大失效时间是 30 天；}
+    \item {只支持 K-V 结构，不提供持久化和主从同步功能。}
+\end{enumerate}
 
 \end{document}
