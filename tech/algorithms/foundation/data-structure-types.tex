@@ -1,0 +1,51 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{数据结构分类}
+
+在计算机科学中，数据结构（英语：data structure）是计算机中存储、组织数据的方式。数据结构可以分为原始数据结构(Primitive Data Structure)和非原始数据结构(Non-primitive Data Structure)。原始数据结构(Primitive Data Structure)分为整形、字符型、布尔型，包括char/int/bool等。非原始数据结构(Non-primitive Data Structure)又可分为线性结构(Linear data structure)和非线性结构(Non linear data structures)。线性结构(Linear data structure)可分为线性表(List)，栈(Stack)，队列（queue）。非线性结构(Non linear data structures)分为树(Tree)、图(Graph)。线性表(List)分为数组、链表。链表分为单链表、静态链表、循环链表、带环单链表、双向链表。
+
+\begin{tikzpicture}[scale=0.49, transform shape]
+    \path[mindmap,concept color=black,text=white]
+    node[concept] {数据结构} [clockwise from=45]
+    child[concept color=DeepSkyBlue4]{
+    node[concept] {基本数据类型} [clockwise from=180]
+    child { 
+    node[concept] {Multivariate \& Vector Calculus}
+    [clockwise from=120]
+    child {node[concept] {ODEs}}}
+    child { node[concept] {Functional Analysis}}
+    child { node[concept] {Measure Theory}}
+    child { node[concept] {Calculus of Variations}}
+    child { node[concept] {Geometric Analysis}
+    [clockwise from=-40]
+    child {node[concept] {PDEs}}}}
+    child[concept color=black!50!green, grow=-40]{ 
+    node[concept] {Combinatorics} [clockwise from=10]
+    child {node[concept] {Enumerative}}
+    child {node[concept] {Extremal}}
+    child {node[concept] {Graph Theory}}}
+    child[concept color=black!25!red, grow=-90]{ 
+    node[concept] {Geometry} [clockwise from=-30]
+    child {node[concept] {Convex Geometry}}
+    child {node[concept] {Differential Geometry}}
+    child {node[concept,color=black!50!green!50!red,text=white] {Discrete Geometry}}}
+    child[concept color=brown,grow=140]{ 
+    node[concept] {Algebra} [counterclockwise from=70]
+    child {node[concept] {Elementary}}
+    child {node[concept] {Number Theory}}
+    child {node[concept] {Abstract} [clockwise from=180]
+    child {node[concept,color=red!25!brown,text=white] {Algebraic Geometry}}}
+    child {node[concept] {Linear}}}
+    node[extra concept,concept color=black] at (200:5) {Applied Mathematics} 
+    child[grow=145,concept color=black!50!yellow] {
+    node[concept] {Probability} [clockwise from=180]
+    child {node[concept] {Stochastic Processes}}}
+    child[grow=175,concept color=black!50!yellow] {node[concept] {Statistics}}
+    child[grow=205,concept color=black!50!yellow] {node[concept] {Numerical Analysis}}
+    child[grow=235,concept color=black!50!yellow] {node[concept] {Symbolic Computation}};
+\end{tikzpicture}
+
+
+\end{document}
