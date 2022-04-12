@@ -2,9 +2,9 @@
 
 \begin{document}
 
-\subsection{用户态(User Mode)与内核态(Kernel Mode)}
+\subsection{\color{red}{用户态(User Mode)与内核态(Kernel Mode)}}
 
-理解用户态(User Mode)与内核态(Kernel Mode)，对理解epoll模型很有帮助，而epoll是Linux高性能的基础。在说用户态与内核态之前\footnote{参见：\url{https://segmentfault.com/a/1190000039774784}}，有必要说一下 CPU 指令集，指令集是 CPU 实现软件指挥硬件执行的媒介，具体来说每一条汇编语句都对应了一条 CPU 指令，而非常非常多的 CPU 指令 在一起，可以组成一个、甚至多个集合，指令的集合叫 CPU 指令集。
+理解用户态(User Mode)与内核态(Kernel Mode)，对理解线程切换很有帮助，对理解epoll模型很有帮助，而epoll是Linux高性能的基础。在说用户态与内核态之前\footnote{参见：\url{https://segmentfault.com/a/1190000039774784}}，有必要说一下 CPU 指令集，指令集是 CPU 实现软件指挥硬件执行的媒介，具体来说每一条汇编语句都对应了一条 CPU 指令，而非常非常多的 CPU 指令 在一起，可以组成一个、甚至多个集合，指令的集合叫 CPU 指令集。
 
 同时 CPU 指令集 有权限分级，大家试想，CPU 指令集 可以直接操作硬件的，要是因为指令操作的不规范，造成的错误会影响整个计算机系统的。好比你写程序，因为对硬件操作不熟悉，导致操作系统内核、及其他所有正在运行的程序，都可能会因为操作失误而受到不可挽回的错误，最后只能重启计算机才行。
 
