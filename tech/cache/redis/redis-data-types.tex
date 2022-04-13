@@ -12,7 +12,8 @@ Redis支持7种数据类型。
     \item {Sets}
     \item {Hashes}
     \item {Sorted Sets}
-    \item {Bitmaps and HyperLogLogs}
+    \item {Bitmaps}通常用来表示数据的状态，都是用来记录二进制位的操作，只有 0 和 1 两种状态。
+    \item {HyperLogLogs}数据集中不重复的元素的个数，网页的访问量（UV）：同一用户多次访问，也只能算作一个人。
     \item {Streams}
     \item {Geospatial indexes}
 \end{enumerate}

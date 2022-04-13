@@ -4,13 +4,24 @@
 
 \subsection{Spring Bean实例化流程}
 
-实例化 Bean 的大致流程：
+实例化Spring Bean可以在类AbstractApplicationContext的refresh()方法中查看。实例化 Bean 的大致流程：
 
-遍历所有扫描出来的 BeanDefinition，进行验证：是否 Lazy、是否 prototype、是否 abstract 等等
+遍历所有扫描出来的 BeanDefinition，进行验证：是否 Lazy、是否 prototype、是否 abstract 等等，这一步发生在refresh()方法：
+
+\begin{lstlisting}[language=Java]
+// Tell the subclass to refresh the internal bean factory.
+ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();  
+\end{lstlisting}
 
 对 dependsOn 进行一些特殊处理，递归的实例化依赖的 bean
 
-实例化 Bean
+实例化 Bean，实例化Bean在refresh()方法的代码：
+
+\begin{lstlisting}[language=Java]
+// Instantiate all remaining (non-lazy-init) singletons.
+finishBeanFactoryInitialization(beanFactory);    
+\end{lstlisting}
+
 
 执行属性注入
 

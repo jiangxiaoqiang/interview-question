@@ -2,16 +2,18 @@
 
 \begin{document}
 
-\subsection{Spring Bean作用域}
+\subsection{Spring Bean作用域(Spring Bean Scope)}
 
-当在 Spring 中定义一个 bean 时，你必须声明该 bean 的作用域的选项。例如，为了强制 Spring 在每次需要时都产生一个新的 bean 实例，你应该声明 bean 的作用域的属性为 prototype。同理，如果你想让 Spring 在每次需要时都返回同一个bean实例，你应该声明 bean 的作用域的属性为 singleton。Spring 框架支持以下五个作用域，分别为 singleton、prototype、request、session 和 global session。
+Spring Bean的作用域分2类，一类是基本作用域(Basic Scope)，一类是扩展作用域(Extended Scope)。基本作用域(Basic Scope)包含单例(singleton)和原型(prototype)。扩展作用域(Extended Scope)包含request、session、application、websocket。当在 Spring 中定义一个 bean 时，你必须声明该 bean 的作用域的选项。例如，为了强制 Spring 在每次需要时都产生一个新的 bean 实例，你应该声明 bean 的作用域的属性为 prototype。同理，如果你想让 Spring 在每次需要时都返回同一个bean实例，你应该声明 bean 的作用域的属性为 singleton。Spring 框架支持以下五个作用域，分别为 singleton、prototype、request、session 和 global session。
 
 \begin{enumerate}
-    \item {singleton : 唯一 bean 实例，Spring 中的 bean 默认都是单例的。}
-    \item {prototype : 每次请求都会创建一个新的 bean 实例。}
-    \item {request : 每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效。}
+    \item {singleton : 唯一 bean 实例，Spring 中的 bean 默认都是单例的。}这里所说的单例，和设计模式中所提到的单例模式不同。设计模式中的单例，是强制一个类有且只有一个对象，我们如果不通过特殊的手段，将无法为这个单例类创建多个对象。而Spring中的单例作用域不同，这里的单例指的是在一个Spring容器中，只会缓存bean的唯一对象，所有通过容器获取这个bean的方式，最终拿到的都是同一个对象。但是在不同的Spring容器中，每一个Spring容器都可以拥有单例bean的一个实例对象，也就是说，这里的单例限定在一个Spring容器中，而不是整个应用程序。并且我们依然可以通过new的方式去自己创建bean。
+    \item {prototype : 每次请求都会创建一个新的 bean 实例。}prototype即原型模式，调用多少次bean，就实例化多少次。prototype可以理解为多例。若一个bean的作用域是prototype，那么Spring容器并不会缓存创建的bean，程序中对这个bean的每一次获取，容器都会重新实例化一个bean对象。通常，如果我们需要使用bean的状态（属性），且这个状态是会改变的，那么我们就可以将它配置为这个作用域，以解决线程安全的问题。因为对于单例bean来说，多个线程共享它的可变属性，会存在线程安全问题。
+    \item {request : 每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效。}request作用域将bean的使用范围限定在一个http请求中，对于每一个请求，都会单独创建一个bean，若请求结束，bean也会随之销毁。使用request作用域一般不会存在线程安全问题，因为在Web应用中，每个请求都是由一个单独的线程进行处理，所有线程之间并不会共享bean，从而不会存在线程安全的问题。该作用域仅适用于WebApplicationContext环境。
     \item {session : ：在一个HTTP Session中，一个Bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效。}
     \item {global-session： 全局session作用域，仅仅在基于portlet的web应用中才有意义，Spring5已经没有了。Portlet是能够生成语义代码(例如：HTML)片段的小型Java Web插件。它们基于portlet容器，可以像servlet一样处理HTTP请求。但是，与 servlet 不同，每个 portlet 都有不同的会话}
+    \item {application: 一个bean 定义对应于单个ServletContext 的生命周期。该作用域仅适用于WebApplicationContext环境。}
+    \item {websocket: 一个bean 定义对应于单个websocket 的生命周期。该作用域仅适用于WebApplicationContext环境。}
 \end{enumerate}
 
 \end{document}
