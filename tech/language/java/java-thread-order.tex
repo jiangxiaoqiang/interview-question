@@ -52,8 +52,6 @@ public void method3(){
 }
 \end{lstlisting}
 
-\paragraph{使用CountDownLatch关键字实现}执行它的latch.await()方法，如果计数器不为0，那么当前线程就会被阻塞；每完成一个任务，就执行latch.countDown()，计数器减一，当计数器为0时，阻塞的线程恢复执行状态\footnote{\url{http://xiaonanbobo.com/2017/12/05/如何保证线程的顺序执行？/}}。
-
-
+\paragraph{使用CountDownLatch关键字实现}执行它的latch.await()方法，如果计数器不为0，那么当前线程就会被阻塞；每完成一个任务，就执行latch.countDown()，计数器减一，当计数器为0时，阻塞的线程恢复执行状态\footnote{\url{http://xiaonanbobo.com/2017/12/05/如何保证线程的顺序执行？/}}。应用场景之一是需要下载一个大文件，开启多个线程分别下载文件的一部分，然后有一个线程最后拼接所有的文件。我们可以考虑使用 CountDownLatch 来控制并发，使拼接的线程放在最后执行。
 
 \end{document}
