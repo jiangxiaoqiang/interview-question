@@ -1,0 +1,27 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Redis跳跃表}
+
+有序集合对象的编码可以是ziplist或者skiplist\footnote{参见：\url{https://juejin.cn/post/6998323950539243533}}。同时满足以下条件时使用ziplist编码：
+
+\begin{enumerate}
+    \item {元素数量小于128个}
+    \item {所有member的长度都小于64字节}
+\end{enumerate}
+
+以上两个条件的上限值可通过zset-max-ziplist-entries和zset-max-ziplist-value来修改。ziplist编码的有序集合使用紧挨在一起的压缩列表节点来保存，第一个节点保存member，第二个保存score。ziplist内的集合元素按score从小到大排序，score较小的排在表头位置。skiplist编码的有序集合底层是一个命名为zset的结构体，而一个zset结构同时包含一个字典和一个跳跃表。跳跃表按score从小到大保存所有集合元素。而字典则保存着从member到score的映射，这样就可以用O(1)的复杂度来查找member对应的score值。虽然同时使用两种结构，但它们会通过指针来共享相同元素的member和score，因此不会浪费额外的内存。
+
+skip List 是一种随机化的数据结构，基于并联的链表，实现简单，插入、删除、查找的复杂度均为 O(logN)（大多数情况下），因为其性能匹敌红黑树且实现较为简单，因此在很多著名项目都用跳表来代替红黑树，例如 LevelDB、Reddis 的底层存储结构就是用的 SkipList。
+
+\paragraph{为什么采用跳表，而不使用哈希表或平衡树实现呢}
+
+\begin{enumerate}
+    \item {skiplist和各种平衡树（如AVL、红黑树等）的元素是有序排列的，而哈希表不是有序的。因此，在哈希表上只能做单个key的查找，不适宜做范围查找。所谓范围查找，指的是查找那些大小在指定的两个值之间的所有节点。}
+    \item {在做范围查找的时候，平衡树比skiplist操作要复杂。在平衡树上，我们找到指定范围的小值之后，还需要以中序遍历的顺序继续寻找其它不超过大值的节点。如果不对平衡树进行一定的改造，这里的中序遍历并不容易实现。而在skiplist上进行范围查找就非常简单，只需要在找到小值之后，对第1层链表进行若干步的遍历就可以实现。}
+    \item {平衡树的插入和删除操作可能引发子树的调整，逻辑复杂，而skiplist的插入和删除只需要修改相邻节点的指针，操作简单又快速。}
+    \item {从内存占用上来说，skiplist比平衡树更灵活一些。一般来说，平衡树每个节点包含2个指针（分别指向左右子树），而skiplist每个节点包含的指针数目平均为1/(1-p)，具体取决于参数p的大小。如果像Redis里的实现一样，取p=1/4，那么平均每个节点包含1.33个指针，比平衡树更有优势。}
+\end{enumerate}
+
+\end{document}
