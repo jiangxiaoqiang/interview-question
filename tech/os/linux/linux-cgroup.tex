@@ -1,0 +1,70 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{\color{red}{容器三把斧之cgroup原理与实现}}
+
+cgroup从2.6.4引入linux内核主线，目前默认已启用该特性。在cgroup出现之前，只能对一个进程做资源限制，比如通过sched\_setaffinity设置进程cpu亲和性，使用ulimit限制进程打开文件上限、栈大小等。cgroups是Linux下控制一个（或一组）进程的资源限制机制，全称是control groups，可以对cpu、内存等资源做精细化控制，比如目前很多的Docker在Linux下就是基于cgroups提供的资源限制机制来实现资源控制的；除此之外，开发者也可以指直接基于cgroups来进行进程资源控制，比如8核的机器上部署了一个web服务和一个计算服务，可以让web服务仅可使用其中6个核，把剩下的两个核留给计算服务。cgroups cpu限制除了可以限制使用多少/哪几个核心之外，还可以设置cpu占用比（注意占用比是各自都跑满情况下的使用比例，如果一个cgroup空闲而另一个繁忙，那么繁忙的cgroup是有可能占满整个cpu核心的）。
+
+\paragraph{CGroup子系统}
+
+cgroups为每种资源定义了一个子系统，典型的子系统如下：
+
+cpu 子系统，主要限制进程的 cpu 使用率。
+cpuacct 子系统，可以统计 cgroups 中的进程的 cpu 使用报告。
+cpuset 子系统，可以为 cgroups 中的进程分配单独的 cpu 节点或者内存节点。
+memory 子系统，可以限制进程的 memory 使用量。
+blkio 子系统，可以限制进程的块设备 io。
+devices 子系统，可以控制进程能够访问某些设备。
+net\_cls 子系统，可以标记 cgroups 中进程的网络数据包，然后可以使用 tc 模块（traffic control）对数据包进行控制。
+freezer 子系统，可以挂起或者恢复 cgroups 中的进程。
+ns 子系统，可以使不同 cgroups 下面的进程使用不同的 namespace。
+每个子系统都是定义了一套限制策略，它们需要与内核的其他模块配合来完成资源限制功能，比如对 cpu 资源的限制是通过进程调度模块根据 cpu 子系统的配置来完成的；对内存资源的限制则是内存模块根据 memory 子系统的配置来完成的，而对网络数据包的控制则需要 Traffic Control 子系统来配合完成。
+
+\paragraph{CGroup的结构}
+
+关于cgroups原理，可以从进程角度来剖析相关数据结构之间关系，Linux 下管理进程的数据结构是 task\_struct。
+
+每个进程对应一个css\_set结构，css\_set存储了与进程相关的cgropus信息。cg\_list是一个嵌入的 list\_head 结构，用于将连到同一个 css\_set 的进程组织成一个链表。进程和css\_set的关系是多对一关系，tasks表示关联的多个进程。
+
+在cgrups中一个task任务就是一个进程，一个进程可以加入到某个cgroup，也从一个进程组迁移到另一个cgroup。一个进程组的进程可以使用 cgroups 以控制族群为单位分配的资源，同时受到 cgroups 以控制族群为单位设定的限制。多个cgroup形成一个层级结构（树形结构），cgroup树上的子节点cgroup是父节点cgroup的孩子，继承父cgroup的特定的属性。注意：cgroups层级只会关联某个子系统之后才能进行对应的资源控制，一个子系统附加到某个层级以后，这个层级上的所有cgroup都受到这个子系统的控制。
+
+\paragraph{限制进程使用资源}
+
+当设置好 cgroup 的资源使用限制信息\footnote{\url{参见：https://jishuin.proginn.com/p/763bfbd62530}}，并且把进程添加到这个 cgroup 的 tasks 列表后，进程的资源使用就会受到这个 cgroup 的限制。这里使用 内存子系统 作为例子，来分析一下内核是怎么通过 cgroup 来限制进程对资源的使用的。
+
+当进程要使用内存时，会调用 do\_anonymous\_page() 来申请一些内存页，而 \url{do\_anonymous\_page()} 函数会调用 mem\_cgroup\_charge() 函数来检测进程是否超过了 cgroup 设置的资源限制。而 \url{mem\_cgroup\_charge()} 最终会调用 \url{mem\_cgroup\_charge\_common()} 函数进行检测，\url{mem\_cgroup\_charge\_common()} 函数实现如下:
+
+\begin{lstlisting}[language=C]
+static int mem_cgroup_charge_common(struct page *page, struct mm_struct *mm, gfp_t gfp_mask, enum charge_type ctype)
+{
+    struct mem_cgroup *mem;
+    ...
+    // 获取进程对应的内存限制对象
+    mem = rcu_dereference(mm->mem_cgroup); 
+    ...
+    // 判断进程使用内存是否超出限制
+    while (res_counter_charge(&mem->res, PAGE_SIZE)) { 
+        if (!(gfp_mask & __GFP_WAIT))
+            goto out;
+        // 如果超出限制, 就释放一些不用的内存
+        if (try_to_free_mem_cgroup_pages(mem, gfp_mask)) 
+            continue;
+
+        if (res_counter_check_under_limit(&mem->res))
+            continue;
+
+        if (!nr_retries--) {
+            // 如果尝试过5次后还是超出限制, 那么发出oom信号
+            mem_cgroup_out_of_memory(mem, gfp_mask); 
+            goto out;
+        }
+        ...
+    }
+    ...
+}
+\end{lstlisting}
+
+mem\_cgroup\_charge\_common() 函数会对进程内存使用情况进行检测，如果进程已经超过了 cgroup 设置的限制，那么就会尝试进行释放一些不用的内存，如果还是超过限制，那么就会发出 OOM (out of memory) 的信号。
+
+\end{document}
