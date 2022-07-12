@@ -1,0 +1,27 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Docker容器间通信}
+
+\paragraph{Docker的网络驱动模型}
+
+Docker的网络驱动模型分类：
+
+\begin{enumerate}
+    \item {bridge：Docker中默认的网络驱动模型，在启动容器时如果不指定则默认为此驱动类型；}
+    \item {host：打破Docker容器与宿主机之间的网络隔离，直接使用宿主机的网络环境，该模型仅适用于Docker17.6及以上版本；}
+    \item {overlay：可以连接多个docker守护进程或者满足集群服务之间的通信；适用于不同宿主机上的docker容器之间的通信；}
+    \item {macvlan：可以为docker容器分配MAC地址，使其像真实的物理机一样运行；}
+    \item {none：即禁用了网络驱动，需要自己手动自定义网络驱动配置；}
+    \item {plugins：使用第三方网络驱动插件；}
+\end{enumerate}
+
+以上是Docker支持的几种网络驱动模型，它们都具有独特的特点和应用范围，为了更加详细地了解Docker的网络运行原理，下面挑选几种较为重要的网络模型进行研究。
+
+\paragraph{跨主机通信}
+
+Calico通信。Calico的原理是通过修改每个主机节点上的iptables和路由表规则，实现容器间数据路由和访问控制，并通过Etcd协调节点配置信息的。因此Calico服务本身和许多分布式服务一样，需要运行在集群的每一个节点上。
+在默认配置下每台宿主机的BGPClient需要和集群所有的BGPClient建立连接，进行路由信息交换，随着集群规模的扩大，集群的网络将会面临巨大的压力并且宿主机的路由表也会变的过大。所以在大规模的集群中，通常使用BGP Route Reflector充当BGP客户端连接的中心点，从而避免与互联网中的每个BGP客户端进行通信。Calico使用BGP Route Reflector是为了减少给定一个BGP客户端与集群其他BGP客户端的连接。用户也可以同时部署多个BGP Route Reflector服务实现高可用。Route Reflector仅仅是协助管理BGP网络，并没有工作负载的数据包经过它们。
+
+\end{document}

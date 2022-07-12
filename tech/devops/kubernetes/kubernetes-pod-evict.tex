@@ -1,0 +1,35 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Kubernetes Pod驱逐分析}
+
+通过kubectl命令查看Pod驱逐日志：
+
+\begin{lstlisting}[language=Bash]
+kubectl describe pod admin-service-6b684499f6-4xnkb -n reddwarf-pro    
+\end{lstlisting}
+
+从日志中可以看到驱逐的原因：Pod The node had condition: [DiskPressure]，说明是由于磁盘空间不足导致驱逐。通过duc工具，找到占用磁盘较大的目录是：
+
+\begin{lstlisting}[language=Bash]
+/var/lib/kubelet/pods/8aafe99f-53c1-4bec-8cb8-abd09af1448f/volumes/kubernetes.io~nfs/nfs-reddwarf-postgresql-pv-general/
+\end{lstlisting}
+
+但是此目录是通过NFS挂载在NAS上的，为什么会占用空间？实际上此目录是Pod持久卷的挂载点，实际不占用空间。如何确定不占用空间呢？
+
+\begin{lstlisting}[language=Bash]
+[root@k8smasterone volumes]# df|grep "general"
+xxx.cn-shanghai.nas.aliyuncs.com:/k8s/reddwarf-storage/postgresql          10995116277760  8651776 10995107625984   1% /var/lib/kubelet/pods/8aafe99f-53c1-4bec-8cb8-abd09af1448f/volumes/kubernetes.io~nfs/nfs-reddwarf-postgresql-pv-general
+\end{lstlisting}
+
+从df的命令可以看出，路径\url{/var/lib/kubelet/pods/8aafe99f-53c1-4bec-8cb8-abd09af1448f/volumes/kubernetes.io~nfs/nfs-reddwarf-postgresql-pv-general}实际是指向阿里云NAS实际的挂载路径\url{xxx.cn-shanghai.nas.aliyuncs.com:/k8s/reddwarf-storage/postgresql}。
+
+\paragraph{优化磁盘空间}
+
+
+
+
+
+
+\end{document}
