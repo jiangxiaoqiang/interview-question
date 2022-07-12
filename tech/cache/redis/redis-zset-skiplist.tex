@@ -4,7 +4,7 @@
 
 \subsection{Redis跳跃表}
 
-有序集合对象的编码可以是ziplist或者skiplist\footnote{参见：\url{https://juejin.cn/post/6998323950539243533}}。同时满足以下条件时使用ziplist编码：
+skip List 是一种随机化的数据结构，由 William Pugh 在论文《Skip lists: a probabilistic alternative to balanced trees》中提出，基于并联的链表，实现简单，插入、删除、查找的复杂度均为 O(logN)（大多数情况下），因为其性能匹敌红黑树且实现较为简单，因此在很多著名项目都用跳表来代替红黑树，例如 LevelDB、Redis 的底层存储结构就是用的 SkipList。和字典、链表或者字符串这几种在 Redis 中大量使用的数据结构不同， 跳跃表在 Redis 的唯一作用， 就是实现有序集数据类型。跳跃链表的优点在于搜索效率的提升，我们可以将搜索效率提升到 O (log n)，跟数组与二叉树的二分搜索法一样高效。缺点也是显而易见的，我们需要耗费更多的空间来储存各个节点，并且在插入与删除的操作上面，相比于数组来说会比较复杂一些。有序集合对象的编码可以是ziplist或者skiplist\footnote{参见：\url{https://juejin.cn/post/6998323950539243533}}。同时满足以下条件时使用ziplist编码：
 
 \begin{enumerate}
     \item {元素数量小于128个}
@@ -12,8 +12,6 @@
 \end{enumerate}
 
 以上两个条件的上限值可通过zset-max-ziplist-entries和zset-max-ziplist-value来修改。ziplist编码的有序集合使用紧挨在一起的压缩列表节点来保存，第一个节点保存member，第二个保存score。ziplist内的集合元素按score从小到大排序，score较小的排在表头位置。skiplist编码的有序集合底层是一个命名为zset的结构体，而一个zset结构同时包含一个字典和一个跳跃表。跳跃表按score从小到大保存所有集合元素。而字典则保存着从member到score的映射，这样就可以用O(1)的复杂度来查找member对应的score值。虽然同时使用两种结构，但它们会通过指针来共享相同元素的member和score，因此不会浪费额外的内存。
-
-skip List 是一种随机化的数据结构，基于并联的链表，实现简单，插入、删除、查找的复杂度均为 O(logN)（大多数情况下），因为其性能匹敌红黑树且实现较为简单，因此在很多著名项目都用跳表来代替红黑树，例如 LevelDB、Reddis 的底层存储结构就是用的 SkipList。
 
 \paragraph{为什么采用跳表，而不使用哈希表或平衡树实现呢}
 

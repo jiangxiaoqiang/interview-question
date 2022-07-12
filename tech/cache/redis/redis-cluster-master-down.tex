@@ -1,0 +1,27 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Redis集群一个Master节点宕机后会发生什么}
+
+假如Redis集群一个Master节点宕机后，会发生什么\footnote{参见：\url{https://www.cnblogs.com/JaminYe/p/13407213.html}}？Master节点宕机后，其他Master节点无法接收到宕机Master节点的心跳。主节点会被踢出，此时进入主节点选举流程。从属此主节点的从节点会向集群广播请求成为主节点，从节点不响应，主节点响应是否批准从节点成为主节点，超过半数主节点通过，那么此从节点成为集群新的主节点对外提供服务。
+
+\begin{enumerate}
+    \item {当slave发现自己的master挂了}
+    \item {将自己记录的currentEpoch加1,并向其他节点请求投票给自己成为master,广播FAILOVER\_AUTH\_REQUEST信息}
+    \item {其他节点收到请求,只有master会回应,判断请求的合法性,并投票,并发送FAILOVER\_AUTH\_ACK,可能会有多个slave请求,每个master只能投一票}
+    \item {slave收集master的投票}
+    \item {当slave收到的投票超过半数后就可以成为master}
+    \item {广播消息通知其他节点}
+\end{enumerate}
+
+当slave发现自己的master挂了并不会立即进行请求投票,会有一定的延时,确保其他的master也意识到当前的master挂了,否则master可能会拒绝投票。
+延时计算公式Delay=500ms+random(0-500)ms+Slave\_rank* 100ms(slave\_rank为复制数据的等级,等级越小表示复制数据越多也是为了保证能让拥有最新数据的slave最先发起选举)。
+
+\end{document}
+
+
+
+
+
+
