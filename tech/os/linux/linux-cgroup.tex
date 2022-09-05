@@ -4,7 +4,7 @@
 
 \subsection{\color{red}{容器三把斧之cgroup原理与实现}}
 
-cgroup从2.6.4引入linux内核主线，目前默认已启用该特性。在cgroup出现之前，只能对一个进程做资源限制，比如通过sched\_setaffinity设置进程cpu亲和性，使用ulimit限制进程打开文件上限、栈大小等。cgroups是Linux下控制一个（或一组）进程的资源限制机制，全称是control groups，可以对cpu、内存等资源做精细化控制，比如目前很多的Docker在Linux下就是基于cgroups提供的资源限制机制来实现资源控制的；除此之外，开发者也可以指直接基于cgroups来进行进程资源控制，比如8核的机器上部署了一个web服务和一个计算服务，可以让web服务仅可使用其中6个核，把剩下的两个核留给计算服务。cgroups cpu限制除了可以限制使用多少/哪几个核心之外，还可以设置cpu占用比（注意占用比是各自都跑满情况下的使用比例，如果一个cgroup空闲而另一个繁忙，那么繁忙的cgroup是有可能占满整个cpu核心的）。
+cgroup(Control Group)从2.6.4引入linux内核主线，目前默认已启用该特性。在cgroup出现之前，只能对一个进程做资源限制，比如通过sched\_setaffinity设置进程cpu亲和性，使用ulimit限制进程打开文件上限、栈大小等。cgroups是Linux下控制一个（或一组）进程的资源限制机制，全称是control groups，可以对cpu、内存等资源做精细化控制，比如目前很多的Docker在Linux下就是基于cgroups提供的资源限制机制来实现资源控制的；除此之外，开发者也可以指直接基于cgroups来进行进程资源控制，比如8核的机器上部署了一个web服务和一个计算服务，可以让web服务仅可使用其中6个核，把剩下的两个核留给计算服务。cgroups cpu限制除了可以限制使用多少/哪几个核心之外，还可以设置cpu占用比（注意占用比是各自都跑满情况下的使用比例，如果一个cgroup空闲而另一个繁忙，那么繁忙的cgroup是有可能占满整个cpu核心的）。
 
 \paragraph{CGroup子系统}
 
@@ -27,7 +27,7 @@ ns 子系统，可以使不同 cgroups 下面的进程使用不同的 namespace�
 
 每个进程对应一个css\_set结构，css\_set存储了与进程相关的cgropus信息。cg\_list是一个嵌入的 list\_head 结构，用于将连到同一个 css\_set 的进程组织成一个链表。进程和css\_set的关系是多对一关系，tasks表示关联的多个进程。
 
-在cgrups中一个task任务就是一个进程，一个进程可以加入到某个cgroup，也从一个进程组迁移到另一个cgroup。一个进程组的进程可以使用 cgroups 以控制族群为单位分配的资源，同时受到 cgroups 以控制族群为单位设定的限制。多个cgroup形成一个层级结构（树形结构），cgroup树上的子节点cgroup是父节点cgroup的孩子，继承父cgroup的特定的属性。注意：cgroups层级只会关联某个子系统之后才能进行对应的资源控制，一个子系统附加到某个层级以后，这个层级上的所有cgroup都受到这个子系统的控制。
+在cgroups中一个task任务就是一个进程，一个进程可以加入到某个cgroup，也从一个进程组迁移到另一个cgroup。一个进程组的进程可以使用 cgroups 以控制族群为单位分配的资源，同时受到 cgroups 以控制族群为单位设定的限制。多个cgroup形成一个层级结构（树形结构），cgroup树上的子节点cgroup是父节点cgroup的孩子，继承父cgroup的特定的属性。注意：cgroups层级只会关联某个子系统之后才能进行对应的资源控制，一个子系统附加到某个层级以后，这个层级上的所有cgroup都受到这个子系统的控制。
 
 \paragraph{限制进程使用资源}
 

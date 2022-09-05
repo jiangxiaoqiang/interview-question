@@ -4,7 +4,7 @@
 
 \subsection{Redis跳跃表}
 
-skip List 是一种随机化的数据结构，由 William Pugh 在论文《Skip lists: a probabilistic alternative to balanced trees》中提出，基于并联的链表，实现简单，插入、删除、查找的复杂度均为 O(logN)（大多数情况下），因为其性能匹敌红黑树且实现较为简单，因此在很多著名项目都用跳表来代替红黑树，例如 LevelDB、Redis 的底层存储结构就是用的 SkipList。和字典、链表或者字符串这几种在 Redis 中大量使用的数据结构不同， 跳跃表在 Redis 的唯一作用， 就是实现有序集数据类型。跳跃链表的优点在于搜索效率的提升，我们可以将搜索效率提升到 O (log n)，跟数组与二叉树的二分搜索法一样高效。缺点也是显而易见的，我们需要耗费更多的空间来储存各个节点，并且在插入与删除的操作上面，相比于数组来说会比较复杂一些。有序集合对象的编码可以是ziplist或者skiplist\footnote{参见：\url{https://juejin.cn/post/6998323950539243533}}。同时满足以下条件时使用ziplist编码：
+Skip List 是一种随机化的数据结构，由 William Pugh 在论文《Skip lists: a probabilistic alternative to balanced trees》中提出，基于并联的链表，实现简单，插入、删除、查找的复杂度均为 O(logN)（大多数情况下），因为其性能匹敌红黑树且实现较为简单，因此在很多著名项目都用跳表来代替红黑树，例如 LevelDB、Redis 的底层存储结构就是用的 SkipList。和字典、链表或者字符串这几种在 Redis 中大量使用的数据结构不同， 跳跃表在 Redis 的唯一作用， 就是实现有序集数据类型。跳跃链表的优点在于搜索效率的提升，我们可以将搜索效率提升到 O (log n)，跟数组与二叉树的二分搜索法一样高效。缺点也是显而易见的，我们需要耗费更多的空间来储存各个节点，并且在插入与删除的操作上面，相比于数组来说会比较复杂一些。有序集合对象的编码可以是ziplist或者skiplist\footnote{参见：\url{https://juejin.cn/post/6998323950539243533}}。同时满足以下条件时使用ziplist编码：
 
 \begin{enumerate}
     \item {元素数量小于128个}
