@@ -7,6 +7,14 @@
 NIO（Non-blocking I/O，在Java领域，也称为New I/O），是一种同步非阻塞的I/O模型，也是I/O多路复用的基础，已经被越来越多地应用到大型应用服务器，成为解决高并发与大量连接、I/O处理问题的有效方式。NIO由原来的阻塞读写（占用线程）变成了单线程轮询事件，找到可以进行读写的网络描述符进行读写。除了事件的轮询是阻塞的（没有可干的事情必须要阻塞），剩余的I/O操作都是纯CPU操作，没有必要开启多线程。并且由于线程的节约，连接数大的时候因为线程切换带来的问题也随之解决，进而为处理海量连接提供了可能。单线程处理I/O的效率确实非常高，没有线程切换，只是拼命的读、写、选择事件。但现在的服务器，一般都是多核处理器，如果能够利用多核心进行I/O，无疑对效率会有更大的提高。
 Netty 实际上就基于 Java NIO 技术封装完善之后得到一个高性能框架，熟悉 NIO 的基本概念对于学习和更好地理解 Netty 还是很有必要的！NIO由一个专门的线程处理所有IO事件，并负责分发。事件驱动机制，事件到来的时候触发操作，不需要阻塞的监视事件。线程之前通过wait,notify通信，减少线程切换。
 
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.3]{nio-selector.png}
+	\caption{NIO模型}
+	\label{fig:nioselector}
+\end{figure}
+
+
 NIO主要有三大核心部分：Channel(通道)，Buffer(缓冲区), Selector（选择器）。传统IO基于字节流和字符流进行操作，而NIO基于Channel和Buffer(缓冲区)进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。Selector(选择区)用于监听多个通道的事件（比如：连接打开，数据到达）。因此，单个线程可以监听多个数据通道。
 
 \textbf{Channel} Channel是所有访问IO设备的统称。类型与IO中的Stream，而通道是双向的，既可以读又可以写，但是Stream是单项的。常用的通道有：SocketChannel和ServerSocketChannel（对应TCP的客户端和服务器端）、FileChannel（对应文件IO）、DatagramChannel（对应UDP）等

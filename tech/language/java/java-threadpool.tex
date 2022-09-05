@@ -56,6 +56,14 @@ ThreadFactory：用于设置创建线程的工厂，可以通过线程工厂给�
 \textbf{Running}(1) 状态说明：线程池处在RUNNING状态时，能够接收新任务，以及对已添加的任务进行处理。
 (2) 状态切换：线程池的初始化状态是RUNNING。换句话说，线程池被一旦被创建，就处于RUNNING状态，并且线程池中的任务数为0！
 
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.15]{threadpollstatus.jpg}
+	\caption{线程池状态}
+	\label{fig:threadpollstatus}
+\end{figure}
+
+
 \paragraph{线程池如何实现线程复用}
 
 线程池可以把线程和任务进行解耦，线程归线程，任务归任务，摆脱了之前通过 Thread 创建线程时的一个线程必须对应一个任务的限制。在线程池中，同一个线程可以从 BlockingQueue 中不断提取新任务来执行，其核心原理在于线程池对 Thread 进行了封装，并不是每次执行任务都会调用 Thread.start() 来创建新线程，而是让每个线程去执行一个“循环任务”，在这个“循环任务”中，不停地检查是否还有任务等待被执行，如果有则直接去执行这个任务，也就是调用任务的 run 方法，把 run 方法当作和普通方法一样的地位去调用，相当于把每个任务的 run() 方法串联了起来，所以线程数量并不增加。实现线程复用的逻辑在ThreadPoolExecutor类的runWorker方法中。这个 while 循环有个 getTask 方法，getTask 的主要作用是阻塞从队列中拿任务出来，如果队列中有任务，那么就可以拿出来执行，如果队列中没有任务，这个线程会一直阻塞到有任务为止（或者超时阻塞）。

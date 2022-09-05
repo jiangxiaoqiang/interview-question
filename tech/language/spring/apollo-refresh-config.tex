@@ -4,7 +4,7 @@
 
 \subsection{Apollo刷新配置的原理}
 
-原理就是把这些配置都存储起来，当配置发生变化的时候进行修改就可以\footnote{参见:\url{https://www.apolloconfig.com/\#/zh/README}}。Apollo 中定义了一个 SpringValueProcessor 类，用来处理 Spring 中值的修改。通过实现 BeanPostProcessor 来处理每个 bean 中的值，然后将这个配置信息封装成一个 SpringValue 存储到 springValueRegistry 中。Apollo刷新配置的流程是：Portal修改配置，Config配置服务发现更改，通知客户端更新。发现配置中更改是通过线程定时扫描表的方式，通知客户端更新是通过长轮询的方式，还有一个备用机制是定时更新，防止长轮询失效的情况下配置无法更新。定时轮询的代码在com.ctrip.framework.apollo.internals命名空间下的RemoteConfigRepository类schedulePeriodicRefresh方法。再com.ctrip.framework.apollo.internals命名空间的类emoteConfigRepository下还有长轮询方法scheduleLongPollingRefresh。
+原理就是把这些配置都存储起来，当配置发生变化的时候进行修改就可以\footnote{参见:\url{https://www.apolloconfig.com/\#/zh/README}}。Apollo 中定义了一个 SpringValueProcessor 类，用来处理 Spring 中值的修改。通过实现 BeanPostProcessor 来处理每个 bean 中的值，然后将这个配置信息封装成一个 SpringValue 存储到 springValueRegistry 中。Apollo刷新配置的流程是：Portal修改配置，Config配置服务发现更改，通知客户端更新。发现配置中更改是通过线程定时扫描表的方式，通知客户端更新是通过长轮询的方式，还有一个备用机制是定时更新，防止长轮询失效的情况下配置无法更新。定时轮询的代码在\url{com.ctrip.framework.apollo.internals}命名空间下的RemoteConfigRepository类schedulePeriodicRefresh方法。再com.ctrip.framework.apollo.internals命名空间的类remoteConfigRepository下还有长轮询方法scheduleLongPollingRefresh。
 
 
 
