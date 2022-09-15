@@ -196,7 +196,7 @@ private是声明方法的允许访问范围，偏向于OOP的设计原则,并不
 
 \paragraph{Arrays.sort的实现}
 
-在JDK7以前的版本中sort()的实现原理是：基本类型使用优化后的快速排序，其他类型使用优化后的归并排序，jdk7以后修改了排序策略：如果JVM启动参数配置了-Djava.util.Arrays.useLegacyMergeSort=true那么就会执行上面所说的排序策略(优化的归并排序)，否则将会执行TimSort排序\footnote{\url{https://www.jianshu.com/p/d7ba7d919b80}}(此处存疑)。
+在JDK7以前的版本中sort()的实现原理是：基本类型使用优化后的快速排序\footnote{\url{https://cherish-ls.github.io/2020/10/14/JAVA内置排序Arrays-sort实现简述/}}，其他类型使用优化后的归并排序，jdk7以后修改了排序策略：如果JVM启动参数配置了-Djava.util.Arrays.useLegacyMergeSort=true那么就会执行上面所说的排序策略(优化的归并排序)，否则将会执行TimSort排序\footnote{\url{https://www.jianshu.com/p/d7ba7d919b80}}(此处存疑)。
 
 \paragraph{TreeMap 和 LinkedHashMap 是如何保证它的顺序的}
 
