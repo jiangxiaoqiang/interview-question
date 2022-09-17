@@ -102,7 +102,7 @@ public enum Singleton {
 
 \subsection{行为型模式(Behavioral Patterns)}
 
-\paragraph{摸板方法模式}
+\paragraph{模版方法模式}
 
 模板类定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。在Mybatis中，sqlSession的SQL执行，都是委托给Executor实现的。其中的BaseExecutor就采用了模板方法模式，它实现了大部分的SQL执行逻辑，然后把以下几个方法交给子类(SimpleExecutor/ReuseExecutor/BatchExecutor)定制化完成。
 
