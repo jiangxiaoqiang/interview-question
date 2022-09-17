@@ -4,7 +4,7 @@
 
 \subsection{\color{red}{HashMap原理}}
 
-HashMap是由数组+链表组成；寻址容易，插入和删除容易。（存储单元数组Entry[]，数组里面包含链表）HashMap其实也是由一个线性的数组实现的。所以可以理解为其存储数据的容器就是一个线性容器；HashMap里面有一个内部静态类Entry，其重要的属性有key，value，next，从属性key，value 就可以很明显的看出来 Entry就是HashMap键值对实现的一个基础bean；也就是说HashMap的基础就是一个线性数组，这个数组就是Entry[]，Map里面的内容都保存在Entry[]中；
+https://segmentfault.com/a/1190000041297886。HashMap是由数组+链表组成；寻址容易，插入和删除容易。（存储单元数组Entry[]，数组里面包含链表）HashMap其实也是由一个线性的数组实现的。所以可以理解为其存储数据的容器就是一个线性容器；HashMap里面有一个内部静态类Entry，其重要的属性有key，value，next，从属性key，value 就可以很明显的看出来 Entry就是HashMap键值对实现的一个基础bean；也就是说HashMap的基础就是一个线性数组，这个数组就是Entry[]，Map里面的内容都保存在Entry[]中；因为链表中元素太多的时候会影响查找效率，所以当链表的元素个数达到8并且数组长度超过64的时候使用链表存储就转变成了使用红黑树存储，原因就是红黑树是平衡二叉树，在查找性能方面比链表要高.
 
 什么情况下需要重写equals或者hashCode呢？前面说到了，HashMap的很多函数要基于equal()函数和hashCode()函数。hashCode()用来定位要存放的位置，equal()用来判断是否相等。
 那么，相等的概念是什么？
