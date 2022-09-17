@@ -2,7 +2,7 @@
 
 \begin{document}
 
-\subsection{Synchronized优化}
+\subsection{Synchronized锁优化(锁升级Lock Upgrade、锁膨胀Lock Expansion)}
 
 早期，Synchronized属于重量级锁(Heavyweight Lock)，效率低下，因为监视器锁(monitor)是依赖于底层的操作系统的Mutex Lock来实现的，而操作系统实现线程之间的切换时需要从用户态(User Model)转换到核心态(Kernel Model)\footnote{从用户态到内核态切换过程中，Linux主要做的事：
 
