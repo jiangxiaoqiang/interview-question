@@ -5,6 +5,12 @@
 
 \subsection{Spring容器启动过程}
 
+容器启动的过程可以分为2大步
+
+1:获取、解析、注册配置信息,将配置的文件信息转换Map<name,beanDefinition>
+
+2:根据上述的Map<name,beanDefinition>去实例化bean，并完成以来注入
+
 \paragraph{获取Bean定义}
 
 获取、解析、注册配置信息,将配置的文件信息转换Map<name,beanDefinition>，启动Spring容器实质上就是创建一个ApplicationContext的上下文对象，这个对象描述了Spring容器的基本操作，包括资源的加载（ResourcePatternResolver）、Bean的创建（ListableBeanFactory, HierarchicalBeanFactory）、应用环境的获取（EnvironmentCapable）、应用的事件推送（ApplicationEventPublisher）等。

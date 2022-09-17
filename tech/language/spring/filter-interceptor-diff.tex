@@ -6,7 +6,7 @@
 
 Filter是基于函数回调（doFilter()方法）的，而Interceptor则是基于Java反射的（AOP思想）。
 
-Filter依赖于Servlet容器，而Interceptor不依赖于Servlet容器。
+Filter依赖于Servlet容器(Servlet容器也叫做Servlet引擎，是Web服务器或应用程序服务器的一部分，用于在发送的请求和响应之上提供网络服务，解码基于 MIME的请求，格式化基于MIME的响应。Servlet没有main方法，不能独立运行，它必须被部署到Servlet容器中，由容器来实例化和调用 Servlet的方法（如doGet()和doPost()），Servlet容器在Servlet的生命周期内包容和管理Servlet。在JSP技术 推出后，管理和运行Servlet/JSP的容器也称为Web容器。)，而Interceptor不依赖于Servlet容器。
 
 Filter对几乎所有的请求起作用，而Interceptor只能对action请求起作用。
 
