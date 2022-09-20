@@ -198,6 +198,30 @@ private是声明方法的允许访问范围，偏向于OOP的设计原则,并不
 
 在JDK7以前的版本中sort()的实现原理是：基本类型使用优化后的快速排序\footnote{\url{https://cherish-ls.github.io/2020/10/14/JAVA内置排序Arrays-sort实现简述/}}，其他类型使用优化后的归并排序，jdk7以后修改了排序策略：如果JVM启动参数配置了-Djava.util.Arrays.useLegacyMergeSort=true那么就会执行上面所说的排序策略(优化的归并排序)，否则将会执行TimSort排序\footnote{\url{https://www.jianshu.com/p/d7ba7d919b80}}(此处存疑)。
 
+\subparagraph{基本数据类型排序}
+
+对于基本数据类型的数组，假设数组长度为length：
+
+
+如果length<47，那么采用插入排序算法。
+如果47<=length<286，或者286<=length，但数组不具备特定结构，那么使用快速排序的一种优化形式：双轴快排算法。
+如果286<=length，并且数组具备特定结构，那么使用归并排序算法。
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.5]{array-sort.png}
+	\caption{NIO模型}
+	\label{fig:arraysort}
+\end{figure}
+
+\subparagraph{对象数据类型排序}
+
+
+对于对象类型的数组，假设数组长度为length：
+
+如果length<32，那么采用不包含合并操作的mini-TimSort算法。
+如果32<=length，那么采用完整TimSort排序算法（一种结合了归并排序和插入排序的算法）。
+
 \paragraph{TreeMap 和 LinkedHashMap 是如何保证它的顺序的}
 
 TreeMap 是通过实现 SortMap 接口，能够把它保存的键值对根据 key 排序，基于红黑树，从而保证 TreeMap 中所有键值对处于有序状态。LinkedHashMap 则是通过插入排序和访问排序（改变排序把访问过的放到底部）让键值有序。

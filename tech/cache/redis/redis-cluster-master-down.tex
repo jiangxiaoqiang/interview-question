@@ -15,7 +15,7 @@
     \item {广播消息通知其他节点}
 \end{enumerate}
 
-当slave发现自己的master挂了并不会立即进行请求投票,会有一定的延时,确保其他的master也意识到当前的master挂了,否则master可能会拒绝投票。
+假如slave同时请求成为master呢？假如存活2个master的话，会出现不同的master投给不同的slave从而导致无法选举出新的master吗？当slave发现自己的master挂了并不会立即进行请求投票,会有一定的延时,确保其他的master也意识到当前的master挂了,否则master可能会拒绝投票。
 延时计算公式Delay=500ms+random(0-500)ms+Slave\_rank* 100ms(slave\_rank为复制数据的等级,等级越小表示复制数据越多也是为了保证能让拥有最新数据的slave最先发起选举)。
 
 \end{document}
