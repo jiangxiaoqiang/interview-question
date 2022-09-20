@@ -5,34 +5,34 @@
 
 \subsection{Spring IoC}
 
-首先我们要知道IoC（Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交由Spring框架来管理。这并非Spring特有，在其他语言里面也有体现。IOC容器是Spring用来实现IOC的载体， IoC容器实际上就是个Map（key，value）,Map 中存放的是各种对象。spring 中有多少种 IOC 容器？BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。
+首先我们要知道IoC（Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交由Spring框架来管理。这并非Spring特有，在其他语言里面也有体现。IoC容器是Spring用来实现IoC的载体， IoC容器实际上就是个Map（key，value）,Map 中存放的是各种对象。spring 中有多少种 IOC 容器？BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。
 ApplicationContext - ApplicationContext 接口扩展了 BeanFactory 接口。它在 BeanFactory 基础上提供了一些额外的功能。
 
 或许是IoC不够开门见山，Martin Fowler提出了DI(Dependency Injection)来替代IoC(Inverse of Control)，即让调用类对某一接口实现类的依赖关系由第三方(容器或协作类)注入，以移除调用类对某一接口实现类的依赖。
 
-所以我们要区别IoC与DI(Dependency Injection)，简单来说IOC的主要实现方式有两种：依赖查找和依赖注入。
+所以我们要区别IoC与DI(Dependency Injection)，简单来说IoC的主要实现方式有两种：依赖查找和依赖注入。
 
-我们DI就是依赖注入，也就是IOC的一种可取的实现方式！对两个概念总结以下：
+我们DI就是依赖注入，也就是IoC的一种可取的实现方式！对两个概念总结以下：
 
-IOC （Inversion of control ） 控制反转/反转控制。是站在对象的角度，对象实例化以及管理的权限（反转）交给了容器。
+IoC （Inversion of control ） 控制反转/反转控制。是站在对象的角度，对象实例化以及管理的权限（反转）交给了容器。
 
 DI （Dependancy Injection）依赖注入。是站在容器的角度，容器会把对象依赖的其他对象注入（送进去）。例如：对象A 实例化过程中因为声明了一个B类型的属性，那么就需要容器把B对象注入到A中。可以通过多少种方式完成依赖注入？
 通常，依赖注入可以通过三种方式完成，即：构造函数注入、setter 注入、接口注入。
 
 在 Spring Framework 中，仅使用构造函数和 setter 注入。
 
-通过使用IOC容器可以对我们的对象注入依赖（DI），实现控制反转！
+通过使用IoC容器可以对我们的对象注入依赖（DI），实现控制反转！
 
 优点：实现组件之间的解耦，提高程序的灵活性和可维护性。
 缺点：生成一个对象的步骤变复杂了，生成因为是使用反射编程，在效率上有些损耗。但相对于IoC提高的维护性和灵活性来说，这点损耗是微不足道的，除非某对象的生成对效率要求特别高。
 
-通过上面的介绍，我们大概理解了IOC的概念，也知道它的作用。那么也会有疑惑，为什么需要依赖反转呢，有什么好处，解决了什么问题？
+通过上面的介绍，我们大概理解了IoC的概念，也知道它的作用。那么也会有疑惑，为什么需要依赖反转呢，有什么好处，解决了什么问题？
 
-简单来说，IOC 容器就像是一个工厂一样，当我们需要创建一个对象的时候，只需要配置好配置文件/注解即可，完全不用考虑对象是如何被创建出来的。 在实际项目中一个 Service 类可能有几百甚至上千个类作为它的底层，假如我们需要实例化这个 Service，你可能要每次都要搞清这个 Service 所有底层类的构造函数，这可能会把人逼疯。如果利用 IOC 的话，你只需要配置好，然后在需要的地方引用就行了，这大大增加了项目的可维护性且降低了开发难度。
+简单来说，IoC 容器就像是一个工厂一样，当我们需要创建一个对象的时候，只需要配置好配置文件/注解即可，完全不用考虑对象是如何被创建出来的。 在实际项目中一个 Service 类可能有几百甚至上千个类作为它的底层，假如我们需要实例化这个 Service，你可能要每次都要搞清这个 Service 所有底层类的构造函数，这可能会把人逼疯。如果利用 IoC 的话，你只需要配置好，然后在需要的地方引用就行了，这大大增加了项目的可维护性且降低了开发难度。
 
 举个例子：现有一个针对User的操作，利用 Service 和 Dao 两层结构进行开发！
 
-在没有使用IOC思想的情况下，Service 层想要使用 Dao层的具体实现的话，需要通过new关键字在UserServiceImpl 中手动 new出 IUserDao 的具体实现类 UserDaoImpl（不能直接new接口类）。
+在没有使用IoC思想的情况下，Service 层想要使用 Dao层的具体实现的话，需要通过new关键字在UserServiceImpl 中手动 new出 IUserDao 的具体实现类 UserDaoImpl（不能直接new接口类）。
 
 这种方式可以实现，但是如果开发过程中接到新需求，针对IUserDao 接口开发出另一个具体实现类。因为Server层依赖了IUserDao的具体实现，所以我们需要修改UserServiceImpl中new的对象。如果只有一个类引用了IUserDao的具体实现，可能觉得还好，修改起来也不是很费力气，但是如果有许许多多的地方都引用了IUserDao的具体实现的话，一旦需要更换IUserDao的实现方式，那修改起来将会非常的头疼。
 
