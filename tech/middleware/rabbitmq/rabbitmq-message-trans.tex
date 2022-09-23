@@ -17,4 +17,28 @@ Topics （主题模式）：通过一定的规则来选择性的接收消息。
 RPC 模式：发布者发布消息，并且通过 RPC 方式等待结果。目前这个应该场景少，而且代码也较为复杂，本章不做细讲。
 注意：官网最后有 Publisher Confirms 为消息确认机制。指的是生产者如何发送可靠的消息。
 
+https://juejin.cn/post/6844904021837217806
+
+
+\begin{table}[htbp]
+	\caption{队列与Exchange类型对应关系}
+	\label{table:queueexchange}
+	\begin{center}
+		\begin{tabular}{p{6cm}c}
+			\hline
+			\multirow{1}{*}{消息模式}
+			& \multicolumn{1}{c}{交换机} \\			
+			\cline{1-2}
+			Simple Work Queue （简单工作队列），Work Queues （工作队列） &  空交换机   \\
+			\hline
+			Publish/Subscribe （发布订阅模式） &  fanout （扇形交换机）  \\
+			\hline
+			Routing（路由模式） &  direct （直连交换机） \\
+			\hline	
+            Topics（主题模式） &  topic（主题交换机） \\
+			\hline						
+		\end{tabular}	
+	\end{center}
+\end{table}
+
 \end{document}
