@@ -54,4 +54,24 @@ public void method3(){
 
 \paragraph{使用CountDownLatch关键字实现}执行它的latch.await()方法，如果计数器不为0，那么当前线程就会被阻塞；每完成一个任务，就执行latch.countDown()，计数器减一，当计数器为0时，阻塞的线程恢复执行状态\footnote{\url{http://xiaonanbobo.com/2017/12/05/如何保证线程的顺序执行？/}}。应用场景之一是需要下载一个大文件，开启多个线程分别下载文件的一部分，然后有一个线程最后拼接所有的文件。我们可以考虑使用 CountDownLatch 来控制并发，使拼接的线程放在最后执行。
 
+\paragraph{利用 newSingleThreadExecutor 控制线程的执行顺序}
+
+java的 Executors 线程池平时工作中用得很多了，JAVA通过Executors提供了四种线程池，单线程化线程池(newSingleThreadExecutor)、可控最大并发数线程池(newFixedThreadPool)、可回收缓存线程池(newCachedThreadPool)、支持定时与周期性任务的线程池(newScheduledThreadPool)。
+
+顾名思义，newSingleThreadExecutor 线程池只有一个线程。它存在的意义就在于控制线程执行的顺序，保证任务的执行顺序和提交顺序一致。其实保证顺序执行的原理也很简单，因为总是只有一个线程处理任务队列上的任务，先提交的任务必将被先处理。
+
+\paragraph{object的 wait(),notify()方法,配合synchronized使用}
+
+\paragraph{CyclicBarrier}
+
+栅栏类似于闭锁，它能阻塞一组线程直到某个事件的发生。栅栏与闭锁的关键区别在于，所有的线程必须同时到达栅栏位置，才能继续执行。闭锁用于等待事件，而栅栏用于等待其他线程。 CyclicBarrier可以使一定数量的线程反复地在栅栏位置处汇集。当线程到达栅栏位置时将调用await方法，这个方法将阻塞直到所有线程都到达栅栏位置。如果所有线程都到达栅栏位置，那么栅栏将打开，此时所有的线程都将被释放，而栅栏将被重置以便下次使用。
+
+\paragraph{ReentrantLock}
+
+配合自定义执行条件 原理同wait() notify()。https://ost.51cto.com/posts/3536
+
+\paragraph{Semaphore}
+
+Semaphore 通常我们叫它信号量， 可以用来控制同时访问特定资源的线程数量，通过协调各个线程，以保证合理的使用资源。
+
 \end{document}
