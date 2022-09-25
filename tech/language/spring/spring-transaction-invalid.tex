@@ -1,0 +1,27 @@
+
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Spring事务失效场景}
+
+如下场景会导致事务失效：
+
+\begin{enumerate}
+    \item {数据库引擎不支持事务}
+    \item {没有被Spring管理}
+    \item {方法不是public的}不是public的方法没有权限访问，自然无法代理，如果能代理，那么就违背了设计初衷。
+    \item {自身调用(Self Invocation)问题}Spring的事务实现是根据JDK的动态代理，如果我们为Spring的某个bean配置了切面，那么Spring在创建这个bean的时候，实际上创建的是这个bean的一个代理对象，我们后续对bean中方法的调用，实际上调用的是代理类重写的代理方法。在类中调用事务注解的方法，事务不会生效。因为事务注解是基于动态代理实现的，通过代理调用的方法才会产生切面通知，而类中的自身调用是通过this方式调用，并不会产生切面通知\footnote{\url{https://blog.csdn.net/weixin_40482816/article/details/116235521}}。
+    \item {数据源没有配置事务管理器}
+    \item {异常被捕获}如果在执行事务的方法中捕获了异常，没有抛出，那么会导致回滚失效，可能会出现部分成功的情况，也就是事务失效了，没有要么全部成功要么全部失败事务效果。
+    \item {异常类型错误}
+\end{enumerate}
+
+https://segmentfault.com/a/1190000040059901
+
+\end{document}
+
+
+
+
+
