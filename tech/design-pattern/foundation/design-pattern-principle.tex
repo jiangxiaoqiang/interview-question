@@ -2,16 +2,16 @@
 
 \begin{document}
 
-\subsection{设计模式原则}
+\subsection{设计模式应遵循的原则}
 
-面向对象的设计模式有七大基本原则：
+SOLID 原则是由 Robert C. Martin （Bob 大叔） 在 21 世纪初定义的。Bob 大叔阐述了几个并且确认了其它已经存在的原则。他说我们应该使用这些原则，让代码获得好的依赖管理。但是，SOLID 原则在最初并没有被大家熟知直到 Michael Feathers 观察到这些原则的首字母正好能拼成缩写 SOLID，这个非常具有代表性的名字。面向对象的设计模式有七大基本原则：
 
 \begin{enumerate}
-    \item {开闭原则（Open Closed Principle，OCP）}对扩展开放，对修改关闭
     \item {单一职责原则（Single Responsibility Principle, SRP）}一个类只负责一个功能领域中的相应职责
+    \item {开闭原则（Open Closed Principle，OCP）}对扩展开放，对修改关闭
     \item {里氏代换原则（Liskov Substitution Principle，LSP）}所有引用基类的地方必须能透明地使用其子类的对象
-    \item {依赖倒转原则（Dependency Inversion Principle，DIP）}依赖于抽象，不能依赖于具体实现
     \item {接口隔离原则（Interface Segregation Principle，ISP）}类之间的依赖关系应该建立在最小的接口上
+    \item {依赖倒转原则（Dependency Inversion Principle，DIP）}依赖于抽象，不能依赖于具体实现
     \item {合成/聚合复用原则（Composite/Aggregate Reuse Principle，CARP）}尽量使用合成/聚合，而不是通过继承达到复用的目的
     \item {最少知识原则（Least Knowledge Principle，LKP）或者迪米特法则（Law of  Demeter，LOD）}一个软件实体应当尽可能少的与其他实体发生相互作用
 \end{enumerate}

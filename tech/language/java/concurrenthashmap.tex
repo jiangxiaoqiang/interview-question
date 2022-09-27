@@ -1,0 +1,16 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{\color{red}{ConcurrentHashMap}}
+
+\paragraph{ConcurrentHashMap如何实现线程安全的}
+
+ConcurrentHashMap是基于Segment分段锁来实现的，这句话也不能说不对，加个前提条件就是正确的了，ConcurrentHashMap从JDK1.5开始随java.util.concurrent包一起引入JDK中，在JDK8以前，ConcurrentHashMap都是基于Segment分段锁来实现的，在JDK8以后，就换成synchronized和CAS这套实现机制了。其实ConcurrentHashMap保证线程安全主要有三个地方。
+
+一、使用volatile保证当Node中的值变化时对于其他线程是可见的
+二、使用table数组的头结点作为synchronized的锁来保证写操作的安全
+三、当头结点为null时，使用CAS操作来保证数据能正确的写入。
+
+
+\end{document}

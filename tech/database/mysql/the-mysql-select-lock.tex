@@ -14,4 +14,6 @@ select操作均不加锁，采用的是快照读MVCC(Multi-Version Concurrency C
 delete from user where id = 1;
 \end{lstlisting}
 
+DELETE会对所有符合条件的唯一索引或主键索引加Record Lock、 非唯一索引加Next-Key Lock。如果没有索引，会先对全表的记录加锁，再释放锁，只对符合条件的记录加锁，但是对全表加锁再释放锁这个过程不会省略。
+
 \end{document}
