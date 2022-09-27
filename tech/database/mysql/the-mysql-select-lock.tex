@@ -1,0 +1,17 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL查询加锁吗}
+
+\begin{lstlisting}[language=SQL]
+select * from user where id = 1;
+\end{lstlisting}
+
+select操作均不加锁，采用的是快照读MVCC(Multi-Version Concurrency Control)。
+
+\begin{lstlisting}[language=SQL]
+delete from user where id = 1;
+\end{lstlisting}
+
+\end{document}
