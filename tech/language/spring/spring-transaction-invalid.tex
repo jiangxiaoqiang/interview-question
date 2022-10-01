@@ -9,15 +9,49 @@
 
 \begin{enumerate}
     \item {数据库引擎不支持事务}
-    \item {没有被Spring管理}
-    \item {方法不是public的}不是public的方法没有权限访问，自然无法代理，如果能代理，那么就违背了设计初衷。
+    \item {没有被Spring管理。}例如如下的代码：
+    
+\begin{lstlisting}[language=Java]
+// @Service
+public class OrderServiceImpl implements OrderService {
+    @Transactional
+    public void updateOrder(Order order) {
+        // update order
+    }
+}
+\end{lstlisting}
+
+    如果此时把 @Service 注解注释掉，这个类就不会被加载成一个 Bean，那这个类就不会被 Spring 管理了，事务自然就失效了
+
+    \item {方法不是public的}不是public的方法没有权限访问，自然无法代理，如果能代理，那么就违背了设计初衷。When using proxies, you should apply the @Transactional annotation only to methods with public visibility. If you do annotate protected, private or package-visible methods with the @Transactional annotation, no error is raised, but the annotated method does not exhibit the configured transactional settings. Consider the use of AspectJ (see below) if you need to annotate non-public methods.
     \item {自身调用(Self Invocation)问题}Spring的事务实现是根据JDK的动态代理，如果我们为Spring的某个bean配置了切面，那么Spring在创建这个bean的时候，实际上创建的是这个bean的一个代理对象，我们后续对bean中方法的调用，实际上调用的是代理类重写的代理方法。在类中调用事务注解的方法，事务不会生效。因为事务注解是基于动态代理实现的，通过代理调用的方法才会产生切面通知，而类中的自身调用是通过this方式调用，并不会产生切面通知\footnote{\url{https://blog.csdn.net/weixin_40482816/article/details/116235521}}。
     \item {数据源没有配置事务管理器}
     \item {异常被捕获}如果在执行事务的方法中捕获了异常，没有抛出，那么会导致回滚失效，可能会出现部分成功的情况，也就是事务失效了，没有要么全部成功要么全部失败事务效果。
-    \item {异常类型错误}
+    \item {异常类型错误。}例如如下代码片段：
+    
+\begin{lstlisting}[language=Java]
+// @Service
+public class OrderServiceImpl implements OrderService {
+    @Transactional
+    public void updateOrder(Order order) {
+        try {
+            // update order
+        } catch {
+            throw new Exception("更新错误");
+        }
+    }  
+}
+\end{lstlisting}
+
+    这样事务也是不生效的，因为默认回滚的是：RuntimeException，如果你想触发其他异常的回滚，需要在注解上配置一下，如：
+
+\begin{lstlisting}[language=Java]
+@Transactional(rollbackFor = Exception.class)
+\end{lstlisting}
+
 \end{enumerate}
 
-https://segmentfault.com/a/1190000040059901
+https://www.cnblogs.com/javastack/p/12160464.html
 
 \end{document}
 

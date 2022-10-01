@@ -1,0 +1,29 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Synchronized和Lock的区别}
+
+区别如下：
+
+\begin{enumerate}
+    \item {synchronized是关键字，而Lock是接口}
+    \item {synchronized无法判断是否获取锁的状态，Lock可以判断是否获取到锁}
+    \item {synchronized自动释放锁（a线程执行完同步代码会自动释放锁，b线程执行过程中发生异常会释放锁）}
+    \item {lock需在finally中手动释放锁（unlock()方法释放锁），否则容易造成线程死锁。}
+    \item {synchronized关键字的两个线程1和线程2，若当前线程1获得锁，线程2等待，如果线程1阻塞，线程2会一直等待下去。}
+    \item {而lock锁不一定会等待下去，如果尝试获得不到锁，线程可以不用一直等待就结束了。}
+\end{enumerate}
+
+\paragraph{什么情况下使用Lock}
+
+\begin{enumerate}
+    \item {某个线程在等待一个锁的控制权的这段时间需要中断。}
+    \item {分开处理一些 wait-notify，ReentrantLock 里面的 Condition 应用，能够控制 notify 哪个线程。}
+    \item {公平锁功能，每个到来的线程都将排队等候。}
+\end{enumerate}
+
+当需要更细粒度的控制锁的时候使用Lock。https://xie.infoq.cn/article/4e370ded27e4419d2a94a44b3
+
+
+\end{document}

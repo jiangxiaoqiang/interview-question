@@ -1,0 +1,28 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{拦截器如何触发}
+
+一直以为拦截器是基于AOP实现的，然而事实并不是。SpringMVC框架的核心类为DispatchServlet(org.springframework.web.servlet)，http请求的核心执行方法doService(),我们画下SpringMVC的工作流程图：
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.35]{interceptor.png}
+	\caption{拦截器执行流程}
+	\label{fig:interceptor}
+\end{figure}
+
+从流程图可以看到，拦截器的执行是在穿插在SpringMVC的工作流程中的，并没有用到动态代理机制，DispatchServlet的doDispatch方法直接调用的拦截器方法applyPreHandle和applyPostHandle。拦截器在实现层面，并没有用到AOP，并没有切面，通知这一类的代码，所以它的实现并不是基于AOP的。但是拦截器从思想层面上，是面向切面编程的，是在controller这个层面上进行的代码织入。
+
+\end{document}
+
+
+
+
+
+
+
+
+
+

@@ -4,14 +4,13 @@
 
 \subsection{Spring Bean如何解决循环依赖问题}
 
-在 Spring 单例 Bean 的创建 中介绍介绍了使用三级缓存。
+在Spring单例Bean的创建中介绍介绍了使用三级缓存，原始代码在DefaultSingletonBeanRegistry类中。
 
 singletonObjects： 一级缓存，存储单例对象，Bean 已经实例化，初始化完成。
 
-earlySingletonObjects： 二级缓存，存储 singletonObject，这个 Bean 实例化了，还没有初始化。
+earlySingletonObjects： 二级缓存，存储singletonObject，这个 Bean 实例化了，还没有初始化。
 
 singletonFactories： 三级缓存，存储 singletonFactory。
-
 
 一级缓存singletonObjects是完整的bean，它可以被外界任意使用，并且不会有歧义。
 

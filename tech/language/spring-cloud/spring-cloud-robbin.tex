@@ -1,0 +1,50 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Spring Cloud Robbin}
+
+\paragraph{负载均衡策略}
+
+Ribbon提供了七种负载均衡策略，默认的负载均衡策略是轮训策略。
+
+\begin{table}[htbp]
+	\caption{负载均衡策略}
+	\label{table:loadbalance}
+	\begin{center}
+		\begin{tabular}{cp{6cm}}
+			\hline
+			\multirow{1}{*}{名称}
+			& \multicolumn{1}{c}{解释} \\			
+			\cline{1-2}
+			RoundRobinRule &  轮询策略            \\
+			\hline
+			RandomRule &  随机策略            \\
+			\hline
+			BestAvailableRule	 &  过滤出故障服务器后，选择一个并发量最小的            \\
+			\hline	
+            WeightedResponseTimeRule &  针对响应时间加权轮询            \\
+			\hline
+            AvailabilityFilteringRule &  可用过滤策略，先过滤出故障的或并发请求大于阈值的一部分服务实例，然后再以线性轮询的方式从过滤后的实例清单中选出一个;            \\
+			\hline
+            ZoneAvoidanceRule &  从最佳区域实例集合中选择一个最优性能的服务实例            \\
+			\hline	
+            RetryRule &  选择一个Server，如果失败，重新选择一个Server重试           \\
+			\hline					
+		\end{tabular}	
+	\end{center}
+\end{table}
+
+https://zhuanlan.zhihu.com/p/262660637
+
+\end{document}
+
+
+
+
+
+
+
+
+
+

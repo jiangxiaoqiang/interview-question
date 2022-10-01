@@ -1,0 +1,37 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL集群方案}
+
+https://docker.shujuwajue.com/mysql-ji-qun/chang-jian-mysql-ji-qun-fang-an
+
+\paragraph{Percona XtraDB Cluster }
+
+Percona XtraDB Cluster (简称 PXC) 是 Percona 公司开源的实现 MySQL 高可用的解决方案。它将 Percona Server 和 Percona XtraBackup 与 Galera 库集成，以实现多主同步复制。和 MySQL 传统的异步复制相比，它能够保证数据的强一致性，在任何时刻集群中任意节点上的数据状态都是完全一致的，并且整个架构实现了去中心化，所有节点都是对等的，即允许你在任意节点上进行写入和读取，集群会把数据状态同步至其他所有节点。但目前 PXC 集群只支持 InnoDB 存储引擎，并具有以下限制：
+
+\begin{enumerate}
+    \item {添加新节点时，必须从现有节点之一复制完整数据集。如果是 100GB，则复制 100GB。为了减少网络开销，建议在搭建集群前使用备份的方式将所有节点初始的数据状态调整至一致。}
+    \item {不支持 LOCK TABLES ，在多主设置的情况下也不支持 UNLOCK TABLES。}
+    \item {不支持锁定功能，如 GET\_LOCK()，RELEASE\_LOCK() 等。}
+    \item {由于可能在提交时回滚，因此也不支持 XA 事务 (分布式事务) 。}
+    \item {所有表必须具有主键。}
+    \item {由于节点是对等的，所以整个集群的写吞吐量受限于性能最差的节点，如果一个节点变慢，则整个群集都会变慢。因此应该保证所有节点的硬件配置一致，并避免单个节点超负载运行。}
+    \item {允许的最大事务大小由 wsrep\_max\_ws\_rows 和 wsrep\_max\_ws\_size 参数共同定义，因此超大型事务会被拆分为一系列小型事务，如加载大数据集 LOAD DATA INFILE。}
+    \item {由于在集群级别采用乐观锁进行并发控制，所以事务在 COMMIT 阶段仍然有被中止的可能。如两个事务在不同的集群节点上提交对相同的行的写入，此时只有其中一个可以成功提交，另一个将被中止。}
+\end{enumerate}
+
+
+
+
+\paragraph{Master High Availability Manager and Toolsfor MySQL}
+
+MHA(Master High Availability Manager and Toolsfor MySQL)目前在Mysql高可用方面是一个相对成熟的解决方案。它是日本的一位MySQL专家采用Perl语言编写的一个脚本管理工具，该工具仅适用于MySQLReplication 环境，目的在于维持Master主库的高可用性。
+
+MHA是基于标准的MySQL复制(异步/半同步)。
+
+MHA是由管理节点(MHA Manager)和数据节点(MHA Node)两部分组成。
+
+MHA Manager可以单独部署在一台独立机器,也可以部署在一台slave上。
+
+\end{document}

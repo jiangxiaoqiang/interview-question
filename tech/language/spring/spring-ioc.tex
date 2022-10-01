@@ -5,7 +5,7 @@
 
 \subsection{Spring IoC}
 
-首先我们要知道IoC（Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交由Spring框架来管理。这并非Spring特有，在其他语言里面也有体现。IoC容器是Spring用来实现IoC的载体， IoC容器实际上就是个Map（key，value）,Map 中存放的是各种对象。spring 中有多少种 IOC 容器？BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。
+首先我们要知道IoC（Inverse of Control:控制反转）是一种设计思想，就是 将原本在程序中手动创建对象的控制权，交由Spring框架来管理。这并非Spring特有，在其他语言里面也有体现。IoC容器是Spring用来实现IoC的载体， IoC容器实际上就是个Map（key，value）,Map 中存放的是各种对象。Spring中有多少种 IOC 容器？BeanFactory - BeanFactory 就像一个包含 bean 集合的工厂类。它会在客户端要求时实例化 bean。
 ApplicationContext - ApplicationContext 接口扩展了 BeanFactory 接口。它在 BeanFactory 基础上提供了一些额外的功能。
 
 或许是IoC不够开门见山，Martin Fowler提出了DI(Dependency Injection)来替代IoC(Inverse of Control)，即让调用类对某一接口实现类的依赖关系由第三方(容器或协作类)注入，以移除调用类对某一接口实现类的依赖。
