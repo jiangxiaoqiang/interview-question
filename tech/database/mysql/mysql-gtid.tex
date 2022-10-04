@@ -1,0 +1,10 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL GTID}
+
+全局事务 ID (Global Transaction ID, GTID) 是用来强化数据库在主备复制场景下，可以有效保证主备一致性、提高故障恢复、容错能力。GTID是MySQL 5.6的新特性，其全称是Global Transaction Identifier，可简化MySQL的主从切换以及Failover。GTID用于在binlog中唯一标识一个事务。当事务提交时，MySQL Server在写binlog的时候，会先写一个特殊的Binlog Event，类型为GTID\_Event，指定下一个事务的GTID，然后再写事务的Binlog。主从同步时GTID\_Event和事务的Binlog都会传递到从库，从库在执行的时候也是用同样的GTID写binlog，这样主从同步以后，就可通过GTID确定从库同步到的位置了。也就是说，无论是级联情况，还是一主多从情况，都可以通过GTID自动找点儿，而无需像之前那样通过File\_name和File\_position找点儿了。支持多线程复制（多数据库同时复制才有意义，仅仅复制一个则没有意义），通常，由于读取较大，主负责数据的写入，从负责的读取，可以有多从。
+https://segmentfault.com/a/1190000041399202
+
+\end{document}

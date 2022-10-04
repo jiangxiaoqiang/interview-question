@@ -5,8 +5,17 @@
 
 \subsection{Spring Boot Starter原理}
 
-starter可以理解为一个依赖组，其主要功能就是完成引入依赖和初始化配置。项目启动的时候会去加载项目中所有的 spring.factories 文件，然后加载对应的配置类，因此我们就需要在 spring.factories 中只指定需要扫描的类。
+starter可以理解为一个依赖组，其主要功能就是完成引入依赖和初始化配置。项目启动的时候会去加载项目中所有的 spring.factories 文件，然后加载对应的配置类，因此我们就需要在 spring.factories 中只指定需要扫描的类。Spring Boot 的 starter 的核心其实就是通过 SPI 机制自动注入配置类，不过是它自己实现的一套SPI机制，我们先了解一下Java的SPI机制。SPI 全称 Service Provider Interface，是 Java 提供的一套用来被第三方实现或者扩展的 API，它可以用来启用框架扩展和替换组件。SPI的大概流程是：调用方 –> 标准服务接口 –> 本地服务发现 (配置文件) –> 具体实现。
 
+\paragraph{如何开发一个自定义的starter}
+
+开发一个 starter 简单来说以下几步即可：
+
+\begin{itemize}
+    \item {一个/多个自定义配置的属性配置类（可选）}
+    \item {一个/多个自动配置类}
+    \item {自动配置类写入到 Spring Boot 的 SPI 机制配置文件：spring.factories}
+\end{itemize}
 
 \end{document}
 

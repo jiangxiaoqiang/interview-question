@@ -4,6 +4,18 @@
 
 \subsection{Spring Bean的生命周期}
 
+
+Bean 的生命周期主要为实例化、属性填充、初始化和销毁 4 个阶段，加上类加载和使用阶段，整个流程如下：
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.5]{spring-bean-lifecycle.png}
+	\caption{Spring Bean生命周期}
+	\label{fig:spring-bean-lifecycle}
+\end{figure}
+
+https://www.modb.pro/db/436912
+
 Spring Bean的生命周期分为四个阶段和多个扩展点。扩展点又可以分为影响多个Bean和影响单个Bean。整理如下：
 四个阶段
 
