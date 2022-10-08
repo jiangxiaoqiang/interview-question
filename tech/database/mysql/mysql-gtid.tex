@@ -7,4 +7,16 @@
 全局事务 ID (Global Transaction ID, GTID) 是用来强化数据库在主备复制场景下，可以有效保证主备一致性、提高故障恢复、容错能力。GTID是MySQL 5.6的新特性，其全称是Global Transaction Identifier，可简化MySQL的主从切换以及Failover。GTID用于在binlog中唯一标识一个事务。当事务提交时，MySQL Server在写binlog的时候，会先写一个特殊的Binlog Event，类型为GTID\_Event，指定下一个事务的GTID，然后再写事务的Binlog。主从同步时GTID\_Event和事务的Binlog都会传递到从库，从库在执行的时候也是用同样的GTID写binlog，这样主从同步以后，就可通过GTID确定从库同步到的位置了。也就是说，无论是级联情况，还是一主多从情况，都可以通过GTID自动找点儿，而无需像之前那样通过File\_name和File\_position找点儿了。支持多线程复制（多数据库同时复制才有意义，仅仅复制一个则没有意义），通常，由于读取较大，主负责数据的写入，从负责的读取，可以有多从。
 https://segmentfault.com/a/1190000041399202
 
+\paragraph{GTID相较与传统复制的优势}
+
+\begin{itemize}
+    \item {主从搭建更加简便，不用手动特地指定position位置。}
+    \item {复制集群内有一个统一的标识，识别、管理上更方便。}
+    \item {故障转移更容易，不用像传统复制那样需要找 log\_file 和 log\_Pos的位置。}
+    \item {通常情况下GTID是连续没有空洞的，更能保证数据的一致性，零丢失。}
+    \item {相对于ROW复制模式，数据安全性更高，切换更简单。}
+    \item {比传统的复制更加安全，一个GTID在一个MySQL实例上只会执行一次，避免重复执行导致数据混乱或者主从不一致。}
+\end{itemize}
+
+
 \end{document}

@@ -4,13 +4,17 @@
 
 \subsection{RabbitMQ Federation}
 
-本文主要讲解RabbitMQ的联邦机制，有以下内容
+有一个广州的业务ClientA需要连接 broker3 ，并向其中的交换器 exchangeA 发送消息，此时的网络延迟很小，ClientA 可以迅速将消息发送至 exchangeA 中，就算在开启了 publisher confirm 机制或者事务机制的情况下，也可以迅速收到确认信息。
 
-联邦交换器
-联邦队列
-联邦使用 
-在文章开始之前，我们先介绍一下联邦机制的基本概念。联邦机制的实现，依赖于RabbitMQ的Federation插件，该插件的主要目标是为了RabbitMQ可以在多个 Broker节点或者集群中进行消息的无缝传递。
+此时又有一个在北京的业务 ClientB 需要向 exchangeA 发送消息，那么 ClientB 与 broker3 之间有很大的网络延迟， ClientB 将发送消息至 exchangeA 会经历一定的延迟，尤其是在开启了 publisher confirm 机制或者事务机制的情况下， ClientB 会等待很长的延迟时间来接收 broker3 的确认信息，进而必然造成这条 发送线程的性能降低，甚至造成一定程度上的阻塞。
+
+那么要怎么优化业务 ClientB 呢？将业务 ClientB 部署到广州的机房中可以解决这个问题，但是如果 ClientB 调用的另一些服务都部署在北京，那么又会引发新的时延问题，总不见得将所有业务全部部署在一个机房，那么容灾又何以实现？这里使用 Federation 插件就可以很好地解决这个问题。
+
+RabbitMQ可以通过三种方式进行分布式部署：集群、Federation、Shovel，Federation和Shove提供了更高的灵活性，但也提高了部署的复杂性。
+联邦机制的实现，依赖于RabbitMQ的Federation插件，该插件的主要目标是为了RabbitMQ可以在多个 Broker节点或者集群中进行消息的无缝传递。
 
 Federation插件可以让多个交换器和多个队列进行联邦。一个联邦交换器或者一个联邦队列接受上游(位于其他Broker上的交换器和队列)消息。联邦交换器能够将原本发送给上游交换器(upstream exchange)的消息路由到本地的某个队列中;联邦队列则允许一个本地消费者接收到来自上游队列(upstream queue)的消息。
+
+http://linyishui.top/2020101001.html
 
 \end{document}

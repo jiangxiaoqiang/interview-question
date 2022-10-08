@@ -22,10 +22,11 @@ MySQL binlog是二进制日志文件，用于记录MySQL的数据更新或者潜
 binlog格式分为statement，row以及mixed三种，MySQL 5.5默认的还是statement模式，当然我们在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等，一般推荐的是mixed格式。暂且不管这三种格式的区别，看看binlog的存储格式是什么样的。binlog是一个二进制文件集合，当然除了我们看到的mysql-bin.xxxxxx这些binlog文件外，还有个binlog索引文件mysql-bin.index。如官方文档中所写，binlog格式如下：
 
 \begin{enumerate}
-\item{binlog文件以一个值为0Xfe62696e的魔数开头，这个魔数对应0xfe 'b''i''n'。}
-\item{binlog由一系列的binlog event构成。每个binlog event包含header和data两部分。}
-\item{header部分提供的是event的公共的类型信息，包括event的创建时间，服务器等等。}
-\item{data部分提供的是针对该event的具体信息，如具体数据的修改。}
+\item {binlog文件以一个值为0Xfe62696e的魔数开头，这个魔数对应0xfe 'b''i''n'。}
+\item {binlog由一系列的binlog event构成。每个binlog event包含header和data两部分，event是binlog的最小组成单元。}
+\item {header部分提供的是event的公共的类型信息，包括event的创建时间，服务器等等。}
+\item {data部分提供的是针对该event的具体信息，如具体数据的修改。}
+\item {每个binlog文件以一个Rotate类型的event结束（但也有特殊情况，当数据库出现宕机的情况，重新启动数据库会生成一个新的binlog文件，但是宕机之前的最新binlog文件中，不是以ROTATE\_EVENT结束的}
 \end{enumerate}
 
 \end{document}

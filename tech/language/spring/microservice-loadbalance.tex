@@ -5,7 +5,23 @@
 
 \subsection{微服务负载均衡}
 
-负载均衡 Load Balance 是最基本的分流策略, 将负载尽量均匀地分布到下游节点上, 但是如何分派, 是有讲究的。大致有以下四种基本策略:
+截止2022年，微服务的负载均衡可以选择Spring Cloud Ribbon和Spring Cloud Loadbalance，Ribbon作为Netflix开源的一个组件，Ribbon早已进入维护状态。现在推荐使用的是Loadbalancer，LoadBalancer是Spring Cloud官方提供的负载均衡组件，可用于替代Ribbon。其使用方式与Ribbon基本兼容，可以从Ribbon进行平滑过渡。Spring Cloud Ribbon 是基于​​Netffix Ribbon​​​是实现的一套客户端负载均衡工具，Ribbon客户端提供了一系列的完善的配置，如超时，重试等等，通过​​LoadBalance​​​获取到服务提供的所有机器的实例。Ribbon会自动地基于某种规则​​（轮询，随机）​​ 去调用这些服务，Ribbon也可以自己实现自己的负载均衡算法。
+
+\paragraph{Spring Cloud Ribbon负载均衡策略}
+
+\begin{itemize}
+    \item {轮询策略}
+    \item {权重策略}
+    \item {随机策略}
+    \item {最小连接数策略}
+    \item {重试策略}RetryRule，按照轮询策略来获取服务，如果获取的服务实例为 null 或已经失效，则在指定的时间之内不断地进行重试来获取服务，如果超过指定时间依然没获取到服务实例则返回 null。
+    \item {可用性敏感策略}AvailabilityFilteringRule，先过滤掉非健康的服务实例，然后再选择连接数较小的服务实例。
+    \item {区域敏感策略}ZoneAvoidanceRule，根据服务所在区域（zone）的性能和服务的可用性来选择服务实例，在没有区域的环境下，该策略和轮询策略类似。
+\end{itemize}
+
+\paragraph{一般负载均衡策略}
+
+负载均衡 Load Balance 是最基本的分流策略, 将负载尽量均匀地分布到下游节点上, 但是如何分派, 是有讲究的。负载均衡大致有以下几种基本策略:
 
 \begin{itemize}
     \item{RANDOM随机以及加权随机}

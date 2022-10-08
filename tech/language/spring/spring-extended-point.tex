@@ -5,7 +5,7 @@
 
 \subsection{Spring扩展点(Extension Point)}
 
-什么是扩展点(Extension Point)？就是钩子，如果需要在Spring的某个步骤完毕后，自定义一些行为。Spring 在每个阶段都提供了扩展点，扩展点可以分为两类：
+什么是扩展点(Extension Point)？就是钩子，扩展点在Spring的某个步骤完毕后，自定义一些行为。Spring 在每个阶段都提供了扩展点，扩展点可以分为两类：
 
 \begin{itemize}
     \item {专用扩展点：用于单个 Bean 的扩展，定义 Bean 类时实现接口来扩展功能。}
@@ -33,14 +33,6 @@
     \item {InitializingBean和 DisposableBean接口}
     \item {DestructionAwareBeanPostProcessor}
 \end{itemize}
-
-\paragraph{实现 ApplicationContextInitializer的initialize方法}
-
-
-时机 : spring容器还没被刷新之前 准备阶段 this.prepareContext(context, environment, listeners, applicationArguments, printedBanner); 此时所有的配置文件都已经加载
-
-
-https://mvbbb.cn/spring-ioc/
 
 \end{document}
 

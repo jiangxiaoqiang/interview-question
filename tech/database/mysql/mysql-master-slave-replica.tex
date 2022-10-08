@@ -4,6 +4,11 @@
 
 \subsection{MySQL主从复制过程}
 
+MySQL 主从复制有三种方式：基于SQL语句的复制（statement-based replication，SBR），基于行的复制（row-based replication，RBR)，混合模式复制（mixed-based replication,MBR)。对应的bin-log文件的格式也有三种：STATEMENT,  ROW,  MIXED。
+
+\paragraph{Binlog复制}
+
+初次复制的时候要经历slave和master的认证，slave将binlog的文件名以及pos点告知master。
 https://www.51cto.com/article/612454.htmlMySQL复制过程分成三步：
 
 \begin{itemize}
@@ -11,5 +16,19 @@ https://www.51cto.com/article/612454.htmlMySQL复制过程分成三步：
     \item {slave将master的binary log events拷贝到它的中继日志（relay log）；}
     \item {slave重做中继日志中的事件，将改变应用到自己的数据库中。 MySQL复制是异步的且串行化的。}
 \end{itemize}
+
+\paragraph{GTID复制}
+
+在传统的复制里面，当发生故障，需要主从切换，需要找到bin-log和pos点（指从库更新到了主库bin-log的哪个位置，这个位置之前都已经更显完毕，这个位置之后未更新），然后将主节点指向新的主节点，相对来说比较麻烦，也容易出错。在MySQL 5.6里面，不用再找bin-log和pos点，我们只需要知道主节点的ip，端口，以及账号密码就行，因为复制是自动的，MySQL会通过内部机制GTID自动找点同步。基于GTID的复制是MySQL 5.6后新增的复制方式.GTID (global transaction identifier) 即全局事务ID, 保证了在每个在主库上提交的事务在集群中有一个唯一的ID.
+
+\begin{itemize}
+    \item {master节点在更新数据的时候，会在事务前产生GTID信息，一同记录到binlog日志中。}
+    \item {slave节点的io线程将binlog写入到本地relay log中。}
+    \item {然后SQL线程从relay log中读取GTID，设置gtid\_next的值为该gtid，然后对比slave端的binlog是否有记录。}
+    \item {如果有记录的话，说明该GTID的事务已经运行，slave会忽略。}
+    \item {如果没有记录的话，slave就会执行该GTID对应的事务，并记录到binlog中。}
+\end{itemize}
+
+https://blog.nowcoder.net/n/b90c959437734a8583fddeaa6d102e43
 
 \end{document}
