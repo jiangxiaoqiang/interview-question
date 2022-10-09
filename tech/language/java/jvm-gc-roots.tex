@@ -4,7 +4,7 @@
 
 \subsection{哪些对象可以作为Java GC roots对象}
 
-在Java中，可作为GC Roots对象的列表：
+JVM判断对象存活的算法有引用计数法(Reference Counting)和可达性算法(Reachability Analysis)，所有的可达性算法都会有起点，那么这个起点就是GC Root。在Java中，可作为GC Roots对象的列表：
 
 1.虚拟机栈（栈帧中的本地变量表）中引用的对象\footnote{\url{https://blog.csdn.net/u010798968/article/details/72835255}}；
 

@@ -2,13 +2,53 @@
 
 \begin{document}
 
-\subsection{\color{red}{Java虚拟机如何加载类}}
+\subsection{\color{red}{Java虚拟机如何加载类(Java类的生命周期)}}
 
 首先可以暂时不关注细节，避免沉在细节的海洋，从整体上理解加载3大步骤，从 class 文件到内存中的类，按先后顺序需要经过加载(Loading)、链接(Linking)以及初始化(Initialization)三大步骤。其中验证(Verification)、准备(Preparation)、解析(Resolution)3个部分统称为链接(Linking)。加载完毕后，后续的的阶段就是使用(Using)和卸载(Unloading)类。哪些类型需要加载？Java 语言的类型可以分为两大类：基本类型（primitive types）和引用类型（reference types）。Java 的基本类型，它们是由 Java 虚拟机预先定义好的。所以不存在加载基本类型一说。另一大类引用类型，Java 将其细分为四种：类(Class)、接口(Interface)、数组类和泛型参数。由于泛型参数会在编译过程中被擦除，因此 Java 虚拟机加载类实际上只有前三种，即类(Class)、接口(Interface)、数组。在类、接口和数组类中，数组类是由 Java 虚拟机直接生成的，其他两种则有对应的字节流。
 
 \paragraph{加载(Loading)}
 
-加载，是指查找字节流，并且据此创建类的过程。前面提到，对于数组类来说，它并没有对应的字节流，而是由 Java 虚拟机直接生成的。对于其他的类来说，Java 虚拟机则需要借助类加载器来完成查找字节流的过程。
+通过类的全限定名（包名 + 类名），获取到该类的.class文件的二进制字节流。将二进制字节流所代表的静态存储结构，转化为方法区运行时的数据结构。在内存中生成一个代表该类的java.lang.Class对象，作为方法区这个类的各种数据的访问入口加载，是指查找字节流，并且据此创建类的过程。前面提到，对于数组类来说，它并没有对应的字节流，而是由 Java 虚拟机直接生成的。对于其他的类来说，Java 虚拟机则需要借助类加载器来完成查找字节流的过程。ClassLoader是调用其java.lang.ClassLoader的loadClass(String, boolean)方法来加载class的，loadClass核心代码如下：
+
+\begin{lstlisting}[language=Java]
+protected Class<?> loadClass(String name, boolean resolve)
+    throws ClassNotFoundException
+{
+    synchronized (getClassLoadingLock(name)) {
+        // First, check if the class has already been loaded
+        Class<?> c = findLoadedClass(name);
+        if (c == null) {
+            long t0 = System.nanoTime();
+            try {
+                if (parent != null) {
+                    c = parent.loadClass(name, false);
+                } else {
+                    c = findBootstrapClassOrNull(name);
+                }
+            } catch (ClassNotFoundException e) {
+                // ClassNotFoundException thrown if class not found
+                // from the non-null parent class loader
+            }
+
+            if (c == null) {
+                // If still not found, then invoke findClass in order
+                // to find the class.
+                long t1 = System.nanoTime();
+                c = findClass(name);
+
+                // this is the defining class loader; record the stats
+                PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                PerfCounter.getFindClasses().increment();
+            }
+        }
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+}
+\end{lstlisting}
 
 以盖房子为例，村里的 Tony 要盖个房子，那么按照流程他得先找个建筑师，跟他说想要设计一个房型，比如说“一房、一厅、四卫”。你或许已经听出来了，这里的房型相当于类，而建筑师，就相当于类加载器。
 
@@ -30,13 +70,34 @@ Java 9 引入了模块系统，并且略微更改了上述的类加载器1。扩
 
 除了加载功能之外，类加载器还提供了命名空间的作用。这个很好理解，打个比方，咱们这个村不讲究版权，如果你剽窃了另一个建筑师的设计作品，那么只要你标上自己的名字，这两个房型就是不同的。
 
-在 Java 虚拟机中，类的唯一性是由类加载器实例以及类的全名一同确定的。即便是同一串字节流，经由不同的类加载器加载，也会得到两个不同的类。在大型应用中，我们往往借助这一特性，来运行同一个类的不同版本。
+在 Java 虚拟机中，类的唯一性是由类加载器实例以及类的全名一同确定的。即便是同一串字节流，经由不同的类加载器加载，也会得到两个不同的类。在大型应用中，我们往往借助这一特性，来运行同一个类的不同版本。触发加载的6种情况：
+
+\begin{enumerate}
+    \item {遇到new，getstatic，putstatic，invokestatic这四条字节码指令时。}
+    \item {使用java.lang.reflect包的方法第一次对类进行反射调用时会触发类的初始化。}
+    \item {初始化类时，如果发现父类还没有初始化，则需要先触发父类的初始化。}
+    \item {虚拟机启动时，用户需要制定一个主函数类(main()方法所在的类)，虚拟机会先启动这个类。}
+    \item {使用JDK7新加入的动态语言支持时，如果一个java.lang.invoke.MethodHanlde实例最后的解析结果为REF\_getstatic、REF\_putstatic、REF\_invokeStatic、REF\_newInvokeSpecial四种类型的方法句柄时，都需要先初始化该句柄对应的类}
+    \item {接口中定义了JDK 8新加入的默认方法（default修饰符），实现类在初始化之前需要先初始化其接口}
+\end{enumerate}
+
+在java虚拟机规范中没有明确规定一个类在什么时候会被加载，但是它严格规定了只有一下6中情况必须对类进行初始化操作，在初始化操作之前必定会触发类的加载和连接。
 
 \paragraph{链接(Linking)}
 
 链接，是指将创建成的类合并至 Java 虚拟机中，使之能够执行的过程。它可分为验证(Verification)、准备(Preparation)、解析(Resolution)三个阶段。
 
-验证阶段的目的，在于确保被加载类能够满足 Java 虚拟机的约束条件。这就好比 Tony 需要将设计好的房型提交给市政部门审核。只有当审核通过，才能继续下面的建造工作。
+验证阶段的目的，在于确保被加载类能够满足 Java 虚拟机的约束条件。这就好比 Tony 需要将设计好的房型提交给市政部门审核。只有当审核通过，才能继续下面的建造工作。文件格式验证
+主要目的是保证输入的字节流能正确的解析并存储于方法区之内，格式上符合描述一个java类型信息的要求。
+
+元数据验证
+主要目的是对类的元数据信息进行语义校验，保证不存在与《Java语言规范》定义相悖的元数据信息。
+
+字节码验证
+主要目的是对元数据信息中的数据类型校验完毕以后，这阶段就要对类的方法体(Class文件中的Code属性)进行校验分析，保证被校验类的方法在运行时不会做出危害虚拟机安全的行为。
+
+符号引用验证
+最后一个阶段的校验行为发生在虚拟机将符号引用转换为直接引用的时候，这个转化动作将在连接的第三阶段——解析阶段中发生。符号引用验证可以看做是对类自身以外(常量池中的各种符号引用)的各类信息进行匹配性校验，通俗来说就是，该类是否缺少或者被禁止访问它依赖的某些外部类、方法、字段等资源。
 
 通常而言，Java 编译器生成的类文件必然满足 Java 虚拟机的约束条件。因此，这部分我留到讲解字节码注入时再详细介绍。
 

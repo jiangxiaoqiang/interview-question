@@ -5,10 +5,87 @@
 \subsection{Java创建线程}
 
 \begin{enumerate}
-    \item{继承Thread类实现多线程}
-    \item{覆写Runnable()接口实现多线程，而后同样覆写run()}
-    \item{实现Callable接口，结合 FutureTask使用}
+    \item{继承Thread类实现多线程} 继承Thread类，并复写run方法，创建该类对象，调用start方法开启线程。此方式没有返回值。
+    \item{覆写Runnable()接口实现多线程，而后同样覆写run()} 实现Runnable接口，复写run方法，创建Thread类对象，将Runnable子类对象传递给Thread类对象。调用start方法开启线程。此方法2较之方法1好，将线程对象和线程任务对象分离开。降低了耦合性，利于维护。此方式没有返回值。Runnable和Thread相比优点有:
+    
+    \begin{itemize}
+        \item {由于Java不允许多继承，因此实现了Runnable接口可以再继承其他类，但是Thread明显不可以}
+        \item {Runnable可以实现多个相同的程序代码的线程去共享同一个资源，而Thread并不是不可以，而是相比于Runnable来说，不太适合，具体原因文章中有}
+    \end{itemize}
+
+    \item{实现Callable接口，结合 FutureTask使用} 创建FutureTask对象，创建Callable子类对象，复写call(相当于run)方法，将其传递给FutureTask对象（相当于一个Runnable）。 创建Thread类对象，将FutureTask对象传递给Thread对象。调用start方法开启线程。这种方式可以获得线程执行完之后的返回值。该方法使用Runnable功能更加强大的一个子类.这个子类是具有返回值类型的任务方法。
     \item {通过线程池启动多线程}
 \end{enumerate}
+
+示例代码：
+
+\begin{lstlisting}[language=Java]
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+
+public class NewThreadDemo {
+
+    public static void main(String[] args) throws Exception {
+            
+        //第一种方式
+        Thread t1 = new Thread(){
+            @Override
+            public void run() {
+                System.out.println("第1种方式:new Thread 1");
+            }
+        };
+        t1.start();
+        
+        TimeUnit.SECONDS.sleep(1);
+        
+        //第二种方式
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("第2种方式:new Thread 2");
+            }
+        });
+        t2.start();
+
+        TimeUnit.SECONDS.sleep(1);
+        
+        
+        //第三种方式
+        FutureTask<String> ft = new FutureTask<>(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                String result = "第3种方式:new Thread 3";
+                return result;
+            }
+        });
+        Thread t3 = new Thread(ft);
+        t3.start();
+        
+        // 线程执行完，才会执行get()，所以FutureTask也可以用于闭锁
+        String result = ft.get();
+        System.out.println(result);
+        
+        TimeUnit.SECONDS.sleep(1);
+        
+            //第四种方式
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+
+        Future<String> future = pool.submit(new Callable<String>(){
+            @Override
+            public String call() throws Exception {
+                String result = "第4种方式:new Thread 4";
+                return result;
+            }
+        });
+
+        pool.shutdown();
+        System.out.println(future.get());
+    }
+}       
+\end{lstlisting}
+
+
+
 
 \end{document}
