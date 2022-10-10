@@ -17,13 +17,15 @@
 
 \paragraph{什么情况下使用Lock}
 
+ReentrantLock 在内存上的语义与 synchronized 相同，但是它提供了额外的功能，可以作为一种高级工具。当需要一些可定时，可轮询，可中断的锁获取操作，或者希望使用公平锁，或者使用非块结构的编码时才应该考虑 ReetrantLock。在业务并发简单清晰的情况下推荐 synchronized，在业务逻辑并发复杂，或对使用锁的扩展性要求较高时，推荐使用 ReentrantLock 这类锁。
+
 \begin{enumerate}
     \item {某个线程在等待一个锁的控制权的这段时间需要中断。}
     \item {分开处理一些 wait-notify，ReentrantLock 里面的 Condition 应用，能够控制 notify 哪个线程。}
     \item {公平锁功能，每个到来的线程都将排队等候。}
 \end{enumerate}
 
-当需要更细粒度的控制锁的时候使用Lock。https://xie.infoq.cn/article/4e370ded27e4419d2a94a44b3
+当需要更细粒度的控制锁的时候使用Lock\footnote{\url{https://xie.infoq.cn/article/4e370ded27e4419d2a94a44b3}}。
 
 
 \end{document}
