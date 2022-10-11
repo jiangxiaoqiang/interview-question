@@ -15,7 +15,7 @@ Class<?> class = object.getClass();
 
 \paragraph{Java的BigDecimal如何解决浮点数精度问题}
 
-BigDecimal的解决方案就是，不使用二进制，而是使用十进制（BigInteger）+小数点位置(scale)来表示小数.当使用BigDecimal来进行运算时，也就可以分解成两部分，BigInteger间的运算，以及小数点位置scale的更新.BigInteger可以表示任意精度的整数。当你使用long类型进行运算，可能会产生溢出时就要考虑使用BigInteger了。BigDecimal就使用了BigInteger作为backend。那么BigInteger是如何做到可以表示任意精度的整数的？答案是使用数组来表示.
+BigDecimal的解决方案就是，不使用二进制，而是使用十进制（BigInteger）+小数点位置(scale)来表示小数.当使用BigDecimal来进行运算时，也就可以分解成两部分，BigInteger间的运算，以及小数点位置scale的更新.BigInteger可以表示任意精度的整数。当你使用long类型进行运算，可能会产生溢出时就要考虑使用BigInteger了。BigDecimal就使用了BigInteger作为backend。那么BigInteger是如何做到可以表示任意精度的整数的？答案是使用数组来表示。BigInteger存储大数的方式就是将数字存储在一个整型的数组中，这样就能解决可以存很多很多位数字的问题。那么，只用一个整型数组的话，如何表示一个整数的正负呢？那么就需要有一个单独的成员变量来标明该数的正负。
 
 \begin{lstlisting}[language=Java]
 public static void main(String[] args)  {
@@ -25,6 +25,13 @@ public static void main(String[] args)  {
     System.out.println(new BigInteger(mag));
 }
 \end{lstlisting}
+
+下面看看BigInteger有哪些重点的属性，主要的有下面两个：
+
+\begin{itemize}
+    \item {\bf{final int signum}} signum属性是为了区分：正负数和0的标志位，整数用1表示，负数用-1表示，零用0表示。
+    \item {\bf{final int[] mag}} mag是magnitude的缩写形式，mag数组是存储BigInteger数值大小的，采用big-endian的顺序，也就是高位字节存入低地址，低位字节存入高地址，依次排列的方式。
+\end{itemize}
 
 如何避免精度问题？在使用的时候，有两种方法：
 
@@ -196,16 +203,17 @@ private是声明方法的允许访问范围，偏向于OOP的设计原则,并不
 
 \paragraph{Arrays.sort的实现}
 
-在JDK7以前的版本中sort()的实现原理是：基本类型使用优化后的快速排序\footnote{\url{https://cherish-ls.github.io/2020/10/14/JAVA内置排序Arrays-sort实现简述/}}，其他类型使用优化后的归并排序，jdk7以后修改了排序策略：如果JVM启动参数配置了-Djava.util.Arrays.useLegacyMergeSort=true那么就会执行上面所说的排序策略(优化的归并排序)，否则将会执行TimSort排序\footnote{\url{https://www.jianshu.com/p/d7ba7d919b80}}(此处存疑)。
+在JDK7以前的版本中sort()的实现原理是：基本类型使用优化后的快速排序\footnote{\url{https://cherish-ls.github.io/2020/10/14/JAVA内置排序Arrays-sort实现简述/}}，其他类型使用优化后的归并排序，JDK7以后修改了排序策略：如果JVM启动参数配置了-Djava.util.Arrays.useLegacyMergeSort=true那么就会执行上面所说的排序策略(优化的归并排序)，否则将会执行TimSort排序\footnote{\url{https://www.jianshu.com/p/d7ba7d919b80}}(此处存疑)。
 
 \subparagraph{基本数据类型排序}
 
 对于基本数据类型的数组，假设数组长度为length：
 
 
-如果length<47，那么采用插入排序算法。
-如果47<=length<286，或者286<=length，但数组不具备特定结构，那么使用快速排序的一种优化形式：双轴快排算法。
-如果286<=length，并且数组具备特定结构，那么使用归并排序算法。
+如果length<47，那么采用插入排序算法。插入排序的工作原理是通过构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入。插入排序在实现上，通常采用in-place排序（即只需用到O(1)的额外空间的排序），因而在从后向前扫描过程中，需要反复把已排序元素逐步向后挪位，为最新元素提供插入空间。如果47<=length<286，或者286<=length，但数组不具备特定结构，那么使用快速排序的一种优化形式：双轴快排算法。
+如果286<=length，并且数组具备特定结构，那么使用归并排序算法。归并排序算法完全遵循分治模式。其操作如下：分解：分解待排序的n个元素的序列成各有n/2个元素的两个子序列。解决：使用归并排序递归地排序两个子序列。合并：合并两个已经排好序的子序列产生已排序的答案。
+
+当待排序的序列长度为1时，递归开始回升，这种情况下不要做任何工作，因为长度为1的每个序列都已排好序。归并排序算法的关键操作是“合并”两个已排好序的序列。下面伪代码调用一个辅助过程MERGE(A, p, q, r)来完成合并，其中A是一个数组，p、q和r是数组下标，满足p<=q Merge的过程需要O(n)的时间，其中n=r-p+1，为待合并元素的总数。
 
 \begin{figure}[htbp]
 	\centering
@@ -232,9 +240,9 @@ CopyOnWriteArrayList\footnote{参见：\url{https://coolshell.cn/articles/11175.
 
 \paragraph{wait和sleep区别}
 
-sleep是线程类(Thread)的方法，sleep不会交出任何已获得的对象锁.wait是Object类的方法，wait会交出调用wait对象的对象锁。而且wait存在notify方法来唤醒调用wait的线程，这个是sleep没有的。
+sleep是线程类(Thread)的方法，sleep不会交出任何已获得的对象锁。wait是Object类的方法，wait会交出调用wait对象的对象锁。而且wait存在notify方法来唤醒调用wait的线程，这个是sleep没有的。
 
-1、这两个方法来自不同的类分别是，sleep来自Thread类，和wait来自Object类。
+1、这两个方法来自不同的类，sleep来自Thread类，和wait来自Object类。
 sleep是Thread的静态类方法，谁调用的谁去睡觉，即使在a线程里调用了b的sleep方法，实际上还是a去睡觉，要让b线程睡觉要在b的代码中调用sleep。
 
 2.最主要是sleep方法没有释放锁，而wait方法释放了锁，使得其他线程可以使用同步控制块或者方法。
@@ -267,7 +275,7 @@ Google提供一个具有高效的协议数据交换格式工具库(类似Json)�
 
 \paragraph{http请求报文结构和内容}
 
-HTTP报文结构分为起始行，请求头，请求体。起始行由方法、、URL、HTTP版本组成，以空格分开。请求头和请求体以空行分开。
+HTTP报文结构分为起始行，请求头，请求体。起始行由方法、URL、HTTP版本组成，以空格分开。请求头和请求体以空行分开。
 
 
 \paragraph{List、Map、Set的区别与联系}
@@ -357,8 +365,15 @@ HashMap key冲突属于特殊情况，不是常规情况，ArrayList的初始长
 
 \paragraph{Iterator和Enumeration区别}
 
-Enumeration只有2个函数接口。通过Enumeration，我们只能读取集合的数据，而不能对数据进行修改.Iteration只有3个函数的接口。Iteration除了能读取集合的数据之外，也能对数据进行删除.Iterator支持Fail-Fast机制，当一个线程在遍历时，不允许另外一个线程对数据进行修改（除非调用实现了Iterator的Remove方法）。因此Iterator被认为是安全可靠的遍历方式\footnote{\url{https://www.cnblogs.com/yixianyixian/p/7687492.html}}.
+Enumeration接口提供了一套标准的方法，主要通过向量的元素、哈希表的键以及哈希表中的值进行枚举。由于Enumeration是一个接口，它的角色局限于为数据结构提供方法协议,实现该接口的对象由一系列的元素组成，可以连续地调用nextElement()方法来得到 Enumeration枚举对象中的元素。
 
+\begin{itemize}
+    \item {Enumeration只有2个函数接口。通过Enumeration，我们只能读取集合的数据，而不能对数据进行修改。}
+    \item {Iteration只有3个函数的接口。Iteration除了能读取集合的数据之外，也能对数据进行删除。}
+    \item {Iterator支持Fail-Fast机制，当一个线程在遍历时，不允许另外一个线程对数据进行修改（除非调用实现了Iterator的Remove方法）。因此Iterator被认为是安全可靠的遍历方式\footnote{\url{https://www.cnblogs.com/yixianyixian/p/7687492.html}}。}
+\end{itemize}
+
+Enumeration接口是JDK1.0时推出的，在JDK1.5之后为Enumeration接口进行了扩充，增加了泛型的操作应用。Iterator迭代器取代了 Enumeration的功能，同时增添了删除元素的方法，并且对方法的名称进行了改进。为什么还要使用Enumeration？这是因为Java的发展经历了很长时间，一些比较古老的系统或者类库中的方法还在使用Enumeration接口，因此为了兼容，还是需要使用Enumeration。已知的对于Vector和HashTable的遍历还可能会使用Enumeration\footnote{\url{https://www.jianshu.com/p/f500585bf8e8}}。
 
 \paragraph{ArrayList和LinkedList底层实现有什么差别？它们各自适用于哪些场合？}
 
