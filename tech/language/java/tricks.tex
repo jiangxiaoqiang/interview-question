@@ -425,15 +425,6 @@ remove（）删除元素，直接指针指向操作，复杂度O(1)
 
 https://www.shouxicto.com/article/325.html
 
-\paragraph{为什么PostgreSQL最大的单表只能是32TB}
-
-在PostgreSQL中，一张表对应多个数据文件。
-数据文件中存储的是page，每一个page都有一个单独的编号，因为pg寻址空间采用的是32位，也就是$2^{32}=4294967296$，也就是一组数据文件中最多存放这些page。
-按照默认的block\_size设置为8K，可以计算出来一组数据文件最大的大小是32TB。
-
-
-$2^{32} \times 8 \div 1024 \div 1024 \div 1024 = 32TB$
-
 \paragraph{怎么检测一个线程是否持有对象监视器}
 
 Thread类提供了一个holdsLock(Object obj)方法，当且仅当对象obj的监视器被某条线程持有的时候才会返回true，注意这是一个static方法，这意味着”某条线程”指的是当前线程。
