@@ -373,7 +373,24 @@ Enumeration接口提供了一套标准的方法，主要通过向量的元素、
     \item {Iterator支持Fail-Fast机制，当一个线程在遍历时，不允许另外一个线程对数据进行修改（除非调用实现了Iterator的Remove方法）。因此Iterator被认为是安全可靠的遍历方式\footnote{\url{https://www.cnblogs.com/yixianyixian/p/7687492.html}}。}
 \end{itemize}
 
-Enumeration接口是JDK1.0时推出的，在JDK1.5之后为Enumeration接口进行了扩充，增加了泛型的操作应用。Iterator迭代器取代了 Enumeration的功能，同时增添了删除元素的方法，并且对方法的名称进行了改进。为什么还要使用Enumeration？这是因为Java的发展经历了很长时间，一些比较古老的系统或者类库中的方法还在使用Enumeration接口，因此为了兼容，还是需要使用Enumeration。已知的对于Vector和HashTable的遍历还可能会使用Enumeration\footnote{\url{https://www.jianshu.com/p/f500585bf8e8}}。
+Enumeration接口是JDK1.0时推出的，在JDK1.5之后为Enumeration接口进行了扩充，增加了泛型的操作应用。Iterator迭代器取代了 Enumeration的功能，同时增添了删除元素的方法，并且对方法的名称进行了改进。为什么还要使用Enumeration？这是因为Java的发展经历了很长时间，一些比较古老的系统或者类库中的方法还在使用Enumeration接口，因此为了兼容，还是需要使用Enumeration。已知的对于Vector和HashTable的遍历还可能会使用Enumeration\footnote{\url{https://www.jianshu.com/p/f500585bf8e8}}。采用terator遍历示例：
+
+\begin{lstlisting}[language=Java]
+public static void main(String[] args) {
+    List<String> famous = new ArrayList<String>();
+    famous.add("liudehua");
+    famous.add("madehua");
+    famous.add("liushishi");
+    famous.add("tangwei");
+
+    for (Iterator<String> it = famous.iterator(); it.hasNext(); ) {
+        String s = it.next();
+        if (s.equals("madehua")) {
+            it.remove();
+        }
+    }
+}
+\end{lstlisting}
 
 \paragraph{ArrayList和LinkedList底层实现有什么差别？它们各自适用于哪些场合？}
 
@@ -394,6 +411,19 @@ remove（）删除元素，直接指针指向操作，复杂度O(1)
 原始数据类型(byte,short,char,int,long,float,double,boolean)，他们之间的比较使用（==），比较的是他们的值。引用数据类型用（==）进行比较，比较的是他们在内存中的存放地址。equals如果没有自己的实现，原始类型默认比较其值，引用类型默认比较内存地址。
 
 \paragraph{CompletableFuture，这个是JDK1.8里的新特性，通过它怎么实现多线程并发控制？}
+
+在Java 8中, 新增加了一个包含50个方法左右的类: CompletableFuture，提供了非常强大的Future的扩展功能，可以帮助我们简化异步编程的复杂性，提供了函数式编程的能力，可以通过回调的方式处理计算结果，并且提供了转换和组合CompletableFuture的方法。实现多线程并发控制住要使用CompletableFuture提供的方法。功能有：
+
+\begin{itemize}
+    \item {thenAccept(): 当task正常完成后，回调调用.thenAccept()方法}
+    \item {exceptionally(): 当task出现异常是，回调调用.exceptionally()方法}
+    \item {anyOf(): 当所有的task中，只要有一个task完成，则主线程继续往下走，可以使用.anyOf()方法}
+    \item {allOf(): 所有的task均完成后，则主线程继续往下走}
+    \item {supplyAsync(): 异步执行，有返回值}
+    \item {runAsync(): 异步执行，无返回值}
+\end{itemize}
+
+https://www.shouxicto.com/article/325.html
 
 \paragraph{为什么PostgreSQL最大的单表只能是32TB}
 
