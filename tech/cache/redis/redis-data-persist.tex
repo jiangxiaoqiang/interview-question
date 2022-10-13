@@ -7,7 +7,7 @@
 BGSAVE可以在不阻塞主进程的情况下完成数据的备份。可以通过redis.conf中设置多个自动保存条件，只要有一个条件被满足，服务器就会执行BGSAVE命令。BGSAVE原理是fork() + copyonwrite。自动触发的场景主要是有以下几点
 
 \begin{itemize}
-    \item {根据 save m n 配置规则自动触发}
+    \item {根据 save m n 配置规则自动触发} 表示m秒内数据集存在n次修改 时，自动触发bgsave。
     \item {从节点全量复制时，主节点发送rdb文件给从节点完成复制操作，主节点会触发bgsave；}
     \item {执行 debug reload 时；}
     \item {执行 shutdown时，如果没有开启aof，也会触发}

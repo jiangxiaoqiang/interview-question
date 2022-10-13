@@ -10,7 +10,45 @@
 \paragraph{Spring Cloud Ribbon负载均衡策略}
 
 \begin{itemize}
-    \item {轮询策略}
+    \item {轮询策略}一个简单的轮询策略实现如下：
+    
+\begin{lstlisting}[language=Java]
+public class RoundRobin<T>
+{
+    //服务器列表
+    private readonly IList<T> _items;
+    
+    //锁
+    private readonly object _syncLock = new object();
+    
+    //当前访问的服务器索引，开始是-1，因为没有人访问
+    private int _currentIndex = -1;
+
+    public RoundRobin(IEnumerable<T> sequence)
+    {
+        _items = sequence.ToList();
+
+        if(_items.Count <= 0 )
+        {
+            throw new ArgumentException("Sequence contains no elements.", nameof(sequence));
+        }                           
+    }
+
+    public T GetNextItem()
+    {
+        lock (this._syncLock)
+        {
+            _currentIndex++;
+            //超过数量，索引归0
+            if (_currentIndex >= _items.Count)
+                _currentIndex = 0;
+            return _items[_currentIndex];
+        }
+    }
+}    
+\end{lstlisting}
+
+
     \item {权重策略}
     \item {随机策略}
     \item {最小连接数策略}

@@ -2,9 +2,9 @@
 
 \begin{document}
 
-\subsection{Spring Bean如何解决循环依赖问题}
+\subsection{Spring Bean如何解决循环依赖(Circular Dependency)问题}
 
-在Spring单例Bean的创建中介绍介绍了使用三级缓存，原始代码在DefaultSingletonBeanRegistry类中。
+在Spring单例Bean的创建中介绍介绍了使用三级缓存，原始代码在\url{org.springframework.beans.factory.support}包的DefaultSingletonBeanRegistry类中。
 
 singletonObjects： 一级缓存，存储单例对象，Bean 已经实例化，初始化完成。
 

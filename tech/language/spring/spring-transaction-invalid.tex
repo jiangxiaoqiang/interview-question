@@ -49,6 +49,8 @@ public class OrderServiceImpl implements OrderService {
 @Transactional(rollbackFor = Exception.class)
 \end{lstlisting}
 
+    \item {方法用final修饰} Spring事务底层使用了AOP，也就是通过JDK动态代理或者CGlib，帮我们生成了代理类，在代理类中实现的事务功能。但如果某个方法用final修饰了，那么在它的代理类中，就无法重写该方法，而添加事务功能。注意：如果某个方法是static的，同样无法通过动态代理，变成事务方法。
+    \item {多线程调用}
 \end{enumerate}
 
 https://www.cnblogs.com/javastack/p/12160464.html

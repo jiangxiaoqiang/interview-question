@@ -1,0 +1,23 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Redis String编码}
+
+字符串的编码有raw、embstr、int三种。
+
+raw 用于长字符串。
+embstr 用于短字符串。
+int 用于整数类型。
+
+raw编码主要用来保存长度超过 44 的字符串。其真实数据，由sdshdr结构来表示存储，外层还是由redisObject包装。embstr 编码是专门用于保存短字符串的一种优化编码方式。当字符串的长度小于等于 44 的时候，将采用 embstr 编码。
+
+\begin{itemize}
+    \item {分配内存的时候，只需要分配一次。而 raw 编码的sds跟redisObject分离，就要分配两次内存。}
+    \item {同样，释放内存也只需要释放一次。}
+    \item {连续内存能更好利用内存带来的优势。}
+\end{itemize}
+
+https://www.cnblogs.com/chenchuxin/p/14204452.html
+
+\end{document}

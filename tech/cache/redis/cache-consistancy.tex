@@ -5,16 +5,17 @@
 \subsection{缓存一致性(Cache Coherency)问题解决}
 
 改善缓存一致性问题，可以先更新数据库，再删除缓存。这种也可能会存在缓存不一致问题，例如多个线程同时读取key时，key刚好过期。此时线程A查询数据库旧值，线程B更新数据库新值，并删除缓存。线程A将旧值放入。那么此时数据库和缓存就是不一致的数据。更新的时候通过事务来完成，且更新之前判断数据是否过期。
-先更新数据库，再删除缓存。https://www.cnblogs.com/rjzheng/p/9041659.html
+先更新数据库，再删除缓存。这里的一致性可以有最终一致性和强一致性。最终一致性可以用带重试逻辑的删除来处理，强一致性可以采用加分布式锁的方式，并且在查询逻辑中检测在查询时如果对应的数据已经有分布式锁，直接查询数据库，不走更新缓存的逻辑\footnote{参考来源：\url{https://www.infoq.cn/article/hh4iouiijhwb4x46vxeo}}。https://www.cnblogs.com/rjzheng/p/9041659.html
 https://cloud.tencent.com/developer/article/1932934
 
 \paragraph{改善一致性问题}
 
-2000年7月，加州大学伯克利分校的Eric Brewer教授在ACM PODC会议上提出CAP猜想。2年后，麻省理工学院的Seth Gilbert和Nancy Lynch从理论上证明了CAP。之后，CAP理论正式成为分布式计算领域的公认定理。
+2000年7月，加州大学伯克利分校的Eric Brewer教授在ACM PODC会议上提出CAP猜想。2年后，麻省理工学院的Seth Gilbert和Nancy Lynch从理论上证明了CAP。之后，CAP理论(一致性Consistency, 可用性Availability, 分区容错性Partition Tolerance)正式成为分布式计算领域的公认定理。
 
 \paragraph{分布式事务解决一致性问题}
 
 http://fanyilun.me/2021/03/06/一致性问题与分布式事务/
+
 
 
 \end{document}

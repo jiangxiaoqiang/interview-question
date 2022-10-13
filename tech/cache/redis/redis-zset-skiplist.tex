@@ -11,7 +11,19 @@ Skip List 是一种随机化的数据结构，由 William Pugh 在论文《Skip 
     \item {所有member的长度都小于64字节}
 \end{enumerate}
 
-以上两个条件的上限值可通过zset-max-ziplist-entries和zset-max-ziplist-value来修改。ziplist编码的有序集合使用紧挨在一起的压缩列表节点来保存，第一个节点保存member，第二个保存score。ziplist内的集合元素按score从小到大排序，score较小的排在表头位置。skiplist编码的有序集合底层是一个命名为zset的结构体，而一个zset结构同时包含一个字典和一个跳跃表。跳跃表按score从小到大保存所有集合元素。而字典则保存着从member到score的映射，这样就可以用O(1)的复杂度来查找member对应的score值。虽然同时使用两种结构，但它们会通过指针来共享相同元素的member和score，因此不会浪费额外的内存。
+以上两个条件的上限值可通过zset-max-ziplist-entries和zset-max-ziplist-value来修改。ziplist编码的有序集合使用紧挨在一起的压缩列表节点来保存，第一个节点保存member，第二个保存score。ziplist内的集合元素按score从小到大排序，score较小的排在表头位置。skiplist编码的有序集合底层是一个命名为zset的结构体，而一个zset结构同时包含一个字典和一个跳跃表。跳跃表按score从小到大保存所有集合元素。而字典则保存着从member到score的映射，这样就可以用O(1)的复杂度来查找member对应的score值。虽然同时使用两种结构，但它们会通过指针来共享相同元素的member和score，因此不会浪费额外的内存。跳跃表由 server.h/zskiplist 结构定义：
+
+\begin{lstlisting}[language=C]
+typedef struct zskiplist {
+    // 头节点，尾节点
+    struct zskiplistNode *header, *tail;
+    // 节点数量
+    unsigned long length;
+    // 目前表内节点的最大层数
+    int level;
+} zskiplist;    
+\end{lstlisting}
+
 
 \paragraph{为什么采用跳表，而不使用哈希表或平衡树实现呢}
 

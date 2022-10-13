@@ -10,7 +10,7 @@ Filter是基于函数回调（doFilter()方法）的，而Interceptor则是基�
 
 \paragraph{使用范围不同}
 
-Filter依赖于Servlet容器(Servlet容器也叫做Servlet引擎，是Web服务器或应用程序服务器的一部分，用于在发送的请求和响应之上提供网络服务，解码基于 MIME的请求，格式化基于MIME的响应。Servlet没有main方法，不能独立运行，它必须被部署到Servlet容器中，导致它只能在web程序中使用，由容器来实例化和调用 Servlet的方法（如doGet()和doPost()），Servlet容器在Servlet的生命周期内包容和管理Servlet。在JSP技术推出后，管理和运行Servlet/JSP的容器也称为Web容器。)，而Interceptor不依赖于Servlet容器。而拦截器(Interceptor) 它是一个Spring组件，并由Spring容器管理，并不依赖Tomcat等容器，是可以单独使用的。不仅能应用在web程序中，也可以用于Application、Swing等程序中。
+Filter依赖于Servlet(Server Applet)容器(Servlet容器也叫做Servlet引擎，是Web服务器或应用程序服务器的一部分，用于在发送的请求和响应之上提供网络服务，解码基于 MIME的请求，格式化基于MIME的响应。Servlet没有main方法，不能独立运行，它必须被部署到Servlet容器中，导致它只能在web程序中使用，由容器来实例化和调用 Servlet的方法（如doGet()和doPost()），Servlet容器在Servlet的生命周期内包容和管理Servlet。在JSP技术推出后，管理和运行Servlet/JSP的容器也称为Web容器。)，而Interceptor不依赖于Servlet容器。而拦截器(Interceptor) 它是一个Spring组件，并由Spring容器管理，并不依赖Tomcat等容器，是可以单独使用的。不仅能应用在web程序中，也可以用于Application、Swing等程序中。
 
 \paragraph{触发时机不同}
 
