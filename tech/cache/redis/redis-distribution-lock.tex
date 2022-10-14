@@ -4,7 +4,66 @@
 
 \subsection{Redis和Setnx命令是如何实现分布式锁的}
 
-SETNX 是SET if Not eXists的简写。在进程释放锁，即执行 DEL lock.foo 操作前，需要先判断锁是否已超时。如果锁已超时，那么锁可能已由其他进程获得，这时直接执行 DEL lock.foo 操作会导致把其他进程已获得的锁释放掉。分布式锁的详细分析\footnote{\url{http://zhangtielei.com/posts/blog-redlock-reasoning.html}}。使用Redis分布式锁，要注意非原子操作、忘了释放锁、释放了别人的锁、大量失败请求、锁重入问题、锁竞争问题、读写锁、锁分段、锁超时问题、主从复制的问题。
+SETNX 是SET if Not eXists的简写。在进程释放锁，即执行 DEL lock.foo 操作前，需要先判断锁是否已超时。如果锁已超时，那么锁可能已由其他进程获得，这时直接执行 DEL lock.foo 操作会导致把其他进程已获得的锁释放掉。分布式锁的详细分析\footnote{\url{http://zhangtielei.com/posts/blog-redlock-reasoning.html}}。使用Redis分布式锁，要注意非原子操作、忘了释放锁、释放了别人的锁、大量失败请求、锁重入问题、锁竞争问题、读写锁、锁分段、锁超时问题、主从复制的问题。setnx命令的命令执行器是setnxCommand，具体实现在t\_string.c中:
+
+\begin{lstlisting}[language=C]
+void setGenericCommand(redisClient *c, int flags, robj *key, robj *val, robj *expire, int unit, robj *ok_reply, robj *abort_reply) {
+
+    long long milliseconds = 0; /* initialized to avoid any harmness warning */
+
+    // 取出过期时间
+    if (expire) {
+
+        // 取出 expire 参数的值
+        // T = O(N)
+        if (getLongLongFromObjectOrReply(c, expire, &milliseconds, NULL) != REDIS_OK)
+            return;
+
+        // expire 参数的值不正确时报错
+        if (milliseconds <= 0) {
+            addReplyError(c,"invalid expire time in SETEX");
+            return;
+        }
+
+        // 不论输入的过期时间是秒还是毫秒
+        // Redis 实际都以毫秒的形式保存过期时间
+        // 如果输入的过期时间为秒，那么将它转换为毫秒
+        if (unit == UNIT_SECONDS) milliseconds *= 1000;
+    }
+
+    // 如果设置了 NX 或者 XX 参数，那么检查条件是否不符合这两个设置
+    // 在条件不符合时报错，报错的内容由 abort reply 参数决定
+    if ((flags & REDIS_SET_NX && lookupKeyWrite(c->db,key) != NULL) ||
+        (flags & REDIS_SET_XX && lookupKeyWrite(c->db,key) == NULL))
+    {
+        addReply(c, abort_reply ? abort_reply : shared.nullbulk);
+        return;
+    }
+
+    // 将键值关联到数据库
+    setKey(c->db,key,val);
+
+    // 将数据库设为脏
+    server.dirty++;
+
+    // 为键设置过期时间
+    if (expire) setExpire(c->db,key,mstime()+milliseconds);
+
+    // 发送事件通知
+    notifyKeyspaceEvent(REDIS_NOTIFY_STRING,"set",key,c->db->id);
+
+    // 发送事件通知
+    if (expire) notifyKeyspaceEvent(REDIS_NOTIFY_GENERIC,
+        "expire",key,c->db->id);
+
+    // 设置成功，向客户端发送回复
+    // 回复的内容由 ok reply 决定
+    addReply(c, ok_reply ? ok_reply : shared.ok);
+}
+\end{lstlisting}
+
+
+
 
 \end{document}
 
