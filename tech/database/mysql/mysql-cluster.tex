@@ -21,17 +21,16 @@ Percona XtraDB Cluster (简称 PXC) 是 Percona 公司开源的实现 MySQL 高�
     \item {由于在集群级别采用乐观锁进行并发控制，所以事务在 COMMIT 阶段仍然有被中止的可能。如两个事务在不同的集群节点上提交对相同的行的写入，此时只有其中一个可以成功提交，另一个将被中止。}
 \end{enumerate}
 
+\paragraph{Master High Availability Manager and Tools for MySQL}
 
-
-
-\paragraph{Master High Availability Manager and Toolsfor MySQL}
-
-MHA(Master High Availability Manager and Toolsfor MySQL)目前在Mysql高可用方面是一个相对成熟的解决方案。它是日本的一位MySQL专家采用Perl语言编写的一个脚本管理工具，该工具仅适用于MySQLReplication 环境，目的在于维持Master主库的高可用性。
+MHA(Master High Availability Manager and Toolsfor MySQL)目前在MySQL高可用方面是一个相对成熟的解决方案。它是日本的一位MySQL专家采用Perl语言编写的一个脚本管理工具，该工具仅适用于MySQL Replication环境，目的在于维持Master主库的高可用性。
 
 MHA是基于标准的MySQL复制(异步/半同步)。
 
 MHA是由管理节点(MHA Manager)和数据节点(MHA Node)两部分组成。
 
 MHA Manager可以单独部署在一台独立机器,也可以部署在一台slave上。
+
+https://tech.meituan.com/2017/06/29/database-availability-architecture.html
 
 \end{document}
