@@ -1,0 +1,16 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL之InnoDB线程}
+
+根据线程的不同作用，有以下几种线程：
+
+\begin{itemize}
+    \item {Master Thread：负责缓冲池中的数据异步刷新到磁盘,Master Thread 线程是InnoDB的主线程，下面的其他线程都是该线程在处理的过程当中，异步调用的}
+    \item {IO Thread：负责以下几种类型的io thread的回调}write thread/read thread/insert buffer/log io thread
+    \item {Purge Thread：undolog 回收}
+    \item {Page Cleaner Thread：缓冲池脏页刷新到磁盘文件}
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,18 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL之InnoDB内存结构}
+
+Innodb的内存结构主要分为 3 个部分： Buffer Pool、Change Buffer、Adaptive HashIndex，另外还有一个（redo）log buffer。
+
+\paragraph{缓冲池 Buffer Pool}
+
+首先，InnnoDB的数据都是放在磁盘上的，InnoDB操作数据有一个最小的逻辑单位，叫做页（索引页和数据页）。我们对于数据的操作，不是每次都直接操作磁盘，因为磁盘的速度太慢了。 InnoDB使用了一种缓冲池的技术，也就是把磁盘读到的页放到一块内存区域里面。这个内存区域就叫Buffer Pool。
+
+
+https://www.cnblogs.com/tracydzf/p/15788762.html
+
+
+
+\end{document}

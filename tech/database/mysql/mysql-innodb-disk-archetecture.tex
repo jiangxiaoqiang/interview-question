@@ -1,0 +1,45 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{InnoDB磁盘架构}
+
+从 MySQL 官方文档中，我们可知 InnoDB 在物理层面上可划分为如下 7 个模块：
+
+\paragraph{系统表空间(System Tablespace)}
+
+The System Tablespace 是Doublewrite Buffer和Change buffer的储存区域，也有用户创建的表和索引数据。该空间的数据文件通过参数innodb\_data\_file\_path控制，默认值是ibdata1:12M:autoextend(文件名为ibdata1，大小略大于12MB，自动扩展)。8.0之后InnoDB将元数据（以前的.frm文件，存表结构）存在该区域的数据字典中（data dictionary）。
+
+\paragraph{双写缓存文件(Doublewrite Buffer Files)}
+
+Doublewrite Buffer位于The System Tablespace。在BP的页数据刷到磁盘真正的位置前，会先将数据存在doublewrite buffer。 这步操作是直接将数据作为顺序块，调用OS的fsync()方法写入到doublewrite buffer。
+
+虽然数据写了两次，但是性能还是比两次IO低的。
+此外fsync保证了BP中的数据写到磁盘中，即使数据库挂了，还可以从doublewrite buffer中还原数据。还可以解决页断裂的问题
+
+\paragraph{Undo 表空间(Undo Tablespaces)}
+
+Undo Tablespaces保存的是undo log ，用于回滚事务。
+该表空间有rollback segments,rollback segments是用于存 undo log segments, 而undo log segments存的就是undo logs。
+
+mysql启动的时候，默认初始两个undo tablespace。因为sql执行前必须要有rollback segments。而两个undo tablespace才支持automated truncation of undo。
+
+\paragraph{Redo Log 文件(Redo Log)}
+
+\paragraph{独占表空间(File-Per-Table Tablespaces)}
+
+File-Per-Table Tablespaces 默认开启,为每个表都独立建一个.ibd文件。 通过参数innodb\_file\_per\_tabl 可以设置关闭，这样的话所有表数据是都存在The System Tablespace的ibdata。
+
+\paragraph{通用表空间(General Tablespaces)}
+
+General Tablespaces 是通过CREATE TABLESPACE创建的共享表空间。
+
+
+\paragraph{临时表空间(Temporary Tablespaces)}
+
+InnoDB把 Temporary Tablespaces分为两种，session temporary tablespaces 和global temporary tablespace。
+session temporary tablespaces存储的是用户创建的临时表和内部的临时表，一个session最多有两个表空间（用户临时表和内部临时表）。
+global temporary tablespace储存用户临时表的回滚段（rollback segments ）。
+
+
+\end{document}

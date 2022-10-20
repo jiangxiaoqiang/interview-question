@@ -1,0 +1,39 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL之InnoDB检查点}
+
+大多数关系型数据库都采用"在提交时并不强迫针对数据块的修改完成"而是"提交时保证修改记录（以重做日志的形式）写入日志文件"的机制，来获得性能的优势。即：当用户提交事务，写数据文件是"异步"的，写日志文件是"同步"的。 
+
+
+https://blog.51cto.com/leboit/1709380
+
+
+\paragraph{检查点类型}
+
+1、sharp checkpoint：完全检查点，数据库正常关闭时，会触发把所有的脏页都写入到磁盘上(这时候logfile的日志就没用了，脏页已经写到磁盘上了)。完全检查点，发生在数据库正常关闭的时候。在数据库在运行时不会使用sharp checkpoint，在引擎内部使用fuzzy checkpoint，即只刷新一部分脏页，而不是刷新所有的脏页回磁盘。
+
+2、fuzzy checkpoint：模糊检查点，部分页写入磁盘。发生在数据库正常运行期间。模糊检查点，不是sharp的就是模糊检查点(4种)：master thread checkpoint、flush\_lru\_list checkpoint、async/sync flush checkpoint、dirty page too much checkpoint。
+
+\paragraph{模糊检查点发生条件}
+
+\begin{enumerate}
+    \item {master thread checkpoint}差不多以每秒或每十秒的速度从缓冲池的脏页列表中刷新一定比例的页回磁盘，这个过程是异步的，不会阻塞用户查询。
+
+    　　1、周期性，读取flush list，找到脏页，写入磁盘
+    
+    　　2、写入的量比较小
+    
+    　　3、异步，不影响业务
+
+    \item {flush\_lru\_list checkpoint}MySQL会保证，保证里面有多少可用的空闲页，在innodb 1.1.x版本之前，需要检查在用户查询线程中是否有足够的可用空间(差不多100个空闲页)，显然这会阻塞用户线程，如果没有100个可用空闲页，那么innodbhi将lru列表尾端的页移除，如果这些页中有脏页，那么需要进行checkpoint。Innodb 1.2(5.6)之后把他单独放到一个线程page cleaner中进行，用户可以通过参数innodb\_lru\_scan\_depth控制lru列表中可用页的数量，默认是1024。
+
+
+\end{enumerate}
+
+
+https://www.cnblogs.com/geaozhang/p/7341333.html
+
+
+\end{document}

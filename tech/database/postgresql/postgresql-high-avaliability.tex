@@ -1,0 +1,20 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{PostgreSQL高可用方案}
+
+\paragraph{Patroni + Etcd 方案}
+
+使用Patroni管理本地库，并结合Etcd作为数据存储和主节点选举，具有以下优势:
+
+健壮性: 使用分布式key-value数据库作为数据存储，主节点故障时进行主节点重新选举，具有很强的健壮性。
+支持多种复制方式: 基于内置流复制，支持同步流复制、异步流复制、级联复制。
+支持主备延迟设置: 可以设置备库延迟主库WAL的字节数，当备库延迟大于指定值时不做故障切换。
+自动化程度高: 1)支持自动化初始PostgreSQL实例并部署流复制; 2)当备库实例关闭后，支持自动拉起; 3)当主库实例关闭后，首先会尝试自动拉起; 4)支持switchover命令，能自动将老的主库进行角色转换。
+避免脑裂: 数据库信息记录到 ETCD 中，通过优化部署策略（多机房部署、增加实例数)可以避免脑裂。
+
+https://postgres.fun/20200529182600.html
+https://github.com/zalando/patroni
+
+\end{document}
