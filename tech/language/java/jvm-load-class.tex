@@ -8,7 +8,7 @@
 
 \paragraph{加载(Loading)}
 
-通过类的全限定名（包名 + 类名），获取到该类的.class文件的二进制字节流。将二进制字节流所代表的静态存储结构，转化为方法区运行时的数据结构。在内存中生成一个代表该类的java.lang.Class对象，作为方法区这个类的各种数据的访问入口加载，是指查找字节流，并且据此创建类的过程。前面提到，对于数组类来说，它并没有对应的字节流，而是由 Java 虚拟机直接生成的。对于其他的类来说，Java 虚拟机则需要借助类加载器来完成查找字节流的过程。ClassLoader是调用其java.lang.ClassLoader的loadClass(String, boolean)方法来加载class的，loadClass核心代码如下：
+通过类的全限定名（包名 + 类名），获取到该类的.class文件的二进制字节流。将二进制字节流所代表的静态存储结构，转化为方法区运行时的数据结构。在内存中生成一个代表该类的java.lang.Class对象，作为方法区这个类的各种数据的访问入口加载，是指查找字节流，并且据此创建类的过程。前面提到，对于数组类来说，它并没有对应的字节流，而是由 Java 虚拟机直接生成的。对于其他的类来说，Java 虚拟机则需要借助类加载器ClassLoader来完成查找字节流的过程。ClassLoader是调用其java.lang.ClassLoader的loadClass(String, boolean)方法来加载class的，loadClass核心代码如下：
 
 \begin{lstlisting}[language=Java]
 protected Class<?> loadClass(String name, boolean resolve)

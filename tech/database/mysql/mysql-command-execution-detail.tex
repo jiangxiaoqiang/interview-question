@@ -1,0 +1,22 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL语句执行过程}
+
+一个更新操作的流程，这是一个简化的过程（name原值是zhangsan）。
+
+\begin{lstlisting}[language=SQL]
+update user set name='penyuyan' where id=1;
+\end{lstlisting}
+
+\begin{enumerate}
+    \item {事务开始，从内存或磁盘取到这条数据，返回给Server 的执行器；}
+    \item {执行器修改这一行数据的值为penyuyan；}
+    \item {记录 name=zhangsan 到 undo log；}
+    \item {记录 name=zhangsan 到redo log；}
+    \item {调用存储引擎接口，在内存（Buffer Pool）中修改 name=zhangsan；}
+    \item {事务提交}
+\end{enumerate}
+
+\end{document}

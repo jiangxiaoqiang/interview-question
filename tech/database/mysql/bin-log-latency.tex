@@ -6,6 +6,15 @@
 
 从硬件瓶颈和拆分业务2个方面进行考虑。
 
+\begin{enumerate}
+    \item {从库的压力大}
+    \item {大事务的执行}
+    \item {主库的DDL(alter、drop、create)}
+    \item {锁冲突}
+    \item {从库的复制能力}一般场景中，因偶然情况导致从库延迟了几分钟，都会在从库恢复之后追上主库。但若是从库执行速度低于主库，且主库持续具有压力，就会导致长时间主从延迟，很有可能就是从库复制能力的问题。从库上的执行，即sql\_thread更新逻辑，在5.6版本之前，是只支持单线程，那么在主库并发高、TPS高时，就会出现较大的主从延迟。因此，MySQL自5.7版本后就已经支持并行复制了。可以在从服务上设置 slave\_parallel\_workers为一个大于0的数，然后把slave\_parallel\_type参数设置为LOGICAL\_CLOCK。
+\end{enumerate}
+
+
 https://juejin.cn/post/6844903824952393742
 
 \end{document}

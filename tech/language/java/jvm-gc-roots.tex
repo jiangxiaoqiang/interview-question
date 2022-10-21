@@ -4,7 +4,7 @@
 
 \subsection{哪些对象可以作为Java GC roots对象}
 
-JVM判断对象存活的算法有引用计数法(Reference Counting)和可达性算法(Reachability Analysis)，所有的可达性算法都会有起点，那么这个起点就是GC Root。在Java中，可作为GC Roots对象的列表：
+JVM判断对象存活的算法有引用计数法(Reference Counting)和可达性算法(Reachability Analysis)，所有的可达性算法都会有起点，那么这个起点就是GC Root。For your application code to reach an object, there should be a root object which is connected to your object as well as capable of accessing from outside the heap. Such root objects that are accessible from outside the Heap are called Garbage Colllection (GC) roots. There are several types of GC roots such as Local variables, Active Java threads, Static variables, JNI References etc. 在Java中，可作为GC Roots对象的列表：
 
 1.虚拟机栈（栈帧中的本地变量表）中引用的对象\footnote{\url{https://blog.csdn.net/u010798968/article/details/72835255}}；
 
@@ -14,6 +14,14 @@ JVM判断对象存活的算法有引用计数法(Reference Counting)和可达性
 
 4.本地方法栈中JNI（即一般说的Native方法）中引用的对象
 
-GC管理的主要区域是Java堆，一般情况下只针对堆进行垃圾回收。方法区、栈和本地方法区不被GC所管理,因而选择这些区域内的对象作为GC roots,被GC roots引用的对象不被GC回收。
+GC管理的主要区域是Java堆，一般情况下只针对堆进行垃圾回收。方法区、栈和本地方法区不被GC所管理,因而选择这些区域内的对象作为GC roots,被GC roots引用的对象不被GC回收。如何快速枚举 GC Roots？
+
+\begin{enumerate}
+    \item {笨方法：遍历栈里所有的变量，逐一进行类型判断，如果是 Reference 类型，则属于 GC Roots。}
+    \item {高效方法：从外部记录下栈里那些 Reference 类型变量的类型信息，存成一个映射表 -- 这就是 OopMap 的由来。Oop是ordinary object pointer的缩写，Map是地图的意思，所以翻译过来就是普通对象指针地图。何谓普通对象指针？就是指一个Java对象，在JVM中，或者Hotspot源码层面，对应一个C++实例。在Java层面，我们叫Java对象，在JVM层面，我们叫oop。程序平时运行不会生成OopMap，只有在GC前才会生成OopMap。GC前会激活安全点，所有线程都会进入安全点，即STW。JVM根据平时运行形成的栈图创建OopMap记录，供GC时遍历根对象使用。}
+\end{enumerate}
+
+现在三种主流的高性能JVM实现，HotSpot、JRockit和J9都是这样做的。其中，HotSpot把这样的数据结构叫做 OopMap，JRockit里叫做livemap，J9里叫做GC map。”GC 时，直接根据这个 OopMap 就可以快速实现根节点枚举了。
+
 
 \end{document}
