@@ -98,7 +98,7 @@ final void runWorker(Worker w) {
 }
 \end{lstlisting}
 
-使用队列的 poll 或 take 方法从队列中拿数据，根据队列的特性，队列中有任务可以返回，队列中无任务会阻塞。注意任务阻塞时不消耗CPU资源的\footnote{参见：\url{https://stackoverflow.com/questions/5895895/does-java-blocked-threads-take-up-more-cpu-resources}}。
+使用队列的 poll 或 take 方法从队列中拿数据，根据队列的特性，队列中有任务可以返回，队列中无任务会阻塞。注意任务阻塞是不消耗CPU资源的\footnote{参见：\url{https://stackoverflow.com/questions/5895895/does-java-blocked-threads-take-up-more-cpu-resources}}。
 
 \begin{lstlisting}[language=Java]
 Runnable r = timed ?

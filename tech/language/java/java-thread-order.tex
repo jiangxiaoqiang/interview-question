@@ -56,7 +56,7 @@ public void method3(){
 
 \paragraph{利用newSingleThreadExecutor控制线程的执行顺序}
 
-java的 Executors 线程池平时工作中用得很多了，JAVA通过Executors提供了四种线程池，单线程化线程池(newSingleThreadExecutor)、可控最大并发数线程池(newFixedThreadPool)、可回收缓存线程池(newCachedThreadPool)、支持定时与周期性任务的线程池(newScheduledThreadPool)。
+Java的 Executors 线程池平时工作中用得很多了，Java通过Executors提供了四种线程池，单线程化线程池(newSingleThreadExecutor)、可控最大并发数线程池(newFixedThreadPool)、可回收缓存线程池(newCachedThreadPool)、支持定时与周期性任务的线程池(newScheduledThreadPool)、newWorkStealingPool。
 
 顾名思义，newSingleThreadExecutor 线程池只有一个线程。它存在的意义就在于控制线程执行的顺序，保证任务的执行顺序和提交顺序一致。其实保证顺序执行的原理也很简单，因为总是只有一个线程处理任务队列上的任务，先提交的任务必将被先处理。
 

@@ -1,0 +1,17 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Lock实现原理}
+
+首先和Synchronized的不同之处，Lock完全用Java写成。其实现都依赖AbstractQueuedSynchronizer类，简称AQS。简单说来，AbstractQueuedSynchronizer会把所有的请求线程构成一个CLH队列，当一个线程执行完毕（lock.unlock()）时会激活自己的后继节点，但正在执行的线程并不在队列中，而那些等待执行的线程全部处于阻塞状态，线程的显式阻塞是通过调用LockSupport.park()完成，而LockSupport.park()则调用sun.misc.Unsafe.park()本地方法，再进一步，Hotspot在Linux中中通过调用pthread\_mutex\_lock函数把线程交给系统内核进行阻塞。总体来讲线程获取锁要经历以下过程(非公平)：    
+
+\begin{enumerate}
+    \item {调用lock方法，会先进行cas操作看下可否设置同步状态1成功，如果成功执行临界区代码}
+    \item {如果不成功获取同步状态，如果状态是0那么cas设置为1.}
+    \item {如果同步状态既不是0也不是自身线程持有会把当前线程构造成一个节点。}
+    \item {把当前线程节点CAS的方式放入队列中，行为上线程阻塞，内部自旋获取状态。}
+    \item {线程释放锁，唤醒队列第一个节点，参与竞争。重复上述。}
+\end{enumerate}
+
+\end{document}

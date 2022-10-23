@@ -24,7 +24,7 @@ Java类的初始化顺序记住口诀：先父后子，先静后动，成员变�
 
 \paragraph{Java类初始化时机}
     
-在虚拟机规范中是有严格规定的，虚拟机规范指明 有且只有 五种情况必须立即对类进行初始化（而这一过程自然发生在加载、验证、准备之后）：
+在虚拟机规范《The Java Virtual Machine Specification, Java SE 8 Edition》中是有严格规定的，虚拟机规范指明 有且只有如下几种情况必须立即对类进行初始化（而这一过程自然发生在加载、验证、准备之后），具体的规定在《The Java Virtual Machine Specification, Java SE 8 Edition》的5.5章节Initialization：
 
 \begin{enumerate}
 
@@ -38,9 +38,11 @@ Java类的初始化顺序记住口诀：先父后子，先静后动，成员变�
 
 \item{当虚拟机启动时，用户需要指定一个要执行的主类（包含main()方法的那个类），虚拟机会先初始化这个主类。}
 
-\item{当使用jdk1.7动态语言支持时，如果一个java.lang.invoke.MethodHandle实例最后的解析结果REF\_getstatic,REF\_putstatic,REF\_invokeStatic的方法句柄，并且这个方法句柄所对应的类没有进行初始化，则需要先出触发其初始化。}
+\item{如果一个java.lang.invoke.MethodHandle实例最后的解析结果REF\_getstatic，REF\_putstatic，REF\_invokeStatic的方法句柄，并且这个方法句柄所对应的类没有进行初始化，则需要先出触发其初始化。}
 
-第五种情况难以理解。注意，对于这五种会触发类进行初始化的场景，虚拟机规范中使用了一个很强烈的限定语：“有且只有”，这五种场景中的行为称为对一个类进行主动引用。除此之外，所有引用类的方式，都不会触发初始化，称为被动引用。
+\item{If C is an interface that declares a non-abstract, non-static method, the initialization of a class that implements C directly or indirectly.} 
+
+注意，对于这几种会触发类进行初始化的场景，虚拟机规范中使用了一个很强烈的限定语：“有且只有”，这五种场景中的行为称为对一个类进行主动引用。除此之外，所有引用类的方式，都不会触发初始化，称为被动引用。
 
 \end{enumerate}
 

@@ -19,6 +19,7 @@ double dval = 0.45;　// 单步调试发现其真实值为：0.45000000000000001
 
 尾数部分 (Mantissa)：采用移位存储尾数部分；
 
-BigDecimal类位于java.math包下，用于对超过16位有效位的数进行精确的运算。一般来说，double类型的变量可以处理16位有效数，但实际应用中，如果超过16位，就需要BigDecimal类来操作。BigDecimal的原理很简单，就是将小数扩大N倍，转成整数后再进行计算，同时结合指数，得出精度损失降到最低的结果。
+BigDecimal类位于java.math包下，用于对超过16位有效位的数进行精确的运算。一般来说，double类型的变量可以处理16位有效数，但实际应用中，如果超过16位，就需要BigDecimal类来操作。BigDecimal的原理很简单，就是将小数扩大N倍，转成整数后再进行计算，同时结合指数，得出精度损失降到最低的结果。BigDecimal 的解决方案就是，不使用二进制，而是使用十进制(BigInteger)+ 小
+数点位置 (scale) 来表示小数. 当使用 BigDecimal 来进行运算时，也就可以分解成两 部分，BigInteger 间的运算，以及小数点位置 scale 的更新。
 
 \end{document}

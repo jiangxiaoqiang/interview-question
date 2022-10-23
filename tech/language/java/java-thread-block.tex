@@ -18,6 +18,6 @@
 
 \paragraph{线程阻塞原理}
 
-阻塞，一般有两个特性很亮眼：1. 不耗 CPU 等待；2. 线程安全；Java层面的阻塞最终都是依赖了 AbstractQueuedSynchronizer 类（著名的AQS）的 await 方法，看起来像那么回事。那么这个AbstractQueuedSynchronizer同步器的阻塞又是如何实现的呢？AbstractQueuedSynchronizer真正的阻塞工作又转交给了另一个工具类： LockSupport 的 park 方法。那 park() 方法到底是如何实现的呢？ 其实是继承的 os::PlatformParker 的功能，也就是平台相关的私有实现，以 Linux 平台实现为例（os\_linux.hpp）。在进行阻塞的时候，底层并没有（并不一定）要用 while 死循环来阻塞，更多的是借助于操作系统的实现来进行阻塞的。https://smartkeyerror.com/Linux-Blocking
+阻塞，一般有两个特性很亮眼：1. 不耗 CPU 等待；2. 线程安全；Java层面的阻塞最终都是依赖了 AbstractQueuedSynchronizer 类（著名的AQS）的 await 方法，看起来像那么回事。那么这个AbstractQueuedSynchronizer同步器的阻塞又是如何实现的呢？AbstractQueuedSynchronizer真正的阻塞工作又转交给了另一个工具类： LockSupport 的 park 方法。那 park() 方法到底是如何实现的呢？ 其实是继承的 os::PlatformParker 的功能，也就是平台相关的私有实现，以 Linux 平台实现为例（os\_linux.hpp）。在进行阻塞的时候，底层并没有（并不一定）要用 while 死循环来阻塞，更多的是借助于操作系统的实现来进行阻塞的。阻塞(Blocking)与唤醒的实现与内核调度紧密相关，Linux 内核使用等待队列和完成量来实现该功能。等待队列相关的源码位于include/linux/wait.h以及kernel/sched/wait.c文件中，头文件中定义了等待队列以及队列元素的基本数据结构，wait.c源文件则主要包含具体的方法实现。https://smartkeyerror.com/Linux-Blocking
 
 \end{document}
