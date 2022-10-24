@@ -4,8 +4,54 @@
 
 \subsection{\color{red}{容器三把斧之Namespace原理与实现}}
 
-namespace 是 Linux 内核的一项特性，它可以对内核资源进行分区，使得一组进程可以看到一组资源；而另一组进程可以看到另一组不同的资源。该功能的原理是为一组资源和进程使用相同的 namespace，但是这些 namespace 实际上引用的是不同的资源。这样的说法未免太绕了些，简单来说 namespace 是由 Linux 内核提供的，用于进程间资源隔离的一种技术。将全局的系统资源包装在一个抽象里，让进程（看起来）拥有独立的全局资源实例。同时 Linux 也默认提供了多种 namespace，用于对多种不同资源进行隔离。namespace（命名空间） 是Linux提供的一种内核级别环境隔离的方法，很多编程语言也有 namespace 这样的功能，例如C++，Java等，编程语言的 namespace 是为了解决项目中能够在不同的命名空间里使用相同的函数名或者类名。而Linux的 namespace 也是为了实现资源能够在不同的命名空间里有相同的名称，譬如在 A命名空间 有个pid为1的进程，而在 B命名空间 中也可以有一个pid为1的进程。
+对于容器技术而言，它实现资源层面上的限制和隔离，依赖于 Linux 内核所提供的 cgroup 和 namespace 技术。
 
-有了 namespace 就可以实现基本的容器功能，著名的 Docker 也是使用了 namespace 来实现资源隔离的。
+\begin{itemize}
+    \item {cgroup 的主要作用：管理资源的分配、限制；}
+    \item {namespace 的主要作用：封装抽象，限制，隔离，使命名空间内的进程看起来拥有他们自己的全局资源；}
+\end{itemize}
+
+Namespaces are a feature of the Linux kernel that partitions kernel resources such that one set of processes sees one set of resources while another set of processes sees a different set of resources. The feature works by having the same namespace for a set of resources and processes, but those namespaces refer to distinct resources.Namespace是Linux内核的一项特性，它可以对内核资源进行分区，使得一组进程可以看到一组资源；而另一组进程可以看到另一组不同的资源。该功能的原理是为一组资源和进程使用相同的 namespace，但是这些 namespace 实际上引用的是不同的资源。这样的说法未免太绕了些，简单来说 namespace 是由 Linux 内核提供的，用于进程间资源隔离的一种技术。将全局的系统资源包装在一个抽象里，让进程（看起来）拥有独立的全局资源实例。内核进程描述符include/linux/sched.h中定义了新的Namespace相关的字段：
+
+\begin{lstlisting}[language=C]
+struct task_struct {
+	/* Namespaces: */
+	struct nsproxy			*nsproxy;    
+}
+\end{lstlisting}
+
+同时 Linux 也默认提供了多种 namespace，用于对多种不同资源进行隔离，如表\ref{table:namespace}所示。namespace（命名空间） 是Linux提供的一种内核级别环境隔离的方法，很多编程语言也有 namespace 这样的功能，例如C++，Java等，编程语言的 namespace 是为了解决项目中能够在不同的命名空间里使用相同的函数名或者类名。而Linux的 namespace 也是为了实现资源能够在不同的命名空间里有相同的名称，譬如在 A命名空间 有个pid为1的进程，而在 B命名空间 中也可以有一个pid为1的进程。有了Namespace就可以实现基本的容器功能，著名的 Docker 也是使用了 namespace 来实现资源隔离的。
+
+\begin{table}[htbp]
+	\caption{Namespace}
+	\label{table:namespace}
+	\begin{center}
+		\begin{tabular}{ccp{5cm}}
+			\hline
+			\multirow{1}{*}{名称}
+			& \multicolumn{1}{c}{使用的标识 - Flag} 
+			& \multicolumn{1}{c}{控制内容}\\			
+			\cline{1-3}
+			Cgroup & CLONE\_NEWCGROUP  &  Cgroup root directory cgroup 根目录            \\
+			\hline
+			IPC & CLONE\_NEWIPC	 & System V IPC, POSIX message queues信号量，消息队列 \\
+			\hline
+			Network & CLONE\_NEWNET & Network devices, stacks, ports, etc.网络设备，协议栈，端口等等 \\
+			\hline
+            Mount &  CLONE\_NEWNS & Mount points挂载点            \\
+			\hline
+            PID &  CLONE\_NEWPID	 & Process IDs进程号            \\
+			\hline
+            Time &  CLONE\_NEWTIME & 时钟            \\
+			\hline
+            User &  CLONE\_NEWUSER	 & 用户和组 ID            \\
+			\hline
+            UTS &  CLONE\_NEWUTS	 & 系统主机名和 NIS(Network Information Service) 主机名（有时称为域名）            \\
+			\hline							
+		\end{tabular}	
+	\end{center}
+\end{table}
+
+
 
 \end{document}

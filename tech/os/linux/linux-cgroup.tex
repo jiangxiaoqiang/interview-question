@@ -26,7 +26,16 @@ cgroups为每种资源定义了一个子系统，典型的子系统如下：
 
 \paragraph{CGroup的结构}
 
-关于cgroups原理，可以从进程角度来剖析相关数据结构之间关系，Linux 下管理进程的数据结构是 task\_struct。
+关于cgroups原理，可以从进程角度来剖析相关数据结构之间关系，Linux 下管理进程的数据结构是include/linux/sched.h中的task\_struct。
+
+\begin{lstlisting}[language=C]
+#ifdef CONFIG_CGROUPS
+/* Control Group info protected by css_set_lock: */
+struct css_set __rcu		*cgroups;
+/* cg_list protected by css_set_lock and tsk->alloc_lock: */
+struct list_head		cg_list;
+#endif
+\end{lstlisting}
 
 每个进程对应一个css\_set结构，css\_set存储了与进程相关的cgropus信息。cg\_list是一个嵌入的 list\_head 结构，用于将连到同一个 css\_set 的进程组织成一个链表。进程和css\_set的关系是多对一关系，tasks表示关联的多个进程。
 

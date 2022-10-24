@@ -38,9 +38,7 @@ Java NIO根据操作系统不同， 针对NIO中的Selector有不同的实现：
 所以不需要特别指定，Oracle JDK会自动选择合适的Selector。如果想设置特定的Selector，可以设置属性，例如：
 \url{-Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.EPollSelectorProvider}
 
-JDK在Linux已经默认使用epoll方式，但是JDK的epoll采用的是水平触发，所以Netty自4.0.16起, Netty为Linux通过JNI的方式提供了native socket transport。Netty重新实现了epoll机制，
-
-采用边缘触发方式
+JDK在Linux已经默认使用epoll方式，但是JDK的epoll采用的是水平触发(level-triggered)，在水平触发的情况下，必须不断的轮询监控每个文件描述符的状态，判断其是否可读或可写。内核空间中维护的 I/O 状态列表可能随时会被更新，因此用户程序想要拿到 I/O 状态列表必须访问内核空间。所以Netty自4.0.16起, Netty为Linux通过JNI的方式提供了native socket transport。Netty重新实现了epoll机制，采用边缘触发(edge-triggered)方式，而边缘触发的情况下，只有在数据到达网卡，也就是说 I/O 状态发生改变时才会触发事件，在两次数据到达的间隙，I/O 状态列表是不会发生改变的。这就使得用户程序可以缓存一份 I/O 状态列表在用户空间中，减少系统调用的次数。
 netty epoll transport暴露了更多的nio没有的配置参数，如 TCP\_CORK, SO\_REUSEADDR等等。
 C代码，更少GC，更少synchronized
 使用native socket transport的方法很简单，只需将相应的类替换即可。
