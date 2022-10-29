@@ -7,16 +7,35 @@
 一个更新操作的流程，这是一个简化的过程（name原值是zhangsan）。
 
 \begin{lstlisting}[language=SQL]
-update user set name='penyuyan' where id=1;
+begin;update user set name='penyuyan' where id=1;commit;
 \end{lstlisting}
 
 \begin{enumerate}
-    \item {事务开始，从内存或磁盘取到这条数据，返回给Server 的执行器；}
-    \item {执行器修改这一行数据的值为penyuyan；}
-    \item {记录 name=zhangsan 到 undo log；}
+    \item {事务开始，从内存或磁盘取到包含这条数据的页，返回给Server 的执行器；}
+    \item {执行器在缓存页中修改这一行数据的值为penyuyan；}
+    \item {记录 name=zhangsan 到 undo log；注意这里是记录到undo log buffer而不是实际的undo log磁盘上的文件}
     \item {记录 name=zhangsan 到redo log；}
-    \item {调用存储引擎接口，在内存（Buffer Pool）中修改 name=zhangsan；}
+    \item {调用存储引擎接口，在内存（Buffer Pool）中修改 name=penyuyan}
     \item {事务提交}
+    \item {刷新 redo log buffer 到磁盘，并标记该事务的状态为 prepare。此操作称为 redo log prepare}
+    \item {刷新 binlog cache 到磁盘}
+    \item {刷新 redo log buffer 到磁盘，并标记该事务的状态为 commit。此操作称为 redo log commit。}刷新log到磁盘的代码在storage/innobase/handler/ha\_innodb.cc文件的方法：
+    
+\begin{lstlisting}[language=C]
+/* Flush the redo log buffer to the redo log file.
+Sync it to disc if we are in FLUSH LOGS, or if
+innodb_flush_log_at_trx_commit=1
+(write and sync at each commit). */
+log_buffer_flush_to_disk(!binlog_group_flush ||
+                            srv_flush_log_at_trx_commit == 1);
+\end{lstlisting}
+
+
+    \item {向客户端返回事务执行的结果。}
 \end{enumerate}
+
+这里些redo log和undo log也是写入到Buffer里，然后再定时刷到磁盘上的。通过innodb\_flush\_log\_at\_trx\_commit参数进行控制。推荐做法是\url{innodb\_flush\_log\_at\_trx\_commit=2}，sync\_binlog=500 或1000。redo log 先 prepare，再刷新 binlog ，再 redo log commit 的过程就是一次两段式提交。这种只在 MySQL 内部组件间保障数据一致性的操作，也被称作内部 XA 事务；与之对应的是，保障跨服务器间数据一致性的两段式提交，被称为外部 XA 事务，即分布式事务。注：XA 事务属于分布式事务中两段式提交事务的一种实现在宕机后，重启 MySQL 时，InnoDB 会自动恢复 redo log 中 checkpoint\_lsn 后的，且处于 commit 状态的事务。如果 redo log 中事务的状态为 prepare，则需要先查看 binlog 中该事务是否存在，是的话就恢复，否则就回滚（通过 undo log 回滚。脏页一直在刷，更新了脏页，但事务没提交就宕机了，所以需要回滚）。
+
+MySQL 宕机可能会发生在整个过程中的任意时刻。以刚才的流程为例，假设宕机发生在第 5 步后、第 6 步前。此时服务器还未向客户端返回事务的结果，而 redo log 中可能记录了该事务的 redo log，也可能没有。但是只要该事务没有被标记为 prepare，我们就认为该事务没有执行完，否则 redo log 用于恢复事务的数据可能是不完整的。因此，只要此时我们选择抛弃未 prepare 的 redo log，不会导致任何数据一致性的问题。
 
 \end{document}

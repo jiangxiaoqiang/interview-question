@@ -4,6 +4,24 @@
 
 \subsection{MySQL char和varchar区别}
 
+CHAR
+
+\begin{itemize}
+    \item {Used to store character string value of fixed length.}
+    \item {The maximum no. of characters the data type can hold is 255 characters.}
+    \item {It's 50\% faster than VARCHAR.}
+    \item {Uses static memory allocation.}
+\end{itemize}
+
+VARCHAR
+
+\begin{itemize}
+    \item {Used to store variable length alphanumeric data.}
+    \item {It's slower than CHAR.}
+    \item {The maximum this data type can hold is up to},Pre-MySQL 5.0.3: 255 characters.Post-MySQL 5.0.3: 65,535 characters shared for the row.
+    \item {Uses dynamic memory allocation.}
+\end{itemize}
+
 https://github.com/caokegege/Interview/blob/master/db/最全MySQL面试60题和答案.md
 https://blog.csdn.net/weixin\_42310458/article/details/122880454
 

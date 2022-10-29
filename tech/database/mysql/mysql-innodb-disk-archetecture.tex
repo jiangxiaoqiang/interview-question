@@ -12,17 +12,17 @@ The System Tablespace 是Doublewrite Buffer和Change buffer的储存区域，也
 
 \paragraph{双写缓存文件(Doublewrite Buffer Files)}
 
-Doublewrite Buffer位于The System Tablespace。在BP的页数据刷到磁盘真正的位置前，会先将数据存在doublewrite buffer。 这步操作是直接将数据作为顺序块，调用OS的fsync()方法写入到doublewrite buffer。
+Doublewrite Buffer位于The System Tablespace。在Buffer Pool的页数据刷到磁盘真正的位置前，会先将数据存在Doublewrite Buffer。 这步操作是直接将数据作为顺序块，调用OS的fsync()方法写入到Doublewrite Buffer。
 
 虽然数据写了两次，但是性能还是比两次IO低的。
-此外fsync保证了BP中的数据写到磁盘中，即使数据库挂了，还可以从doublewrite buffer中还原数据。还可以解决页断裂的问题
+此外fsync保证了Buffer Pool中的数据写到磁盘中，即使数据库挂了，还可以从Doublewrite Buffer中还原数据。还可以解决页断裂的问题
 
 \paragraph{Undo 表空间(Undo Tablespaces)}
 
 Undo Tablespaces保存的是undo log ，用于回滚事务。
 该表空间有rollback segments,rollback segments是用于存 undo log segments, 而undo log segments存的就是undo logs。
 
-mysql启动的时候，默认初始两个undo tablespace。因为sql执行前必须要有rollback segments。而两个undo tablespace才支持automated truncation of undo。
+MySQL启动的时候，默认初始两个undo tablespace。因为sql执行前必须要有rollback segments。而两个undo tablespace才支持automated truncation of undo。
 
 \paragraph{Redo Log 文件(Redo Log)}
 

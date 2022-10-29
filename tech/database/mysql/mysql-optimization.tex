@@ -2,15 +2,21 @@
 
 \begin{document}
 
-\subsection{MySQL优化思路}
+\subsection{MySQL调优思路}
 
-MySQL优化可以从连接配置优化、存储引擎与表结构、SQL分析与优化、架构优化等方面入手。
+MySQL优化可以从配置参数优化、存储引擎与表结构、SQL分析与优化、架构优化等方面入手。
 
-\paragraph{连接配置优化}
+\paragraph{配置参数优化}
 
-服务端增加可用连接数，修改环境变量max\_connections，默认情况下服务端的最大连接数为151个。及时释放不活动的连接，系统默认的客户端超时时间是28800秒(8小时)，我们可以把这个值调小一点。
+连接配置优化：服务端增加可用连接数，修改环境变量max\_connections，默认情况下服务端的最大连接数为151个。及时释放不活动的连接，系统默认的客户端超时时间是28800秒(8小时)，我们可以把这个值调小一点。
 
-客户端常见的数据库连接池有DBCP、C3P0、阿里的Druid、Hikari。对于每一个连接，服务端会创建一个单独的线程去处理，连接数越多，服务端创建的线程自然也就越多。而线程数超过CPU个数的情况下，CPU势必要通过分配时间片的方式进行线程的上下文切换，频繁的上下文切换会造成很大的性能开销。Hikari官方给出了一个PostgreSQL数据库连接池大小的建议值公式，CPU核心数*2+1。假设服务器的CPU核心数是4，把连接池设置成9就可以了。这种公式在一定程度上对其他数据库也是适用的。
+客户端常见的数据库连接池有DBCP、C3P0、阿里的Druid、Hikari。对于每一个连接，服务端会创建一个单独的线程去处理，连接数越多，服务端创建的线程自然也就越多。而线程数超过CPU个数的情况下，CPU势必要通过分配时间片的方式进行线程的上下文切换，频繁的上下文切换会造成很大的性能开销。Hikari官方给出了一个PostgreSQL数据库连接池大小的建议值公式，CPU核心数*2+1\footnote{来源：\url{https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing\#connections--core_count--2--effective_spindle_count}}。假设服务器的CPU核心数是4，把连接池设置成9就可以了。这种公式在一定程度上对其他数据库也是适用的。
+
+innodb\_buffer\_pool\_size是使用InnoDB存储引擎时最关键的配置项。InnoDB使用一块专门的内存区域做IO缓存，该缓存既缓存InnoDB的索引块，又会缓存InnoDB的数据块。这个缓存区就是InnoDB Buffer Pool，使用innodb\_buffer\_pool\_size设置其大小，在保证系统及其他程序有可用内存的情况下，设置的越大，缓存命中率越高，访问InnoDB的磁盘IO越少，性能越好。
+
+在专门用作MySQL数据库的服务器上，可以设置物理内存的50\%至70\%。如：8G内存服务器设置5-6G，32G内存设置20~25G，128G内存设置100~120GB。
+
+https://blog.frognew.com/2015/12/mysql-optimize-setting.html
 
 \paragraph{存储引擎与表结构}
 

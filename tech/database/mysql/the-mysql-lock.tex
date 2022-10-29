@@ -4,7 +4,7 @@
 
 \subsection{\color{red}{MySQL锁}}
 
-MySQL的锁属于基础类型的知识，必须要掌握。在MySQL当中，关于InnoDB的锁类型总共可以分为四种，分别是:
+MySQL的锁属于基础类型的知识，必须要掌握。在MySQL当中，关于InnoDB的锁类型总共可以分为四种\footnote{参考：\url{https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html}}，分别是:
 
 \begin{enumerate}
     \item{基本锁 - [ 共享锁（Shared Locks：S锁）和排它锁（Exclusive Locks：X锁）]}
@@ -25,12 +25,21 @@ MySQL的锁属于基础类型的知识，必须要掌握。在MySQL当中，关�
     \item{写锁（排他锁或互斥锁）}「排他锁（X)」：exclusive lock（也叫writer lock）又称写锁。 若某个事物对某一行加上了排他锁，只能这个事务对其进行读写，在此事务结束之前， 其他事务不能对其进行加任何锁，其他进程可以读取,不能进行写操作，需等待其释放。 「排它锁是悲观锁的一种实现」。
 \end{enumerate}
 
-按数据操作的粒度来分：
+锁在MySQL 8.0源代码storage/innobase/include/lock0types.h中的定义如下：
 
-\begin{enumerate}
-    \item{表锁}
-    \item{页锁}
-    \item{行锁}
-\end{enumerate}
+\begin{lstlisting}[language=C]
+/* Basic lock modes */
+enum lock_mode {
+    LOCK_IS = 0,          /* intention shared */
+    LOCK_IX,              /* intention exclusive */
+    LOCK_S,               /* shared */
+    LOCK_X,               /* exclusive */
+    LOCK_AUTO_INC,        /* locks the auto-inc counter of a table
+                        in an exclusive mode */
+    LOCK_NONE,            /* this is used elsewhere to note consistent read */
+    LOCK_NUM = LOCK_NONE, /* number of lock modes */
+    LOCK_NONE_UNSET = 255
+};
+\end{lstlisting}
 
 \end{document}

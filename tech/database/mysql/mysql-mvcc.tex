@@ -1,0 +1,53 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL MVCC实现}
+
+MVCC(Multi-Version Concurrency Control)在MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突，做到即使有读写冲突时，也能做到不加锁，非阻塞并发读。MVCC实现的要点是隐藏列、Undo Log和Read View。隐藏列，一个保存了行的创建时间，一个保存行的过期时间（或删除时间）。当然存储的并不是实际的时间值，而是系统版本号（system version number)。每开始一个新的事务，系统版本号都会自动递增。事务开始时刻的系统版本号会作为事务的版本号，用来和查询到的每行记录的版本号进行比较。
+
+\paragraph{隐藏列}
+
+\paragraph{Undo Log}
+
+\paragraph{Read View}
+
+什么是Read View，说白了Read View就是事务进行快照读(select * from)操作的时候生产的读视图(Read View)，在该事务执行的快照读的那一刻，会生成事务系统当前的一个快照，记录并维护系统当前活跃事务(未提交事务)的ID(当每个事务开启时，都会被分配一个ID, 这个ID是递增的，所以最新的事务，ID值越大)。
+
+所以我们知道 Read View主要是用来做可见性判断的, 即当我们某个事务执行快照读的时候，对该记录创建一个Read View读视图，把它比作条件用来判断当前事务能够看到哪个版本的数据，既可能是当前最新的数据，也有可能是该行记录的undo log里面的某个版本的数据。可见性判断在文件storage/innobase/include/read0types.h中，如下代码片段：
+
+\begin{lstlisting}[language=C]
+/** Check whether the changes by id are visible.
+@param[in]    id      transaction id to check against the view
+@param[in]    name    table name
+@return whether the view sees the modifications of id. */
+[[nodiscard]] bool changes_visible(trx_id_t id,
+                                    const table_name_t &name) const {
+    ut_ad(id > 0);
+
+    if (id < m_up_limit_id || id == m_creator_trx_id) {
+        return (true);
+    }
+
+    check_trx_id_sanity(id, name);
+
+    if (id >= m_low_limit_id) {
+        return (false);
+
+    } else if (m_ids.empty()) {
+        return (true);
+    }
+
+    const ids_t::value_type *p = m_ids.data();
+
+    return (!std::binary_search(p, p + m_ids.size(), id));
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item {首先比较DB\_TRX\_ID < up\_limit\_id, 如果小于，则当前事务能看到DB\_TRX\_ID 所在的记录，如果大于等于进入下一个判断}
+    \item {接下来判断 DB\_TRX\_ID 大于等于 low\_limit\_id , 如果大于等于则代表DB\_TRX\_ID 所在的记录在Read View生成后才出现的，那对当前事务肯定不可见，如果小于则进入下一个判断 }
+    \item {判断DB\_TRX\_ID 是否在活跃事务之中，trx\_list.contains(DB\_TRX\_ID)，如果在，则代表我Read View生成时刻，你这个事务还在活跃，还没有Commit，你修改的数据，我当前事务也是看不见的；如果不在，则说明，你这个事务在Read View生成之前就已经Commit了，你修改的结果，我当前事务是能看见的}
+\end{itemize}
+
+\end{document}

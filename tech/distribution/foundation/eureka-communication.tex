@@ -12,7 +12,7 @@
 
 另外 Eureka Server 的同步遵循着一个非常简单的原则：只要有一条边将节点连接，就可以进行信息传播与同步。所以，如果存在多个节点，只需要将节点之间两两连接起来形成通路，那么其它注册中心都可以共享信息。每个 Eureka Server 同时也是 Eureka Client，多个 Eureka Server 之间通过 P2P 的方式完成服务注册表的同步。
 
-Eureka Server 集群之间的状态是采用异步方式同步的，所以不保证节点间的状态一定是一致的，不过基本能保证最终状态是一致的。所以Eureka满足AP。
+Eureka Server 集群之间的状态是采用异步方式同步的，所以不保证节点间的状态一定是一致的，不过基本能保证最终状态是一致的。所以Eureka满足AP。2022年Eureka 2.0不再继续开发，1.x版本以一年无新的改动。替换的选择是Consul、Nacos。
 
 \paragraph{Eureka 保证 AP}
 

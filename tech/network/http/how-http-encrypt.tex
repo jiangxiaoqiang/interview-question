@@ -1,0 +1,19 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{HTTPS是怎么加密的}
+
+\begin{enumerate}
+    \item {客户端请求服务器获取证书公钥}
+    \item {客户端(SSL/TLS)解析证书（无效会弹出警告）}
+    \item {生成随机值}
+    \item {用公钥加密随机值生成密钥}
+    \item {客户端将秘钥发送给服务器}
+    \item {服务端用私钥解密秘钥得到随机值}
+    \item {将信息和随机值混合在一起进行对称加密}
+    \item {将加密的内容发送给客户端}
+    \item {客户端用秘钥解密信息}
+\end{enumerate}
+
+\end{document}

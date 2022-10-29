@@ -32,7 +32,7 @@ MVCC(Multi-Version Concurrency Control)只在READ COMMITTED(已提交读)和REPE
 
 事务的持久性指的是只要事务成功结束，它对数据库所做的更新就必须永久保存下来，即使发生系统崩溃，重新启动数据库系统后，数据库还能恢复到事务成功结束时的状态。
 
-持久性意味着事务操作最终要持久化到数据库中，持久性是由 内存+redo log来保证的，MySQL的InnoDB在修改数据的时候，同时在内存和redo log记录这次操作，宕机的时候可以从redo log中恢复数据。
+持久性意味着事务操作最终要持久化到数据库中，持久性是由 内存+redo log来保证的，MySQL的InnoDB在修改数据的时候，同时在redo log记录这次操作，宕机的时候可以从redo log中恢复数据。
 
 同时，我们都知道MySQL Server的主从同步就是通过binlog来实现的，从服务器通过binlog文件的SQL拿过去执行一遍，保证跟主服务器的数据一致，而binlog和redo log都存储了表中的数据，都可以用来做数据恢复的，那怎么保证binlog和redo log的数据一致呢?下面是InnoDB下redo log的过程：
 

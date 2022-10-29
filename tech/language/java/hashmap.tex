@@ -9,4 +9,21 @@ https://segmentfault.com/a/1190000041297886。HashMap是由数组+链表组成�
 什么情况下需要重写equals或者hashCode呢？前面说到了，HashMap的很多函数要基于equal()函数和hashCode()函数。hashCode()用来定位要存放的位置，equal()用来判断是否相等。
 那么，相等的概念是什么？
 Object版本的equal只是简单地判断是不是同一个实例。但是有的时候，我们想要的的是逻辑上的相等。比如有一个学生类student，有一个属性studentID，只要studentID相等，不是同一个实例我们也认为是同一学生。当我们认为判定equals的相等应该是逻辑上的相等而不是只是判断是不是内存中的同一个东西的时候，就需要重写equal()。而涉及到HashMap的时候，重写了equals()，就需要重写hashCode()。
+
+table 的初始化时机是什么时候?一般情况下，在第一次 put 的时候，调用 resize 方法进行 table 的初始化（懒初始化，懒加载思想在很多框架中都有应用！）初始化的 table.length 是多少、阀值（threshold）是多少，实际能容下多少元素?默认情况下，table.length = 16; 指定了 initialCapacity 的情况放到问题 5 中分析。默认情况下，threshold = 12; 指定了 initialCapacity 的情况放到问题 5 中分析。默认情况下，能存放 12 个元素，当存放第 13 个元素后进行扩容。什么时候触发扩容，扩容之后的 table.length、阀值各是多少？当 size > threshold 的时候进行扩容。扩容之后的 table.length = 旧 table.length * 2,扩容之后的 threshold = 旧 threshold * 2。table 的 length 为什么是 2 的 n 次幂？为了利用位运算 \& 求 key 的下标。求索引的时候为什么是：h\&(length-1)，而不是 h\&length，更不是 h\%length。h\%length 效率不如位运算快。h\&length 会提高碰撞几率，导致 table 的空间得不到更充分的利用、降低 table 的操作效率。
+
+https://www.cnblogs.com/youzhibing/p/11833040.html
+
+\paragraph{HashMap 在 Put 时，新链表节点是放在头部还是尾部}
+
+在jdk1.8之前事插入头部的，在jdk1.8以后是插入尾部的。由上例可知，HashMap在jdk1.7中采用头插入法，在扩容时会改变链表中元素原本的顺序，以至于在并发场景下导致链表成环的问题。而在jdk1.8中采用尾插入法，在扩容时会保持链表元素原本的顺序，就不会出现链表成环的问题了。
+
+\paragraph{链表成环过程}
+
+https://zhuanlan.zhihu.com/p/409177595
+
+\paragraph{扩容}
+
+扩容的成本并不低，因为需要遍历一个时间复杂度为O(n)的数组，并且为其中的每个enrty进行hash计算。加入到新数组中，所以最好的情况是能够合理的使用HashMap的构造方法创建合适大小的HashMap，使得在不浪费内存的情况下，尽量减少扩容，这个就要根据业务来决定了。
+
 \end{document}

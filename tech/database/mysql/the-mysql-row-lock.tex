@@ -1,0 +1,18 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{MySQL行锁分析}
+
+对于行数据的加锁是由storage/innobase/lock/lock0lock.cc中函数lock\_rec\_lock 完成，简单点来看，主要的参数是 mode(锁类型)，block(包含该行的 buffer 数据页)，heap\_no(具体哪一行)。就可以确定加什么样的锁，以及在哪一行加。对于 mode 的值，来源于查询的逻辑，索引和二级索引的定义，隔离级别等等。
+
+\begin{lstlisting}[language=C]
+static dberr_t lock_rec_lock(bool impl, select_mode sel_mode, ulint mode,
+    const buf_block_t *block, ulint heap_no,
+    dict_index_t *index, que_thr_t *thr) {
+}
+\end{lstlisting}
+
+http://mysql.taobao.org/monthly/2018/05/04/
+
+\end{document}
