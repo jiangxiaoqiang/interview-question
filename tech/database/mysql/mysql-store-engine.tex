@@ -4,7 +4,7 @@
 
 \subsection{MySQL存储引擎}
 
-两种类型最主要的差别是InnoDB支持事务处理与外键和行级锁。MyISAM 管理非事务表。它提供高速存储和检索，以及全文搜索能力。如果应用中需要执行大量的 SELECT 查询，那么 MyISAM 是更好的选择。InnoDB 用于事务处理应用程序，具有众多特性，包括 ACID 事务支持。如果应用中需要执行大量的 INSERT 或 UPDATE 操作，则应该使用 InnoDB，这样可以提高多用户并发操作的性能。MySQL存储引擎主要有： \paragraph{MyISAM} 
+MySQL主要的存储引擎是MyISAM和InnoDB，两种类型最主要的差别是InnoDB支持事务处理与外键和行级锁。MyISAM 管理非事务表。它提供高速存储和检索，以及全文搜索能力。如果应用中需要执行大量的 SELECT 查询，那么 MyISAM 是更好的选择。InnoDB 用于事务处理应用程序，具有众多特性，包括 ACID 事务支持。如果应用中需要执行大量的 INSERT 或 UPDATE 操作，则应该使用 InnoDB，这样可以提高多用户并发操作的性能。MySQL存储引擎主要有： \paragraph{MyISAM} 
 
 如果数据表主要用来插入和查询记录，则MyISAM（但是不支持事务）引擎能提供较高的处理效率
 

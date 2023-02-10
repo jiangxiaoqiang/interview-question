@@ -4,6 +4,6 @@
 
 \subsection{PostgreSQL索引}
 
-PostgreSQL提供了好几种索引类型：B-tree, Hash, GiST, SP-GiST和GIN 。GIN是Generalized Inverted Index的缩写。就是所谓的倒排索引。Generalized Search Tree，或者叫归纳树，用于解决一些b-tree, gin难以解决的数据减少问题，例如，范围是否相交，是否包含，地理位置中的点面相交，或者按点搜索附近的点，当然，它能实现的功能还不仅于此。GiST 索引不是单独一种索引类型，而是一种架构，可以在这种架构上实现很多不同的索引策略。 因此，可以使用 GiST 索引的操作符高度依赖于索引策略(操作符类)。SP-GiST索引类似于GiST索引，提供一个支持不同类型检索的架构。 SP-GiST允许实现许多各种不同的非平衡的基于磁盘的数据结构，例如四叉树，k-d树和基数树(字典树)。
+PostgreSQL提供了好几种索引类型：B-tree, Hash, GiST(Generalized Search Tree), SP-GiST(Space Partitioning)和GIN 。GIN是Generalized Inverted Index的缩写。就是所谓的倒排索引。Generalized Search Tree，或者叫归纳树，用于解决一些b-tree, gin难以解决的数据减少问题，例如，范围是否相交，是否包含，地理位置中的点面相交，或者按点搜索附近的点，当然，它能实现的功能还不仅于此。GiST 索引不是单独一种索引类型，而是一种架构，可以在这种架构上实现很多不同的索引策略。 因此，可以使用 GiST 索引的操作符高度依赖于索引策略(操作符类)。SP-GiST索引类似于GiST索引，提供一个支持不同类型检索的架构。 SP-GiST允许实现许多各种不同的非平衡的基于磁盘的数据结构，例如四叉树，k-d树和基数树(字典树)。
 
 \end{document}

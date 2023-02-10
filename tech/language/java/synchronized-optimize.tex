@@ -17,7 +17,7 @@
 5：把内核代码选择符写入CS寄存器，内核栈指针写入ESP寄存器，把内核入口点的线性地址写入EIP寄存器}，这个状态之间的转换需要相对比较长的时间\footnote{\url{https://www.cnblogs.com/justcxtoworld/p/3155741.html}}，时间成本相对较高，这也是为什么早期的synchronized效率低的原因。庆幸的是在Java 6之后Java官方对从JVM层面对synchronized较大优化，所以现在的synchronized锁效率也优化得很不错了，Java 6之后，为了减少获得锁和释放锁所带来的性能消耗(阻塞或唤醒一个Java线程需要操作系统切换CPU状态来完成，这种状态转换需要耗费处理器时间。如果同步代码块中的内容过于简单，状态转换消耗的时间有可能比用户代码执行的时间还要长)，引入了偏向锁(Biased Lock)、轻量级锁(Lightweight Lock)和自旋锁(Spin Lock)等概念，接下来我们将简单了解一下Java官方在JVM层面对Synchronized锁的优化。优化后的流程为：
 
 \begin{itemize}
-    \item {首先，synchronized 会尝试使用偏向锁的方式去竞争锁资源，如果能够竞争到偏向锁，表示加锁成功直接返回。}对应的Hotspot C++实现代码：
+    \item {首先，synchronized 会尝试使用偏向锁的方式去竞争锁资源，如果能够竞争到偏向锁，表示加锁成功直接返回。偏向锁主要用来优化同一线程多次申请同一个锁的竞争。可能大部分时间一个锁都是被一个线程持有和竞争。假如一个锁被线程 A 持有，后释放；接下来又被线程 A 持有、释放……如果使用 monitor，则每次都会发生用户态和内核态的切换，性能低下。当一个线程再次访问这个同步代码或方法时，该线程只需去对象头的 Mark Word 判断是否有偏向锁指向它的 ID，无需再进入 Monitor 去竞争对象了。当对象被当做同步锁并有一个线程抢到了锁时，锁标志位还是 01，“是否偏向锁”标志位设置为 1，并且记录抢到锁的线程 ID，表示进入偏向锁状态。一旦出现其它线程竞争锁资源，偏向锁就会被撤销。撤销时机是在全局安全点，暂停持有该锁的线程，同时检查该线程是否还在执行该方法。是则升级锁；不是则被其它线程抢占。}对应的Hotspot C++实现代码：
     
 \begin{lstlisting}[language=C++]
 void ObjectSynchronizer::fast_enter(Handle obj, BasicLock* lock,
