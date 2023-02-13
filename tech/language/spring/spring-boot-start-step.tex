@@ -4,7 +4,22 @@
 
 \subsection{Spring Boot启动过程}
 
-Spring Boot的启动过程大致可以分为如下4步（基于Servlet容器的we应用）
+https://cloud.tencent.com/developer/article/1874814，Spring Boot的启动过程可以分为如下2步:
+
+\begin{enumerate}
+    \item {初始化SpringApplication}
+    \item {运行SpringApplication的过程}
+\end{enumerate}
+
+SpringApplication的初始化，配置基本的环境变量、资源、构造器、监听器，初始化阶段的主要作用是为运行SpringApplication实例对象启动环境变量准备以及进行必要的资源构造器的初始化动作。其中运行SpringApplication的过程又可以细分为以下几个部分：
+
+\begin{enumerate}
+    \item {SpringApplicationRunListeners 引用启动监控模块}
+    \item {ConfigrableEnvironment配置环境模块和监听：包括创建配置环境、加载属性配置文件和配置监听}
+    \item {ConfigrableApplicationContext配置应用上下文：包括配置应用上下文对象、配置基本属性和刷新应用上下文}
+\end{enumerate}
+
+Spring Boot的启动过程可以分为如下4步（基于Servlet容器的we应用）
 
 \begin{enumerate}
     \item {SpringApplication的创建}
