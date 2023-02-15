@@ -6,7 +6,7 @@
 
 \paragraph{实现原理不同}
 
-Filter是基于函数回调（doFilter()方法）的，而Interceptor则是基于Java反射的（AOP思想）。自定义的过滤器中都会实现一个 doFilter()方法，这个方法有一个FilterChain 参数，而实际上它是一个回调接口。ApplicationFilterChain是它的实现类， 这个实现类内部也有一个 doFilter() 方法就是回调方法。
+Filter是基于函数回调（doFilter()方法）的，而Interceptor则是基于Java反射的（AOP思想）。拦截器的执行是在穿插在SpringMvc的工作流程中的，并没有用到动态代理机制，直接调用的拦截器方法。自定义的过滤器中都会实现一个 doFilter()方法，这个方法有一个FilterChain 参数，而实际上它是一个回调接口。ApplicationFilterChain是它的实现类， 这个实现类内部也有一个 doFilter() 方法就是回调方法。
 
 \paragraph{使用范围不同}
 

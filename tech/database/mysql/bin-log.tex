@@ -4,6 +4,8 @@
 
 \subsection{binlog文件格式}
 
+MySQL binlog的格式有三种，基于SQL语句的复制(statement-based replication, SBR)，基于行的复制(row-based replication, RBR)，
+混合模式复制(mixed-based replication, MBR)。相应地，binlog的格式也有三种：STATEMENT，ROW，MIXED。它主要用于mysql的复制技术。
 MySQL binlog是二进制日志文件，用于记录MySQL的数据更新或者潜在更新(比如DELETE语句执行删除而实际并没有符合条件的数据)，在MySQL主从复制中就是依靠的binlog。可以通过语句“show binlog events in 'binlogfile'”来查看binlog的具体事件类型。binlog记录的所有操作实际上都有对应的事件类型的，MySQL binlog的三种工作模式：
 
 （1）Row level（用到MySQL的特殊功能如存储过程、触发器、函数，又希望数据最大化一直则选择Row模式，我们公司选择的是row）

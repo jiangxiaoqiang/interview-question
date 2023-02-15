@@ -86,7 +86,7 @@ Code:
 
 \subparagraph{轮询调度}
 
-轮询调度(Round Robin Scheduling)算法\footnote{\url{https://blog.csdn.net/u012891504/article/details/53434704}}就是以轮询的方式依次将请求调度到不同的服务器，即每次调度执行i = (i + 1) mod n，并选出第i台服务器。算法的优点是其简洁性，它无需记录当前所有连接的状态，所以它是一种无状态调度。在实际实现过程中，一般会为每台服务器设定一个权重值，这就是权重轮询调度算法。
+轮询调度(Round Robin Scheduling)算法\footnote{\url{https://blog.csdn.net/u012891504/article/details/53434704}}就是以轮询的方式依次将请求调度到不同的服务器，即每次调度执行i = (i + 1) mod n，并选出第i台服务器。通常取模运算也叫取余运算，它们返回结果都是余数。rem 和 mod 唯一的区别在于:当 x 和 y 的正负号一样的时候，两个函数结果是等同的；当 x 和 y 的符号不同时，rem 函数结果的符号和 x 的一样，而 mod 和 y 一样\footnote{\url{https://www.runoob.com/w3cnote/remainder-and-the-modulo.html}}。这是由于这两个函数的生成机制不同，rem 函数采用 fix 函数，而 mod 函数采用了 floor 函数（这两个函数是用来取整的，fix 函数向 0 方向舍入，floor 函数向无穷小方向舍入）。算法的优点是其简洁性，它无需记录当前所有连接的状态，所以它是一种无状态调度。在实际实现过程中，一般会为每台服务器设定一个权重值，这就是权重轮询调度算法。
 
 \paragraph{Long比较}
 
@@ -181,7 +181,13 @@ System.out.println(s1 == s2); // True
 
 \paragraph{DispatchServlet怎样分发任务的}
 
-这个servlet(Server Applet)实际上是一个标准的前端控制器，用以转发、匹配、处理每个servlet请 求。DispatcherServlet上下文在初始化的时候会建立自己的IoC上下文，用以持有spring mvc相关的bean。在建立DispatcherServlet自己的IoC上下文时，会利用WebApplicationContext.ROOTWEBAPPLICATIONCONTEXTATTRIBUTE 先从ServletContext中获取之前的根上下文(即WebApplicationContext)作为自己上下文的parent上下文。有了这个 parent上下文之后，再初始化自己持有的上下文。这个DispatcherServlet初始化自己上下文的工作在其initStrategies方 法中可以看到，大概的工作就是初始化处理器映射、视图解析等。这个servlet自己持有的上下文默认实现类也是 mlWebApplicationContext。初始化完毕后，spring以与servlet的名字相关(此处不是简单的以servlet名为 Key，而是通过一些转换，具体可自行查看源码)的属性为属性Key，也将其存到ServletContext中，以便后续使用。这样每个servlet 就持有自己的上下文，即拥有自己独立的bean空间，同时各个servlet共享相同的bean，即根上下文(第2步中初始化的上下文)定义的那些 bean。
+DispatcherServlet是SpringMVC的一个前端控制器，是MVC架构中的C，即controller的实现，用于拦截这个web应用的所有请求，具体为在web.xml中配置这个servlet，对应的url-pattern设置为“/”，或者使用servlet3.0之后的WebApplicationInitializer来配置，在web容器启动这个应用时，会创建和初始化这个DispatcherServlet对象实例。
+
+DispatcherServlet在接收到请求之后，会根据请求的uri信息，找到对应的某个controller的某个方法来处理这个请求。通常在controller对应的类中使用@Controller和@RequestMapping来唯一确定类的一个方法处理哪些uri请求，具体包括路径，http请求方法等信息。同时还需要处理主题theme，本地化locale，multipart请求，以及响应到View视图的映射。
+
+基于以上需求背景，DispatcherServlet需要定义相关的子组件来完成这些功能。由于Spring的ApplicationContext体系结构设计当中是支持层次化的，即整个spring应用包含一个root WebApplicationContext，多个子WebApplicationContext，子WebApplicationContext共享这个root WebApplicationContext。每个DispatcherServlet可以使用一个独立的，只与这个DispatcherServlet实例绑定的WebApplicationContext来创建和管理这些子组件。
+
+这个servlet(Server Applet)实际上是一个标准的前端控制器，用以转发、匹配、处理每个servlet请 求。DispatcherServlet上下文在初始化的时候会建立自己的IoC上下文，用以持有spring mvc相关的bean。在建立DispatcherServlet自己的IoC上下文时，会利用\url{WebApplicationContext.ROOTWEBAPPLICATIONCONTEXTATTRIBUTE} 先从ServletContext中获取之前的根上下文(即WebApplicationContext)作为自己上下文的parent上下文。有了这个 parent上下文之后，再初始化自己持有的上下文。这个DispatcherServlet初始化自己上下文的工作在其initStrategies方 法中可以看到，大概的工作就是初始化处理器映射、视图解析等。这个servlet自己持有的上下文默认实现类也是 mlWebApplicationContext。初始化完毕后，spring以与servlet的名字相关(此处不是简单的以servlet名为 Key，而是通过一些转换，具体可自行查看源码)的属性为属性Key，也将其存到ServletContext中，以便后续使用。这样每个servlet 就持有自己的上下文，即拥有自己独立的bean空间，同时各个servlet共享相同的bean，即根上下文(第2步中初始化的上下文)定义的那些 bean。
 
 1）. 用户发请求-->DispatcherServlet，前端控制器收到请求后自己不进行处理，而是委托给其他的解析器进行处理，作为统一访问点，进行全局的流程控制。
 
@@ -219,12 +225,11 @@ private是声明方法的允许访问范围，偏向于OOP的设计原则,并不
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[scale=0.5]{array-sort.png}
-	\caption{NIO模型}
+	\caption{Array sort排序}
 	\label{fig:arraysort}
 \end{figure}
 
 \subparagraph{对象数据类型排序}
-
 
 对于对象类型的数组，假设数组长度为length：
 
@@ -362,7 +367,9 @@ static int indexFor(int h, int length) {
 
 \paragraph{HashMap put()元素产生冲突，为什么用LinkedList（拉链法）而不用ArrayList解决，产生冲突时key值不等，新元素怎样加入链表，为什么这么设计}
 
-HashMap key冲突属于特殊情况，不是常规情况，ArrayList的初始长度是10，如果使用ArrayList，绝大多数情况下ArrayList只有一个元素，会造成资源的浪费。从ArrayList中删除最后一个元素代价很小，但是删除第一个元素时，需要移动之后的所有元素，代价很大。LinkedList插入和删除复杂度都是O(1)\footnote{\url{https://stackoverflow.com/questions/30414427/why-linkedlist-in-hashmapwhy-not-other-implementation-of-list}}，更严谨的说法是从尾部插入是O(1)，从指定位置插入是O(n)，因为链表是顺序访问，找到元素的复杂度是O(n)。
+HashMap key冲突属于特殊情况，不是常规情况，ArrayList的初始长度是10，如果使用ArrayList，绝大多数情况下ArrayList只有一个元素，会造成资源的浪费。从ArrayList中删除最后一个元素代价很小，但是删除第一个元素时，需要移动之后的所有元素，代价很大。LinkedList插入和删除复杂度都是O(1)\footnote{\url{https://stackoverflow.com/questions/30414427/why-linkedlist-in-hashmapwhy-not-other-implementation-of-list}}，更严谨的说法是从尾部插入是O(1)，从指定位置插入是O(n)，因为链表是顺序访问，找到元素的复杂度是O(n)。在出现hash冲突时首先会判断当前的Node是否是TreeNode，如果是TreeNode则在该TreeNode上添加一个分支。如果不是，那么说明是Node类。在table中只会存在这两个Map.Entry实现类。在所有的Node都有一个next变量，当出现hash冲突时，就会将该Node的next变量赋值为要放入的新的Node，这样在多次冲突后该位置就会形成一个类似于链表的结构，当该链表长度为8时，为了提高性能，就会将该链表替换成树结构的TreeNode。
+
+https://www.cnblogs.com/many-object/p/8909846.html
 
 \paragraph{Iterator和Enumeration区别}
 

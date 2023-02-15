@@ -65,7 +65,7 @@ J.U.C提供的线程池：ThreadPoolExecutor类，帮助开发人员管理线程
 
 \textbf{ThreadFactory 线程创建工厂}ThreadFactory：用于设置创建线程的工厂，可以通过线程工厂给每个创建出来的线程设置更有意义的名字，Debug和定位问题时非常有帮助。
 
-\paragraph{线程池5个状态}
+\paragraph{线程池5个状态}\label{threadpoolcaption}
 
 线程池的5种状态：Running、ShutDown、Stop、Tidying、Terminated。
 
@@ -80,7 +80,7 @@ J.U.C提供的线程池：ThreadPoolExecutor类，帮助开发人员管理线程
 \end{figure}
 
 当线程池调用shutDown()方法时,线程池的状态则立刻变成SHUTDOWN状态。此时，则不能再往线程池中添加任何任务，否则将会抛出RejectedExecutionException异常。但是，此时线程池不会立刻退出，直到添加到线程池中的任务都已经处理完成，才会退出。执行shutDownNow()方法，线程池的状态立刻变成STOP状态，并试图停止所有正在执行的线程，不再处理还在池队列中等待的任务，当然，它会返回那些未执行的任务。 
-它试图终止线程的方法是通过调用Thread.interrupt()方法来实现的，但是大家知道，这种方法的作用有限，如果线程中没有sleep 、wait、Condition、定时锁等应用, interrupt()方法是无法中断当前的线程的。所以，ShutdownNow()并不代表线程池就一定立即就能退出，它可能必须要等待所有正在执行的任务都执行完成了才能退出。 
+它试图终止线程的方法是通过调用Thread.interrupt()方法来实现的，但是大家知道，这种方法的作用有限，如果线程中没有sleep 、wait、Condition、定时锁等应用, interrupt()方法是无法中断当前的线程的。所以，ShutdownNow()并不代表线程池就一定立即就能退出，它可能必须要等待所有正在执行的任务都执行完成了才能退出。 章节\ref{threadcaption}可以参看线程的6种状态。
 
 \paragraph{线程池如何实现线程复用}
 

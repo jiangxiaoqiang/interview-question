@@ -17,4 +17,28 @@
 
 Java 语言中的 volatile 变量可以被看作是一种 “程度较轻的 synchronized”；与 synchronized 块相比，volatile 变量所需的编码较少，并且运行时开销也较少，但是它所能实现的功能也仅是 synchronized 的一部分。volatile 变量具有 synchronized 的可见性特性，但是不具备原子特性。这就是说线程能够自动发现 volatile 变量的最新值。volatile 变量可用于提供线程安全，但是只能应用于非常有限的一组用例：多个变量之间或者某个变量的当前值与修改后值之间没有约束。
 
+\paragraph{happens-before与volatile语义}
+
+从JDK5开始，Java使用新的JSR-133内存模型。JSR-133使用happens-before的概念来阐述操作之间的内存可见性。在JMM中，如果一个操作执行的结果需要对另一个操作可见，以这两个操作之间必须要有happens-before关系。这里提到的两个操作，既可以是在一个线程之内，也可以是在不同的线程之间。与程序员密切相关的happens-before规则如下。
+
+1）程序顺序规则：一个线程中的每个操作，happens-before于该线程的任意后续操作。
+
+2）监视器锁规则：对一个锁的解锁，happens-before于随后对这个锁的加锁。
+
+3）volatile变量规则：对一个volatile域的写，happens-before于任意后续对这个volatile域的读。
+
+4）传递性：如果A happens-before B，B happens-before C，那么A happens-before C.
+
+\paragraph{Java 中如何保证底层操作的有序性和可见性}
+
+Java 中如何保证底层操作的有序性和可见性？可以通过内存屏障。内存屏障是被插入两个 CPU 指令之间的一种指令，用来禁止处理器指令发生重排序（像屏障一样），从而保障有序性的。另外，为了达到屏障的效果，它也会使处理器写入、读取值之前，将主内存的值写入高速缓存，清空无效队列，从而保障可见性。对于上面的一组 CPU 指令（Store 表示写入指令，Load 表示读取指令，StoreLoad 代表写读内存屏障），StoreLoad 屏障之前的 Store 指令无法与 StoreLoad 屏障之后的 Load 指令进行交换位置，即重排序。但是 StoreLoad 屏障之前和之后的指令是可以互换位置的，即 Store1 可以和 Store2 互换，Load2 可以和 Load3 互换。常见有 4 种屏障：
+
+\begin{itemize}
+    \item {LoadLoad 屏障：对于这样的语句 Load1；LoadLoad；Load2，在 Load2 及后续读取操作要读取的数据被访问前，保证 Load1 要读取的数据被读取完毕。}
+    \item {StoreStore 屏障：对于这样的语句 Store1；StoreStore；Store2，在 Store2 及后续写入操作执行前，保证 Store1 的写入操作对其他处理器可见。}
+    \item {LoadStore 屏障：对于这样的语句 Load1；LoadStore；Store2，在 Store2 及后续写入操作被执行前，保证 Load1 要读取的数据被读取完毕。}
+    \item {StoreLoad 屏障：对于这样的语句 Store1；StoreLoad；Load2，在 Load2 及后续所有读取操作执行前，保证 Store1 的写入对所有处理器可见。它的开销是四种屏障中最大的（冲刷写缓冲器，清空无效化队列）。在大多数处理器的实现中，这个屏障是个万能屏障，兼具其他三种内存屏障的功能。}
+\end{itemize}
+
+
 \end{document}
