@@ -19,16 +19,6 @@ SpringApplication的初始化，配置基本的环境变量、资源、构造器
     \item {ConfigrableApplicationContext配置应用上下文：包括配置应用上下文对象、配置基本属性和刷新应用上下文}
 \end{enumerate}
 
-Spring Boot的启动过程可以分为如下4步（基于Servlet容器的we应用）
-
-\begin{enumerate}
-    \item {SpringApplication的创建}
-    \item {SpringApplication的启动}
-    \item {WebServer的创建与启动}
-    \item {DispatcherServlet的注册}
-\end{enumerate}
-
-启动流程主要分为三个部分，第一部分进行SpringApplication的初始化模块，配置一些基本的环境变量、资源、构造器、监听器，第二部分实现了应用具体的启动方案，包括启动流程的监听模块、加载配置环境模块、及核心的创建上下文环境模块，第三部分是自动化配置模块，该模块作为springboot自动配置核心
 
 \end{document}
 

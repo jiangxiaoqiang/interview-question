@@ -4,11 +4,11 @@
 
 \subsection{控制Bean的加载顺序}
 
-1.通过构造方法依赖的方式，来控制有依赖关系的bean之间初始化顺序，但是需要注意循环依赖的问题
+1.通过构造方法依赖的方式，来控制有依赖关系的bean之间初始化顺序，但是需要注意循环依赖的问题。在@Bean标注的方法上，如果你传入了参数，springboot会自动会为这个参数在spring上下文里寻找这个类型的引用。并先初始化这个类的实例。
 
-2.@DependsOn注解，来控制bean之间的实例顺序，需要注意的是bean的初始化方法调用顺序无法保证
+2.@DependsOn注解，来控制bean之间的实例顺序，使用@DependsOn注解到类层面仅仅在使用 component-scanning 方式时才有效，如果带有@DependsOn注解的类通过XML方式使用，该注解会被忽略，<bean depends-on="..."/>这种方式会生效。
 
-3.BeanPostProcessor方式，来手动控制bean的加载顺序
+3.利用bean的生命周期中的扩展点BeanPostProcessor方式，来手动控制bean的加载顺序
 
 4.以上方式只能控制特定的2个Bean的加载顺序，如果需要自定义许多Bean的顺序，可通过实现BeanDefinitionRegistryPostProcessor接口，BeanDefinitionRegistryPostProcessor接口是在Bean定义信息注册后触发，下一步创建Bean实例之前，在所有bean定义信息将要被加载，bean实例还未创建的；优先于BeanFactoryPostProcessor执行；利用BeanDefinitionRegistryPostProcessor给容器中再额外添加一些组件。在postProcessBeanDefinitionRegistry方法中通过BeanDefinitionRegistry获取到所有bean的注册信息，将bean保存到LinkedHashMap中，并从BeanDefinitionRegistry中删除，然后将保存的bean定义排序后，重新再注册到BeanDefinitionRegistry中，即可实现bean加载顺序的控制。
 

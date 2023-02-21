@@ -4,6 +4,13 @@
 
 \subsection{Spring Bean实例化流程}
 
+https://zhuanlan.zhihu.com/p/368720644。Spring IOC容器就好像一个生产产品的流水线上的机器，Spring创建出来的Bean就好像是流水线的终点生产出来的一个个精美绝伦的产品。既然是机器，总要先启动，Spring也不例外。因此Bean的一生从总体上来说可以分为两个阶段：
+
+\begin{itemize}
+    \item {容器启动阶段}
+    \item {Bean实例化阶段}
+\end{itemize}
+
 Spring管理的bean的实例化不是在容器启动的时候做的,容器启动只是把配置的bean从配置文件xml中读到内存里,然后保存成BeanDefinition的形式。实例化开始是当调用getBean(..)的时候才会触发实例化,或者使用ApplicationContext这个容器,因为ApplicationContext在启动的时候会采用非延迟的策略来调用finishBeanFactoryInitialization(beanFactory)来实例化所有注册到容器中的bean,而BeanFactory类型的容器不是getBean的时候一定触发实例化,比如单例类型的bean只在第一次调用getBean触发实例化,后面是从三级缓存中获取的。实例化Spring Bean可以在类AbstractApplicationContext的refresh()方法中查看。实例化 Bean 的大致流程：
 
 遍历所有扫描出来的 BeanDefinition，进行验证：是否 Lazy、是否 prototype、是否 abstract 等等，这一步发生在refresh()方法：
