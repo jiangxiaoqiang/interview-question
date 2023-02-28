@@ -4,6 +4,14 @@
 
 \subsection{PostgreSQL高可用方案}
 
+\paragraph{流复制（streaming replication）}
+
+流复制是PostgreSQL自带的一种高可用集群方案。它通过将主节点上的写操作同步到一个或多个从节点，以实现数据的备份和故障恢复。在流复制中，从节点会与主节点建立一个流式复制的连接，并不断地从主节点接收写操作，并将它们应用到本地的数据库。流复制的主要优点是可靠性高、易于设置和维护，适用于高可用性要求不是特别高的场景。
+
+\paragraph{Pgpool-II}
+
+Pgpool-II是一个PostgreSQL的连接池和负载平衡器，它可以用来实现高可用性和负载均衡。Pgpool-II可以将客户端连接分发到多个PostgreSQL服务器上，并自动处理主节点故障时的故障转移。Pgpool-II的主要优点是可靠性高、易于设置和维护，适用于需要高可用性和负载均衡的场景。
+
 \paragraph{Patroni + Etcd 方案}
 
 使用Patroni管理本地库，并结合Etcd作为数据存储和主节点选举，具有以下优势:

@@ -4,6 +4,21 @@
 
 \subsection{MySQL数据表类型及文件结构}
 
+以下是 MySQL 支持的所有数据表类型：
+
+\begin{itemize}
+    \item {MyISAM}
+    \item {InnoDB}
+    \item {MEMORY (HEAP)}
+    \item {NDB (NDBCLUSTER)}
+    \item {ARCHIVE}
+    \item {CSV}
+    \item {BLACKHOLE}
+    \item {PERFORMANCE\_SCHEMA}用于性能监控和调优。
+    \item {FEDERATED}用于访问远程 MySQL 数据库。
+    \item {Merge}将多个相同结构的表合并为一个逻辑表，方便查询。
+\end{itemize}
+
 MySQL数据表支持六种类型 ，分别是：BDB、HEAP、ISAM、MERGE、MYISAM、InnoBDB。这六种又分为两类，单独一类是BDB，称为"事务安全型"(transaction-safe)，其余都属于第二类，称为“非事务安全型"(non-transaction-safe)。
 
 \paragraph{事务安全型}

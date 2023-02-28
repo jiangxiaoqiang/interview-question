@@ -4,6 +4,12 @@
 
 \subsection{说说TreeMap和HashMap的区别}
 
+\begin{itemize}
+    \item {TreeMap是基于红黑树实现的，它的键是按照自然顺序或者自定义比较器排序的。HashMap是基于哈希表实现的，它的键是通过hashCode()和equals()方法来判断相等的。}
+    \item {TreeMap可以实现NavigableMap接口，提供了一些导航方法，例如firstKey(), lastKey(), lowerKey(), higherKey()等。HashMap没有这些方法，只能遍历所有的键来找到最大或最小的键。}
+    \item {TreeMap在插入、删除和查找元素时，时间复杂度为O(logn)，而HashMap在这些操作时，时间复杂度为O(1)，前提是哈希函数均匀分布和哈希表没有发生冲突。因此，在性能上，HashMap通常比TreeMap快一点。}
+\end{itemize}
+
 性能区别 HashMap的底层是Array，所以HashMap在添加，查找，删除等方法上面速度会非常快。 而TreeMap的底层是一个Tree结构，所以速度会比较慢。 另外HashMap因为要保存一个Array，所以会造成空间的浪费，而TreeMap只保存要保持的节点，所以占用的空间比较小。
 HashMap是基于散列表实现的，时间复杂度平均能达到O(1)。 TreeMap基于红黑树（一种自平衡二叉查找树）实现的， 红黑树操作比如插入、删除和查找某个值的最坏情况时间都要求与树的高度成比例，这个在高度上的理论上限允许红黑树在最坏情况下都是高效的。 所以红黑树是复杂而高效的，其检索效率 O(logn) ，最大深度为 2log(n+1)。时间复杂度平均能达到O(log n)。TreeMap：适用于按自然顺序或自定义顺序遍历键(key)。HashMap、TreeMap都继承AbstractMap抽象类；TreeMap实现SortedMap接口，所以TreeMap是有序的！HashMap是无序的.
 

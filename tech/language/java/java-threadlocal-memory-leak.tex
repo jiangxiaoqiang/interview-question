@@ -1,0 +1,16 @@
+\documentclass[../../../interview-questions.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Java ThreadLocal会内存泄漏吗}
+
+ThreadLocal内存泄漏是指当使用线程池时，如果不及时清除ThreadLocal变量，可能导致内存占用过多，甚至造成OutOfMemoryError。这是因为ThreadLocal变量是存储在每个线程的ThreadLocalMap中的，而ThreadLocalMap的生命周期和线程一样长。为了避免ThreadLocal内存泄漏，有以下几种方法：
+
+\begin{itemize}
+    \item {在使用完ThreadLocal变量后，调用remove()方法将其从ThreadLocalMap中移除。}
+    \item {使用try-finally块来确保remove()方法被执行。}
+    \item {使用自定义的InheritableThreadLocal类来覆盖childValue()方法，使得子线程能够继承父线程的值，并在子线程结束时清除该值。}
+    \item {使用WeakReference包装ThreadLocal变量，使得它能够被垃圾回收器回收。}
+\end{itemize}
+
+\end{document}

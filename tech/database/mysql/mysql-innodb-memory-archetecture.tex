@@ -4,7 +4,7 @@
 
 \subsection{MySQL之InnoDB内存结构}
 
-Innodb的内存结构主要分为 3 个部分： Buffer Pool、Change Buffer、Adaptive Hash Index，另外还有一个（redo）log buffer。MySQL 8.0内存结构如图\ref{fig:innodbmemory}所示，官方地址\footnote{\url{https://dev.mysql.com/doc/refman/8.0/en/innodb-architecture.html}}。
+InnoDB的内存结构主要分为 3 个部分： 缓冲池Buffer Pool、Change Buffer、自适应哈希索引Adaptive Hash Index，另外还有一个（redo）log buffer。MySQL 8.0内存结构如图\ref{fig:innodbmemory}所示，官方地址\footnote{\url{https://dev.mysql.com/doc/refman/8.0/en/innodb-architecture.html}}。
 
 \begin{figure}[htbp]
     \centering
@@ -29,6 +29,8 @@ Innodb的内存结构主要分为 3 个部分： Buffer Pool、Change Buffer、A
 
 https://www.cnblogs.com/tracydzf/p/15788762.html
 
+\paragraph{自适应哈希索引（Adaptive Hash Index）}
 
+自适应哈希索引（Adaptive Hash Index）：自适应哈希索引是InnoDB用来加速索引查找的一种索引结构。它使用了一些内存结构来缓存哈希索引的数据，以减少对磁盘的读取操作。
 
 \end{document}

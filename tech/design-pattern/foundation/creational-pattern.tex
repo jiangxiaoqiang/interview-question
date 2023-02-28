@@ -41,7 +41,7 @@ public class Singleton {
 }
 \end{lstlisting}
 
-禁止指令重排优化这条语义直到JDK 1.5以后才能正确工作。此前的JDK中即使将变量声明为volatile也无法完全避免重排序所导致的问题。所以，在JDK 1.5版本前，双重检查锁形式的单例模式是无法保证线程安全的\footnote{\url{https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html}}。
+为什么要两次检查呢？假设有两个线程同时调用 getInstance() 方法，它们都检查到 instance 为空，然后都进入了同步代码块，线程 A 创建了一个实例并返回，线程 B 也会创建一个实例并返回。这样就会导致单例模式失效，因为两个不同的实例被创建了。禁止指令重排优化这条语义直到JDK 1.5以后才能正确工作。此前的JDK中即使将变量声明为volatile也无法完全避免重排序所导致的问题。所以，在JDK 1.5版本前，双重检查锁形式的单例模式是无法保证线程安全的\footnote{\url{https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html}}。
 
 \subparagraph{静态内部类写法}
 

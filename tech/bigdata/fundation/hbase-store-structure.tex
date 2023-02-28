@@ -4,8 +4,16 @@
 
 \subsection{HBase底层存储结构}
 
-HBase是Google的BigTable的开源实现，底层存储引擎是基于LSM-Tree\footnote{\url{https://fhfirehuo.github.io/Attacking-Java-Rookie/Chapter02/LSMTree.html}}数据结构设计的。LSM树(Log-Structured-Merge-Tree)的名字往往会给初识者一个错误的印象，事实上，LSM树并不像B+树、红黑树一样是一颗严格的树状数据结构，它其实是一种存储结构，目前HBase,LevelDB,RocksDB这些NoSQL存储都是采用的LSM树。LSM树的核心特点是利用顺序写来提高写性能，但因为分层(此处分层是指的分为内存和文件两部分)的设计会稍微降低读性能，但是通过牺牲小部分读性能换来高性能写，使得LSM树成为非常流行的存储结构。写入数据时会先写WAL日志，再将数据写到写缓存MemStore中，等写缓存达到一定规模后或满足其他触发条件才会flush刷写到磁盘，这样就将磁盘随机写变成了顺序写，提高了写性能。每一次刷写磁盘都会生成新的HFile文件。
+HBase是Google的BigTable的开源实现，底层存储引擎是基于LSM-Tree\footnote{\url{https://fhfirehuo.github.io/Attacking-Java-Rookie/Chapter02/LSMTree.html}}数据结构设计的。LSM树(Log-Structured-Merge-Tree)的名字往往会给初识者一个错误的印象，事实上，LSM树并不像B+树、红黑树一样是一颗严格的树状数据结构，它其实是一种存储结构，目前HBase,LevelDB,RocksDB这些NoSQL存储都是采用的LSM树。LSM树的核心特点是利用顺序写来提高写性能，但因为分层(此处分层是指的分为内存和文件两部分)的设计会稍微降低读性能，但是通过牺牲小部分读性能换来高性能写，使得LSM树成为非常流行的存储结构。写入数据时会先写WAL日志，再将数据写到写缓存MemStore中，等写缓存达到一定规模后或满足其他触发条件才会flush刷写到磁盘，这样就将磁盘随机写变成了顺序写，提高了写性能。每一次刷写磁盘都会生成新的HFile文件。HBase是基于Hadoop的分布式列存储系统，采用了LSM树（Log-Structured Merge Tree）来实现数据的存储和管理。下面是一些HBase采用LSM树的原因：
 
+\begin{enumerate}
+    \item {支持高并发写入：HBase的数据访问主要是基于行键的读写，由于数据量非常庞大，写入操作非常频繁，因此需要采用一种高效的数据结构来支持高并发的写入操作。LSM树具有高吞吐量、高并发性能和低延迟的特点，可以满足HBase高并发写入的需求。}
+    \item {提高数据写入效率：LSM树是一种基于磁盘的数据结构，可以将数据写入磁盘的顺序操作转化为随机的磁盘操作，从而提高写入效率。同时，LSM树采用了类似于WAL（Write-Ahead Logging）的机制，保证了数据的可靠性和一致性。}
+    \item {适应大规模数据存储：HBase是一种适用于海量数据存储和分析的数据库系统，因此需要一种高效的存储结构来支持海量数据的存储和管理。LSM树是一种基于磁盘的数据结构，可以支持海量数据的存储和管理，同时也可以有效地利用内存和磁盘的存储空间。}
+    \item {支持数据的版本管理：HBase支持数据的版本管理，即在写入新的数据时，会自动保存旧的数据版本。LSM树也能很好地支持数据的版本管理，通过将数据写入磁盘中的多个不同层次的文件中，可以有效地管理数据的版本。}
+\end{enumerate}
+
+总之，HBase采用LSM树的原因主要是因为LSM树可以提供高效、高并发的写入操作，同时也能支持大规模数据存储和管理，适应了HBase海量数据存储和版本管理的需求。
 
 \end{document}
 

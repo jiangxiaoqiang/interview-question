@@ -4,6 +4,16 @@
 
 \subsection{\color{red}{synchronized的实现原理是什么}}
 
+在 Java 中，synchronized 关键字用于实现多线程之间的同步，保证多个线程在执行共享资源时的互斥性和可见性。synchronized 的实现原理主要基于对象的监视器（Monitor）和内部锁（Intrinsic Lock）。内部锁的实现原理基于底层的操作系统调用，主要包括以下几个步骤：
+
+\begin{enumerate}
+    \item {每个对象都有一个头部信息，其中包括一个标记字段来表示该对象是否被锁定。}
+    \item {当一个线程进入 synchronized 代码块时，如果该对象的标记字段为未锁定状态，那么该线程会将这个标记字段设置为锁定状态，并继续执行代码块中的内容。}
+    \item {如果该对象的标记字段为锁定状态，那么该线程就会被阻塞，并将自己加入到该对象的等待队列中。}
+    \item {当该对象的锁被释放时，Java 虚拟机会选择一个等待队列中的线程唤醒，并将其从等待队列中移除。}
+    \item {被唤醒的线程再次尝试获取该对象的锁，如果获取成功，那么该线程就可以继续执行 synchronized 代码块中的内容。}
+\end{enumerate}
+
 synchronized 是由一对 monitorenter/monitorexit 指令实现的，monitor对象是同步的基本实现单元。在 Java 6 之前，monitor 的实现完全是依靠操作系统内部的互斥锁，因为需要进行用户态到内核态的切换，所以同步操作是一个无差别的重量级操作，性能也很低。但在 Java 6 的时候，Java 虚拟机 对此进行了大刀阔斧地改进，提供了三种不同的 monitor 实现，也就是常说的三种不同的锁：偏向锁（Biased Locking）、轻量级锁和重量级锁，大大改进了其性能。在Java虚拟机（HotSpot）中，Monitor是由ObjectMonitor实现的，其主要数据结构如下（位于HotSpot虚拟机源码ObjectMonitor.hpp文件，C++实现的）。
 
 \begin{lstlisting}[language=C++]

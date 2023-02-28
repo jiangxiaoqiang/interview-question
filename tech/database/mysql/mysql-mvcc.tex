@@ -4,7 +4,9 @@
 
 \subsection{MySQL MVCC实现}
 
-MVCC(Multi-Version Concurrency Control)在MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突，做到即使有读写冲突时，也能做到不加锁，非阻塞并发读。MVCC实现的要点是隐藏列、Undo Log和Read View。隐藏列，一个保存了行的创建时间，一个保存行的过期时间（或删除时间）。当然存储的并不是实际的时间值，而是系统版本号（system version number)。每开始一个新的事务，系统版本号都会自动递增。事务开始时刻的系统版本号会作为事务的版本号，用来和查询到的每行记录的版本号进行比较。
+MVCC（Multi-Version Concurrency Control）是MySQL中实现并发控制的一种方式，可以在多个事务同时对数据库进行读写操作时，保证数据的一致性和并发性。MVCC(Multi-Version Concurrency Control)在MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突，做到即使有读写冲突时，也能做到不加锁，非阻塞并发读。MVCC实现的要点是隐藏列、Undo Log和Read View。隐藏列，一个保存了行的创建时间，一个保存行的过期时间（或删除时间）。当然存储的并不是实际的时间值，而是系统版本号（system version number)。每开始一个新的事务，系统版本号都会自动递增。事务开始时刻的系统版本号会作为事务的版本号，用来和查询到的每行记录的版本号进行比较。
+
+MVCC的实现是通过在每行数据上添加多个版本来实现的，每个版本包含一个时间戳（或者是事务ID），表示该版本的创建时间。当事务要读取一行数据时，它将获取该行中时间戳最大的版本（也就是最新的版本），如果该行的最大时间戳大于事务的启动时间戳，那么该行的数据对于该事务来说是不可见的，否则该行的数据可供该事务读取。
 
 \paragraph{隐藏列}
 
@@ -45,8 +47,8 @@ MVCC(Multi-Version Concurrency Control)在MySQL InnoDB中的实现主要是为�
 \end{lstlisting}
 
 \begin{itemize}
-    \item {首先比较DB\_TRX\_ID < up\_limit\_id, 如果小于，则当前事务能看到DB\_TRX\_ID 所在的记录，如果大于等于进入下一个判断}
-    \item {接下来判断 DB\_TRX\_ID 大于等于 low\_limit\_id , 如果大于等于则代表DB\_TRX\_ID 所在的记录在Read View生成后才出现的，那对当前事务肯定不可见，如果小于则进入下一个判断 }
+    \item {首先比较DB\_TRX\_ID < up\_limit\_id, 如果小于，则当前事务能看到\url{DB\_TRX\_ID} 所在的记录，如果大于等于进入下一个判断}
+    \item {接下来判断 DB\_TRX\_ID 大于等于 low\_limit\_id , 如果大于等于则代表\url{DB\_TRX\_ID} 所在的记录在Read View生成后才出现的，那对当前事务肯定不可见，如果小于则进入下一个判断 }
     \item {判断DB\_TRX\_ID 是否在活跃事务之中，trx\_list.contains(DB\_TRX\_ID)，如果在，则代表我Read View生成时刻，你这个事务还在活跃，还没有Commit，你修改的数据，我当前事务也是看不见的；如果不在，则说明，你这个事务在Read View生成之前就已经Commit了，你修改的结果，我当前事务是能看见的}
 \end{itemize}
 

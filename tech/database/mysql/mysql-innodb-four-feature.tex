@@ -4,7 +4,7 @@
 
 \subsection{MySQL之InnoDB引擎的4大特性}
 
-InnoDB引擎的4大特性分别是插入缓冲(Insert Buffer)、二次写(Double Write)、自适应哈希索引(Adaptive Hash Index，AHI)。
+InnoDB引擎的4大特性分别是插入缓冲(Insert Buffer)、二次写(Double Write)、自适应哈希索引(Adaptive Hash Index，AHI)、以及预读(Read Ahead)。
 
 https://www.dounaite.com/article/627a65d1ac359fc91329676e.html
 
@@ -18,7 +18,7 @@ Insert Buffer是怎么做的呢？MySQL对于非聚集索引的插入，先去�
 
 \paragraph{二次写(Double Write)}
 
-在InnoDB将Buffer Pool中的Dirty Page刷（flush）到磁盘上时，首先会将（memcpy函数）Page刷到InnoDB System Tablespace的一个区域中，我们称该区域为Doublewrite Buffer（大小为2MB，每次写入1MB，128个页，每个页16k,其中120个页为后台线程的批量刷Dirty Page，还有8个也是为了前台起的sigle Page Flash线程，用户可以主动请求，并且能迅速的提供空余的空间）。在向Doublewrite Buffer写入成功后，第二步、再将数据分别刷到一个共享空间和真正应该存在的位置。
+保证数据完整性，将数据页先写入一个连续的区域，再写入目标位置。在InnoDB将Buffer Pool中的Dirty Page刷（flush）到磁盘上时，首先会将（memcpy函数）Page刷到InnoDB System Tablespace的一个区域中，我们称该区域为Doublewrite Buffer（大小为2MB，每次写入1MB，128个页，每个页16k,其中120个页为后台线程的批量刷Dirty Page，还有8个也是为了前台起的sigle Page Flash线程，用户可以主动请求，并且能迅速的提供空余的空间）。在向Doublewrite Buffer写入成功后，第二步、再将数据分别刷到一个共享空间和真正应该存在的位置。
 
 MySQL可以根据redolog进行恢复,而MySQL在恢复的过程中是检查page的checksum, checksum就是pgae的最后事务号,发生partial page write问题时. Dirty Page经损坏,找不到该page中的事务号就无法恢复。
 
@@ -32,11 +32,11 @@ MySQL可以根据redolog进行恢复,而MySQL在恢复的过程中是检查page�
 
 \paragraph{自适应哈希索引(Adaptive Hash Index，AHI)}
 
-哈希算法是一种非常快的查找方法，在一般情况（没有发生hash冲突）下这种查找的时间复杂度为O(1)。InnoDB存储引擎会监控对表上辅助索引页的查询。如果观察到建立hash索引可以提升性能，就会在缓冲池建立hash索引，称之为自适应哈希索引（Adaptive Hash Index，AHI）。
+提高查询速度，根据访问频率自动建立哈希索引。哈希算法是一种非常快的查找方法，在一般情况（没有发生hash冲突）下这种查找的时间复杂度为O(1)。InnoDB存储引擎会监控对表上辅助索引页的查询。如果观察到建立hash索引可以提升性能，就会在缓冲池建立hash索引，称之为自适应哈希索引（Adaptive Hash Index，AHI）。
 
 \paragraph{预读(Read Ahead)}
 
-预读（read-ahead)操作是一种IO操作，用于异步将磁盘的页读取到buffer pool中，预料这些页会马上被读取到。预读请求的所有页集中在一个范围内。InnoDB使用两种预读算法：
+预测数据页的访问顺序，提前读取相邻的数据页。预读（read-ahead)操作是一种IO操作，用于异步将磁盘的页读取到buffer pool中，预料这些页会马上被读取到。预读请求的所有页集中在一个范围内。InnoDB使用两种预读算法：
 
 Linear read-ahead：线性预读技术预测在buffer pool中被访问到的数据它临近的页也会很快被访问到。能够通过调整被连续访问的页的数量来控制InnoDB的预读操作，使用参数 innodb\_read\_ahead\_threshold配置，添加这个参数前，InnoDB会在读取到当前区段最后一页时才会发起异步预读请求
 innodb\_read\_ahead\_threshold 这个参数控制InnoDB在检测顺序页面访问模式时的灵敏度。如果在一个区块顺序读取的页数大于或者等于 innodb\_read\_ahead\_threshold 这个参数，InnoDB启动预读操作来读取下一个区块。innodb\_read\_ahead\_threshold参数值的范围是 0-64，默认值为56. 这个值越高则访问默认越严格。比如，如果设置为48，在当前区块中当有48个页被顺序访问时，InnoDB就会启动异步的预读操作，如果设置为8，则仅仅有8个页被顺序访问就会启动异步预读操作。你可以在MySQL配置文件中设置这个值，或者通过SET GLOBAL 语句动态修改（需要有set global 权限）。

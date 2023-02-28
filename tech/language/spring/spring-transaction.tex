@@ -5,7 +5,7 @@
 
 \subsection{Spring事务原理}
 
-在应用系统调用声明@Transactional 的目标方法时，Spring Framework 默认使用 AOP 代理，在代码运行时生成一个代理对象，根据@Transactional 的属性配置信息，这个代理对象决定该声明@Transactional 的目标方法是否由拦截器 TransactionInterceptor 来使用拦截，在 TransactionInterceptor 拦截时，会在在目标方法开始执行之前创建并加入事务，并执行目标方法的逻辑, 最后根据执行情况是否出现异常，利用抽象事务管理器(图 2 有相关介绍)AbstractPlatformTransactionManager 操作数据源 DataSource 提交或回滚事务。https://zhuanlan.zhihu.com/p/98980533。@Transactional实现原理三要素切面、切点、通知
+Spring声明式事务的实现原理是基于AOP（面向切面编程）的。Spring使用TransactionInterceptor作为切面类，拦截需要进行事务管理的方法，根据方法的执行情况调用PlatformTransactionManager接口来控制事务的开始、提交和回滚。Spring还使用ProxyFactoryBean或者AnnotationTransactionAspect来生成目标对象的代理对象，使得目标对象可以被TransactionInterceptor拦截。在应用系统调用声明@Transactional 的目标方法时，Spring Framework 默认使用 AOP 代理，在代码运行时生成一个代理对象，根据@Transactional 的属性配置信息，这个代理对象决定该声明@Transactional 的目标方法是否由拦截器 TransactionInterceptor 来使用拦截，在 TransactionInterceptor 拦截时，会在在目标方法开始执行之前创建并加入事务，并执行目标方法的逻辑, 最后根据执行情况是否出现异常，利用抽象事务管理器(图 2 有相关介绍)AbstractPlatformTransactionManager 操作数据源 DataSource 提交或回滚事务。https://zhuanlan.zhihu.com/p/98980533。@Transactional实现原理三要素切面、切点、通知
 
 \begin{enumerate}
     \item {InfrastructureAdvisorAutoProxyCreator后置处理器拦截所有Bean}

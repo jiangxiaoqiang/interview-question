@@ -16,4 +16,9 @@ ConcurrentHashMap是基于Segment分段锁来实现的，这句话也不能说�
 
 ConcurrentHashMap中synchronized只锁定当前链表或红黑二叉树的首节点，只要节点hash不冲突，就不会产生并发。
 
+\paragraph{关于ConcurrentHashMap的key和value不能为null的深层次原因}
+
+原作者认为，在ConcurrentMaps (ConcurrentHashMaps, ConcurrentSkipListMaps)上，不允许null值的出现的主要原因是他可能会在并发的情况下带来难以容忍的二义性。如果在HashMap等非并发容器中，你可以通过contains方法来判断，这个key是究竟不存在，还是本来就是null。但是在并发容器中，如果允许空值的存在的话，你就没法判断真正的情况。用作者的话说就是：在Maps或者Sets集合中允许null值的存在，就是公开邀请错误进入你的程序。而这些错误，只有在发生错误的情况下才能被发现。
+
+
 \end{document}

@@ -2,7 +2,19 @@
 
 \begin{document}
 
-\subsection{\color{red}{MySQL锁}}
+\subsection{\color{red}{MySQL的锁类型}}
+
+MySQL中常见的锁类型有以下几种：
+
+\begin{itemize}
+    \item {行锁（row lock）：锁定表中某一行数据，只允许一个事务修改该行数据，其他事务需要等待}
+    \item {表锁（table lock）：锁定整个表，其他事务无法修改该表中的任何数据，只有等待该事务完成之后才能进行操作。}
+    \item {共享锁（shared lock）：允许多个事务读取同一行数据，但只允许一个事务修改该行数据。}
+    \item {排它锁（exclusive lock）：禁止其他事务读取或修改被锁定的行数据，只允许当前事务对该行数据进行读写操作。}
+    \item {意向锁（intention lock）：表示事务在对表中某个范围的行进行操作时，需要对该范围进行锁定，以避免其他事务同时对范围内的行进行操作。}
+    \item {记录锁（record lock）：锁定行数据的一个部分，只允许一个事务修改该部分数据，但不会锁定整个行数据。}
+    \item {间隙锁（gap lock）：锁定两个记录之间的间隙，防止其他事务向该间隙中插入数据，以避免幻读（phantom read）的问题。}
+\end{itemize}
 
 MySQL的锁属于基础类型的知识，必须要掌握。在MySQL当中，关于InnoDB的锁类型总共可以分为四种\footnote{参考：\url{https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html}}，分别是:
 

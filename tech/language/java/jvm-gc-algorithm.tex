@@ -19,6 +19,7 @@
     刚生成的对象一般是在Eden区，当Eden区满了后，就进行一次新生代GC。将存活的对象复制到Survivor 0区，此时Survivor 1区是空白的。接着将新生成的对象放到Eden区，直到Survivor 0区也满了，则将Eden区和Survivor 0区的存活对象复制到Survivor 1区，清理Eden和Survivor 0，此时，Survivor 0区变成空白的，Survivor 0和Survivor 1 区功能互换（即eden区满了则GC后放到Survivor 1区）。
     每当对象熬过一次新生代GC，则年龄+1，直到15（默认的，可修改）后，将其复制到老年代。
     老年代中存放一些生命周期比较长的对象，或者是一些大对象。老年代GC的频率比较低，标记存活率高。老年代一般采用标记-整理算法。
+    \item {增量式垃圾回收算法（Incremental Collection）。}该算法将垃圾回收过程分为多个阶段，并在每个阶段之间让应用程序继续执行。增量式垃圾回收算法可以降低垃圾回收时的停顿时间，但是可能会降低垃圾回收的效率。
 \end{enumerate}
 
 
