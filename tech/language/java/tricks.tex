@@ -118,44 +118,8 @@ System.out.println(l1.longValue()<l2.longValue());
 “引用”，在Java中指的是一个对象对另一对象的使用（指向）。WeakHashMap中的键的类型是WeakReference，在Java中还有另外两种引用：强引用（Strong Reference）、软引用（Soft Reference）。被SoftReference指向的对象可能会被垃圾收集器回收，但是只有在JVM内存不够的情况下才会回收,当一个对象仅仅被WeakReference引用时，在下个垃圾收集周期时候该对象就会被回收。有的时候HashMap中的对象不再使用，此时需要手动删除元素，才能够释放内存，但是有时候找出来不使用的元素比较繁琐，此时就可以使用WeakHashMap来自动释放内存，详细可以参考\footnote{\url{https://www.ibm.com/developerworks/cn/java/j-jtp11225/index.html}}。
 
 
-
-
 \paragraph{泛型(Generic)-参数化类型}
 
-Java语言引入泛型的好处是安全简单，可以在在编译的时候检查类型安全，避免由于类型转换失败程序在运行时抛出异常。同时，泛型还可以消除代码中许多的强制类型转换(强制类型转换很消耗性能)，带来了性能上的收益，并且所有的强制转换都是自动和隐式的，泛型也提高代码的重用率。
-
-\paragraph{类型擦除(Type Erasure)}
-
-泛型的实现思路有两种\footnote{\url{https://www.cnblogs.com/fsjohnhuang/p/4288614.html}}：
-
-
-
-C++的模板和C\# 就是典型的Code Specialization。由于在程序中出现N种L泛型List则会生成N个Class实例，因此会造成代码膨胀（Code Bloat）。而Java则采用Code Sharing的思路，并通过类型擦除（Type Erasure）来实现。类型擦除的过程大致分为两步：
-
-
-用如下代码片段来观察类型擦除，在没有类型搽除前：
-
-\begin{lstlisting}[language=Java]
-Map<String, String> map = new HashMap<String, String>();
-map.put("hello", "你好");
-\end{lstlisting}
-
-采用javac编译后，查看泛型擦除后的代码为：
-
-\begin{lstlisting}[language=Java]
-HashMap var1 = new HashMap();
-var1.put("hello", "你好");
-\end{lstlisting}
-
-擦除法所谓的擦除，仅仅是对方法的 Code 属性中的字节码进行擦除，实际上元数据中还是保留了泛型信息，这也是我们能通过反射手段取得参数化类型的根本依据。
-
-\paragraph{获取实际类型}
-
-既然泛型擦除了类型，那么怎么获取到实际到类型呢\footnote{\url{https://blog.csdn.net/hj7jay/article/details/54889717}}？
-
-在Java中，泛型类型虽然被擦除了\footnote{参见：\url{https://segmentfault.com/a/1190000020382440}}，但是被擦除的类型信息还是会以某种形式存储下来，并支持在运行时获取。这种形式就是指元素附加的签名信息（Signatures）,谷歌是这么定义Signatures：
-
-Signatures encode declarations written in Java programming language that use types outside the type system of the Java Virtual Machine. They support reflection and debugging, as well as compilation when only class files are available.
 
 \paragraph{字符串比较}
 

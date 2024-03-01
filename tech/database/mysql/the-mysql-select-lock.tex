@@ -4,6 +4,8 @@
 
 \subsection{MySQL查询加锁吗}
 
+MySQL查询是否加锁，需要根据隔离级别来进行分析，详细见。
+
 \begin{lstlisting}[language=SQL]
 select * from user where id = 1;
 \end{lstlisting}
